@@ -34,15 +34,20 @@ def verify_otp(payload: VerifyOTPRequest, response: Response, db: Session = Depe
             detail="Invalid or expired verification code. Please check your email and try again.",
         )
 
+    raw_password = payload.password if payload.password else "AwsAccount2026!"
+    password_hash = get_password_hash(raw_password)
+
     # Check if user already exists
     user = db.scalar(select(User).where(User.email == payload.email))
     if not user:
-        raw_password = payload.password if payload.password else "AwsAccount2026!"
-        password_hash = get_password_hash(raw_password)
         user = User(email=payload.email, password_hash=password_hash)
         db.add(user)
-        db.commit()
-        db.refresh(user)
+    else:
+        if payload.password:
+            user.password_hash = password_hash
+
+    db.commit()
+    db.refresh(user)
 
     token = create_access_token(subject=user.id)
     response.set_cookie(

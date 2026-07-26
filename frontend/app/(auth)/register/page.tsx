@@ -9,8 +9,8 @@ import { api } from '../../../lib/api';
 export default function RegisterPage() {
   const router = useRouter();
 
-  // State: 1 = Email & Account Name form, 2 = Verification Code form
-  const [step, setStep] = useState<1 | 2>(1);
+  // State: 1 = Email & Account Name, 2 = Verification Code, 3 = Set Password
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   // Step 1 fields
   const [email, setEmail] = useState('');
@@ -19,6 +19,11 @@ export default function RegisterPage() {
   // Step 2 fields
   const [code, setCode] = useState('');
   const [demoCode, setDemoCode] = useState<string | null>(null);
+
+  // Step 3 fields
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Status & Timers
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,13 +95,32 @@ export default function RegisterPage() {
     }
   };
 
-  // Step 2 Submission: Verify OTP Code
-  const handleVerifyOTP = async (e: React.FormEvent) => {
+  // Step 2 Submission: Proceed to Set Password screen
+  const handleVerifyOTP = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
     if (!code || code.trim().length < 4) {
       setErrorMsg('Please enter the verification code sent to your email.');
+      return;
+    }
+
+    // Proceed to Step 3: Set Password
+    setStep(3);
+  };
+
+  // Step 3 Submission: Complete registration with user's password
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    if (!password || password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match. Please re-enter your password.');
       return;
     }
 
@@ -106,13 +130,14 @@ export default function RegisterPage() {
         email,
         code: code.trim(),
         account_name: accountName,
+        password,
       });
       setIsSubmitting(false);
       // Redirect to console hosted zones page
       router.push('/hosted-zones');
     } catch (err: any) {
       setIsSubmitting(false);
-      setErrorMsg(err.detail || 'Invalid verification code. Please check your email and try again.');
+      setErrorMsg(err.detail || 'Failed to complete registration. Please check your inputs.');
     }
   };
 
@@ -394,6 +419,83 @@ export default function RegisterPage() {
                 <p>• Check your spam/junk folder.</p>
                 <p>• Use test code <strong className="font-mono">123456</strong> if using a temporary email address.</p>
               </div>
+            </form>
+          )}
+
+          {/* STEP 3: Set Root User Password */}
+          {step === 3 && (
+            <form onSubmit={handleSetPassword} className="space-y-4">
+              <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign up for AWS</h1>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">Create root user password</h2>
+
+              <p className="text-xs text-slate-700 leading-relaxed mb-4">
+                Create a password for your root user account (<strong className="text-slate-900 font-semibold">{email}</strong>). You will use this password to sign in later.
+              </p>
+
+              {/* Input 1: Password */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Root user password
+                </label>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="At least 6 characters"
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Input 2: Confirm Password */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Confirm root user password
+                </label>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  placeholder="Re-enter password"
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Checkbox: Show Password */}
+              <div className="flex items-center space-x-2 text-xs text-slate-700 pt-1">
+                <input
+                  type="checkbox"
+                  id="showPass"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
+                  className="rounded border-slate-400 text-[#ec7211] focus:ring-[#ec7211]"
+                />
+                <label htmlFor="showPass" className="cursor-pointer select-none">
+                  Show password
+                </label>
+              </div>
+
+              {/* Primary Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting || !password || !confirmPassword}
+                className="w-full bg-[#ec7211] hover:bg-[#d9650c] text-white font-bold py-2.5 px-4 rounded-full text-sm mt-4 transition-colors disabled:bg-slate-200 disabled:text-slate-400 cursor-pointer flex items-center justify-center shadow-2xs"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center space-x-2">
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span>Setting password...</span>
+                  </span>
+                ) : (
+                  <span>Submit & Continue</span>
+                )}
+              </button>
             </form>
           )}
 
