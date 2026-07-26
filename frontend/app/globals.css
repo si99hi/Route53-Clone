@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 243, 244, 246;
+  /* Gray 100 bg */
+}
+
+html {
+  font-size: 112.5%; /* Increases base scale from 16px to 18px */
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: "Inter", sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Custom AWS Sidebar Scrollbar */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: #aab7c4;
+  border-radius: 9999px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8795a5;
+}
+
+@layer utilities {
+  .text-\[11px\] {
+    font-size: 0.8125rem !important; /* ~13px */
+  }
+  .text-xs {
+    font-size: 0.875rem !important; /* ~14px */
+    line-height: 1.25rem !important;
+  }
+  .text-sm {
+    font-size: 1rem !important; /* ~16px */
+    line-height: 1.5rem !important;
+  }
+  .text-base {
+    font-size: 1.0625rem !important; /* ~17px */
+    line-height: 1.625rem !important;
+  }
+}
