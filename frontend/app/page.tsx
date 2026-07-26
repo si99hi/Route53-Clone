@@ -20,7 +20,6 @@ export default function LandingPage() {
   // Helper for irrelevant / non-functional buttons
   const inactiveProps = {
     onClick: (e: React.MouseEvent) => e.preventDefault(),
-    className: "cursor-not-allowed opacity-75 hover:opacity-75 select-none",
     title: "Button disabled in demo",
   };
 
