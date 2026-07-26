@@ -15,8 +15,16 @@ COOKIE_NAME = "session_token"
 
 
 @router.post("/send-otp")
-def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks):
+def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Send verification OTP code to user email in background."""
+    if payload.is_signup:
+        existing_user = db.scalar(select(User).where(User.email == payload.email))
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="An account with this email address already exists. Please sign in instead.",
+            )
+
     code = generate_otp()
     store_otp(payload.email, code)
     # Trigger non-blocking background task to send email via SMTP
@@ -27,6 +35,14 @@ def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks):
 @router.post("/verify-otp", response_model=AuthResponse)
 def verify_otp(payload: VerifyOTPRequest, response: Response, db: Session = Depends(get_db)) -> AuthResponse:
     """Verify OTP code and create/login user."""
+    if payload.is_signup:
+        existing_user = db.scalar(select(User).where(User.email == payload.email))
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="An account with this email address already exists. Please sign in instead.",
+            )
+
     is_valid = verify_otp_code(payload.email, payload.code)
     if not is_valid:
         raise HTTPException(

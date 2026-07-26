@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await api.sendOTP({ email, account_name: accountName });
+      const res = await api.sendOTP({ email, account_name: accountName, is_signup: true });
       setIsSubmitting(false);
       if (res.code) {
         setDemoCode(res.code);
@@ -83,7 +83,7 @@ export default function RegisterPage() {
     setErrorMsg(null);
     setIsSubmitting(true);
     try {
-      const res = await api.sendOTP({ email, account_name: accountName });
+      const res = await api.sendOTP({ email, account_name: accountName, is_signup: true });
       setIsSubmitting(false);
       if (res.code) {
         setDemoCode(res.code);
@@ -131,6 +131,7 @@ export default function RegisterPage() {
         code: code.trim(),
         account_name: accountName,
         password,
+        is_signup: true,
       });
       setIsSubmitting(false);
       // Redirect to console hosted zones page

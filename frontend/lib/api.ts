@@ -105,14 +105,14 @@ async function request<T>(
 
 export const api = {
   // Auth
-  async sendOTP(payload: { email: string; account_name?: string }): Promise<{ message: string; email: string; code?: string }> {
+  async sendOTP(payload: { email: string; account_name?: string; is_signup?: boolean }): Promise<{ message: string; email: string; code?: string }> {
     return request<{ message: string; email: string; code?: string }>('/auth/send-otp', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
   },
 
-  async verifyOTP(payload: { email: string; code: string; account_name?: string; password?: string }): Promise<User> {
+  async verifyOTP(payload: { email: string; code: string; account_name?: string; password?: string; is_signup?: boolean }): Promise<User> {
     const res = await request<AuthResponse>('/auth/verify-otp', {
       method: 'POST',
       body: JSON.stringify(payload),

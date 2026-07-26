@@ -65,41 +65,41 @@ export default function ZoneTable({
   if (isLoading) {
     return (
       <div className="w-full overflow-x-auto bg-white">
-        <table className="w-full text-base text-left text-[#16191F] border-collapse">
+        <table className="w-full text-xs text-left text-[#16191F] border-collapse">
           <thead className="bg-white border-b border-slate-300">
-            <tr className="h-14">
-              <th className="w-12 px-7 py-4"></th>
-              <th className="px-7 py-4 font-semibold">Hosted zone name</th>
-              <th className="px-7 py-4 font-semibold">Type</th>
-              <th className="px-7 py-4 font-semibold">Created by</th>
-              <th className="px-7 py-4 font-semibold">Record count</th>
-              <th className="px-7 py-4 font-semibold">Description</th>
-              <th className="px-7 py-4 font-semibold">Hosted zone ID</th>
+            <tr className="h-9">
+              <th className="w-10 px-4 py-2.5"></th>
+              <th className="px-4 py-2.5 font-semibold">Hosted zone name</th>
+              <th className="px-4 py-2.5 font-semibold">Type</th>
+              <th className="px-4 py-2.5 font-semibold">Created by</th>
+              <th className="px-4 py-2.5 font-semibold">Record count</th>
+              <th className="px-4 py-2.5 font-semibold">Description</th>
+              <th className="px-4 py-2.5 font-semibold">Hosted zone ID</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-slate-200">
             {[...Array(5)].map((_, i) => (
-              <tr key={i} className="h-16 animate-pulse">
-                <td className="px-7 py-4">
-                  <div className="h-4 w-4 rounded-full bg-slate-200"></div>
+              <tr key={i} className="h-10 animate-pulse">
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 w-3.5 rounded-full bg-slate-200"></div>
                 </td>
-                <td className="px-7 py-4">
-                  <div className="h-4 bg-slate-200 rounded w-48"></div>
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 bg-slate-200 rounded w-36"></div>
                 </td>
-                <td className="px-7 py-4">
-                  <div className="h-4 bg-slate-200 rounded w-16"></div>
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 bg-slate-200 rounded w-12"></div>
                 </td>
-                <td className="px-7 py-4">
-                  <div className="h-4 bg-slate-200 rounded w-24"></div>
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 bg-slate-200 rounded w-20"></div>
                 </td>
-                <td className="px-7 py-4">
-                  <div className="h-4 bg-slate-200 rounded w-10"></div>
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 bg-slate-200 rounded w-8"></div>
                 </td>
-                <td className="px-7 py-4">
-                  <div className="h-4 bg-slate-200 rounded w-32"></div>
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 bg-slate-200 rounded w-24"></div>
                 </td>
-                <td className="px-7 py-4">
-                  <div className="h-4 bg-slate-200 rounded w-28"></div>
+                <td className="px-4 py-2.5">
+                  <div className="h-3.5 bg-slate-200 rounded w-20"></div>
                 </td>
               </tr>
             ))}
@@ -111,12 +111,12 @@ export default function ZoneTable({
 
   return (
     <div className="w-full overflow-x-auto bg-white">
-      <table className="w-full text-base text-left text-[#16191F] border-collapse bg-white">
+      <table className="w-full text-xs text-left text-[#16191F] border-collapse bg-white">
         {/* Header Row */}
         <thead className="bg-white border-b border-slate-300 select-none">
-          <tr className="h-14">
+          <tr className="h-9">
             {/* Checkbox Column */}
-            <th className="w-12 px-7 py-4 text-center">
+            <th className="w-10 px-4 py-2.5 text-center">
               <input
                 type="checkbox"
                 checked={isAllSelected || (zones.length > 0 && zones.every((z) => z.id === selectedZoneId))}
@@ -127,14 +127,14 @@ export default function ZoneTable({
                     onSelectZone(selectedZoneId ? null : zones[0].id);
                   }
                 }}
-                className="w-4 h-4 rounded-full border-2 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                className="w-3.5 h-3.5 rounded-full border-2 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
               />
             </th>
 
             {/* Hosted zone name */}
             <th
               onClick={() => handleHeaderClick('domain_name')}
-              className="px-7 py-4 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Hosted zone name</span>
@@ -148,7 +148,7 @@ export default function ZoneTable({
             {/* Type */}
             <th
               onClick={() => handleHeaderClick('type')}
-              className="px-7 py-4 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Type</span>
@@ -162,7 +162,7 @@ export default function ZoneTable({
             {/* Created by */}
             <th
               onClick={() => handleHeaderClick('created_by')}
-              className="px-7 py-4 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Created by</span>
@@ -176,7 +176,7 @@ export default function ZoneTable({
             {/* Record count */}
             <th
               onClick={() => handleHeaderClick('record_count')}
-              className="px-7 py-4 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Record count</span>
@@ -190,7 +190,7 @@ export default function ZoneTable({
             {/* Description */}
             <th
               onClick={() => handleHeaderClick('description')}
-              className="px-7 py-4 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Description</span>
@@ -204,7 +204,7 @@ export default function ZoneTable({
             {/* Hosted zone ID */}
             <th
               onClick={() => handleHeaderClick('id')}
-              className="px-7 py-4 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 font-semibold text-[#16191F] cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Hosted zone ID</span>
@@ -221,15 +221,15 @@ export default function ZoneTable({
         {zones.length === 0 ? (
           <tbody>
             <tr>
-              <td colSpan={7} className="py-20 px-7 text-center">
-                <div className="flex flex-col items-center justify-center space-y-3">
-                  <h3 className="text-lg font-semibold text-[#16191F]">No hosted zones</h3>
-                  <p className="text-base text-slate-600">
+              <td colSpan={7} className="py-12 px-4 text-center">
+                <div className="flex flex-col items-center justify-center space-y-2">
+                  <h3 className="text-sm font-semibold text-[#16191F]">No hosted zones</h3>
+                  <p className="text-xs text-slate-600">
                     There are no hosted zones created for this account.
                   </p>
                   <Link
                     href="/hosted-zones/new"
-                    className="px-6 py-2 bg-[#ec7211] hover:bg-[#d65f00] text-slate-900 font-bold rounded-full text-sm transition-colors inline-flex items-center justify-center mt-2"
+                    className="px-4 py-1.5 bg-[#ec7211] hover:bg-[#d65f00] text-slate-900 font-bold rounded-full text-xs transition-colors inline-flex items-center justify-center mt-1"
                   >
                     Create hosted zone
                   </Link>
@@ -252,52 +252,52 @@ export default function ZoneTable({
               return (
                 <tr
                   key={zone.id}
-                  className={`h-16 transition-colors ${
+                  className={`h-10 transition-colors ${
                     isSelected ? 'bg-[#e6f2fc]' : 'hover:bg-[#f2f8fd]'
                   }`}
                 >
                   {/* Checkbox Column */}
-                  <td className="px-7 py-4 text-center align-middle">
+                  <td className="px-4 py-2.5 text-center align-middle">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => onSelectZone(isSelected ? null : zone.id)}
-                      className="w-4 h-4 rounded-full border-2 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                      className="w-3.5 h-3.5 rounded-full border-2 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
                     />
                   </td>
 
                   {/* Domain Name Link */}
-                  <td className="px-7 py-4 font-normal align-middle">
+                  <td className="px-4 py-2.5 font-normal align-middle">
                     <Link
                       href={`/hosted-zones/${zone.id}`}
-                      className="text-[#0972D3] hover:underline cursor-pointer font-normal text-base"
+                      className="text-[#0972D3] hover:underline cursor-pointer font-normal text-xs"
                     >
                       {zone.domain_name}
                     </Link>
                   </td>
 
                   {/* Type */}
-                  <td className="px-7 py-4 font-normal text-[#16191F] align-middle">
+                  <td className="px-4 py-2.5 font-normal text-[#16191F] align-middle">
                     {displayType}
                   </td>
 
                   {/* Created By */}
-                  <td className="px-7 py-4 font-normal text-[#16191F] align-middle">
+                  <td className="px-4 py-2.5 font-normal text-[#16191F] align-middle">
                     Route 53
                   </td>
 
                   {/* Record Count */}
-                  <td className="px-7 py-4 font-normal text-[#16191F] align-middle">
+                  <td className="px-4 py-2.5 font-normal text-[#16191F] align-middle">
                     {zone.record_count}
                   </td>
 
                   {/* Description */}
-                  <td className="px-7 py-4 font-normal text-[#16191F] align-middle max-w-xs truncate">
+                  <td className="px-4 py-2.5 font-normal text-[#16191F] align-middle max-w-xs truncate">
                     {zone.description && zone.description.trim() ? zone.description : '-'}
                   </td>
 
                   {/* Hosted Zone ID */}
-                  <td className="px-7 py-4 font-normal text-[#16191F] align-middle">
+                  <td className="px-4 py-2.5 font-normal text-[#16191F] align-middle">
                     <span title={zone.id}>{truncatedId}</span>
                   </td>
                 </tr>

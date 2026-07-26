@@ -48,14 +48,14 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-[300px] bg-white border-r border-[#D5DBDB] text-[#16191F] flex flex-col fixed top-20 bottom-8 left-0 z-30 select-none overflow-y-auto font-sans sidebar-scrollbar">
+    <aside className="w-[240px] bg-white border-r border-[#D5DBDB] text-[#16191F] flex flex-col fixed top-20 bottom-8 left-0 z-30 select-none overflow-y-auto font-sans sidebar-scrollbar">
       {/* 1. Sidebar Header */}
-      <div className="px-6 pt-5 pb-4 flex items-center justify-between">
-        <h2 className="text-[20px] font-bold text-[#16191F] tracking-tight">
+      <div className="px-4 pt-3.5 pb-2 flex items-center justify-between">
+        <h2 className="text-base font-bold text-[#16191F] tracking-tight">
           Route 53
         </h2>
         <button
-          className="p-1.5 rounded hover:bg-[#F7F8FA] transition-colors flex items-center justify-center"
+          className="p-1 rounded hover:bg-[#F7F8FA] transition-colors flex items-center justify-center"
           title="Collapse sidebar"
         >
           <ChevronCollapseIcon />
@@ -63,16 +63,16 @@ export default function Sidebar() {
       </div>
 
       {/* 2. Navigation Items List */}
-      <nav className="flex-1 pb-6">
+      <nav className="flex-1 pb-4">
         {/* Top level items */}
         <div className="space-y-0.5">
           <Link
             href="/dashboard"
             className={clsx(
-              'flex items-center h-[42px] transition-colors text-base',
+              'flex items-center h-[32px] transition-colors text-xs',
               isLinkActive('/dashboard')
-                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
-                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-6'
+                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[13px]'
+                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-4'
             )}
           >
             Dashboard
@@ -81,10 +81,10 @@ export default function Sidebar() {
           <Link
             href="/hosted-zones"
             className={clsx(
-              'flex items-center h-[42px] transition-colors text-base',
+              'flex items-center h-[32px] transition-colors text-xs',
               isLinkActive('/hosted-zones')
-                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
-                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-6'
+                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[13px]'
+                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-4'
             )}
           >
             Hosted zones
@@ -93,10 +93,10 @@ export default function Sidebar() {
           <Link
             href="/health-checks"
             className={clsx(
-              'flex items-center h-[42px] transition-colors text-base',
+              'flex items-center h-[32px] transition-colors text-xs',
               isLinkActive('/health-checks')
-                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
-                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-6'
+                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[13px]'
+                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-4'
             )}
           >
             Health checks
@@ -105,10 +105,10 @@ export default function Sidebar() {
           <Link
             href="/profiles"
             className={clsx(
-              'flex items-center h-[42px] transition-colors text-base',
+              'flex items-center h-[32px] transition-colors text-xs',
               isLinkActive('/profiles')
-                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
-                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-6'
+                ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[13px]'
+                : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-4'
             )}
           >
             Profiles
@@ -116,10 +116,10 @@ export default function Sidebar() {
         </div>
 
         {/* SECTION 1: Global Resolver */}
-        <div className="mt-6">
+        <div className="mt-3.5">
           <button
             onClick={() => toggleSection('globalResolver')}
-            className="w-full flex items-center h-[42px] px-6 text-[18px] font-bold text-[#16191F] hover:bg-[#F7F8FA] transition-colors text-left"
+            className="w-full flex items-center h-[32px] px-4 text-xs font-bold text-[#16191F] hover:bg-[#F7F8FA] transition-colors text-left"
           >
             <TriangleDisclosure isOpen={openSections.globalResolver} />
             <span>Global Resolver</span>
@@ -130,14 +130,14 @@ export default function Sidebar() {
               <Link
                 href="/global-resolvers"
                 className={clsx(
-                  'flex items-center justify-between h-[42px] transition-colors text-base pr-6',
+                  'flex items-center justify-between h-[32px] transition-colors text-xs pr-4',
                   isLinkActive('/global-resolvers')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 <span>Global resolvers</span>
-                <span className="text-[12px] font-semibold text-[#0972D3] bg-[#EBF3FE] border border-[#A5C8FF] px-2 py-0.5 rounded-[3px] leading-none underline decoration-dotted underline-offset-2">
+                <span className="text-[10px] font-semibold text-[#0972D3] bg-[#EBF3FE] border border-[#A5C8FF] px-1.5 py-0.5 rounded-[3px] leading-none">
                   New
                 </span>
               </Link>
@@ -145,14 +145,14 @@ export default function Sidebar() {
               <Link
                 href="/shared-dns-views"
                 className={clsx(
-                  'flex items-center justify-between h-[42px] transition-colors text-base pr-6',
+                  'flex items-center justify-between h-[32px] transition-colors text-xs pr-4',
                   isLinkActive('/shared-dns-views')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 <span>Shared DNS views</span>
-                <span className="text-[12px] font-semibold text-[#0972D3] bg-[#EBF3FE] border border-[#A5C8FF] px-2 py-0.5 rounded-[3px] leading-none underline decoration-dotted underline-offset-2">
+                <span className="text-[10px] font-semibold text-[#0972D3] bg-[#EBF3FE] border border-[#A5C8FF] px-1.5 py-0.5 rounded-[3px] leading-none">
                   New
                 </span>
               </Link>
@@ -161,10 +161,10 @@ export default function Sidebar() {
         </div>
 
         {/* SECTION 2: VPC Resolver */}
-        <div className="mt-6">
+        <div className="mt-3.5">
           <button
             onClick={() => toggleSection('vpcResolver')}
-            className="w-full flex items-center h-[42px] px-6 text-[18px] font-bold text-[#16191F] hover:bg-[#F7F8FA] transition-colors text-left"
+            className="w-full flex items-center h-[32px] px-4 text-xs font-bold text-[#16191F] hover:bg-[#F7F8FA] transition-colors text-left"
           >
             <TriangleDisclosure isOpen={openSections.vpcResolver} />
             <span>VPC Resolver</span>
@@ -175,10 +175,10 @@ export default function Sidebar() {
               <Link
                 href="/vpcs"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/vpcs')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 VPCs
@@ -187,10 +187,10 @@ export default function Sidebar() {
               <Link
                 href="/inbound-endpoints"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/inbound-endpoints')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 Inbound endpoints
@@ -199,10 +199,10 @@ export default function Sidebar() {
               <Link
                 href="/outbound-endpoints"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/outbound-endpoints')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 Outbound endpoints
@@ -211,10 +211,10 @@ export default function Sidebar() {
               <Link
                 href="/rules"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/rules')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 Rules
@@ -223,10 +223,10 @@ export default function Sidebar() {
               <Link
                 href="/query-logging"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/query-logging')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 Query logging
@@ -235,10 +235,10 @@ export default function Sidebar() {
               <Link
                 href="/outposts"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/outposts')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 Outposts
@@ -248,10 +248,10 @@ export default function Sidebar() {
         </div>
 
         {/* SECTION 3: Domains */}
-        <div className="mt-6">
+        <div className="mt-3.5">
           <button
             onClick={() => toggleSection('domains')}
-            className="w-full flex items-center h-[42px] px-6 text-[18px] font-bold text-[#16191F] hover:bg-[#F7F8FA] transition-colors text-left"
+            className="w-full flex items-center h-[32px] px-4 text-xs font-bold text-[#16191F] hover:bg-[#F7F8FA] transition-colors text-left"
           >
             <TriangleDisclosure isOpen={openSections.domains} />
             <span>Domains</span>
@@ -262,10 +262,10 @@ export default function Sidebar() {
               <Link
                 href="/registered-domains"
                 className={clsx(
-                  'flex items-center h-[42px] transition-colors text-base',
+                  'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/registered-domains')
-                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[33px]'
-                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[36px]'
+                    ? 'text-[#0972D3] font-semibold bg-[#EBF3FE] border-l-[3px] border-[#0972D3] pl-[21px]'
+                    : 'text-[#414D5C] font-normal hover:text-[#16191F] hover:bg-[#F7F8FA] pl-[24px]'
                 )}
               >
                 Registered domains

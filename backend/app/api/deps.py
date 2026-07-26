@@ -1,7 +1,7 @@
 import uuid
 from dataclasses import dataclass
 
-from fastapi import Cookie, Header, Depends
+from fastapi import Cookie, Header, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,7 @@ def get_current_user(
     authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
 ) -> User:
-    """Reads session token from Header or Cookie if available, or returns demo user for instant development use."""
+    """Reads session token from Header or Cookie and returns current authenticated user."""
     token = session_token
     if not token and authorization:
         if authorization.startswith("Bearer "):
@@ -32,19 +32,11 @@ def get_current_user(
             if user:
                 return user
 
-    # Fallback to demo user if cookie is missing or invalid
-    demo_user = db.scalar(select(User).order_by(User.created_at.asc()))
-    if demo_user is None:
-        demo_user = User(
-            id=str(uuid.uuid4()),
-            email="demo@route53clone.dev",
-            password_hash=hash_password("Demo1234!"),
-        )
-        db.add(demo_user)
-        db.commit()
-        db.refresh(demo_user)
-
-    return demo_user
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
 @dataclass

@@ -11,6 +11,7 @@ class LoginRequest(BaseModel):
 class SendOTPRequest(BaseModel):
     email: EmailStr
     account_name: Optional[str] = None
+    is_signup: Optional[bool] = False
 
 
 class VerifyOTPRequest(BaseModel):
@@ -18,6 +19,7 @@ class VerifyOTPRequest(BaseModel):
     code: str
     password: Optional[str] = None
     account_name: Optional[str] = None
+    is_signup: Optional[bool] = False
 
 
 class UserOut(BaseModel):

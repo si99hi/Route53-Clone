@@ -34,7 +34,7 @@ export default function DashboardLayout({
         {/* Scrollable Main Console Canvas */}
         <main
           className={`flex-1 pt-20 pb-10 min-w-0 bg-white ${
-            hideSidebar ? 'pl-0' : 'pl-[300px]'
+            hideSidebar ? 'pl-0' : 'pl-[240px]'
           }`}
         >
           <div className="p-6 max-w-[1600px] mx-auto">{children}</div>

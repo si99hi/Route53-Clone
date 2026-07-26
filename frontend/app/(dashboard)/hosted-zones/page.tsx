@@ -179,30 +179,30 @@ export default function HostedZonesPage() {
   };
 
   return (
-    <div className="flex flex-col space-y-6 font-sans">
+    <div className="flex flex-col space-y-3.5 font-sans">
       {/* Header Row: Title & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Title */}
-        <h1 className="text-2xl font-bold text-[#16191F] tracking-tight">
+        <h1 className="text-xl font-bold text-[#16191F] tracking-tight">
           Hosted zones ({totalCount})
         </h1>
 
         {/* Right Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* Refresh Button */}
           <button
             onClick={() => refetch()}
-            className="h-9 w-9 rounded-full border border-slate-300 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 transition-colors shadow-2xs"
+            className="h-7.5 w-7.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-700 transition-colors shadow-2xs"
             title="Refresh"
           >
-            <RotateCw className="h-4 w-4 text-[#0972D3]" strokeWidth={1.5} />
+            <RotateCw className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={1.5} />
           </button>
 
           {/* View Details Button */}
           <button
             onClick={() => selectedZoneId && router.push(`/hosted-zones/${selectedZoneId}`)}
             disabled={!selectedZoneId}
-            className="px-4 py-2 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-sm font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
+            className="px-3 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
           >
             View details
           </button>
@@ -211,7 +211,7 @@ export default function HostedZonesPage() {
           <button
             onClick={() => selectedZoneId && router.push(`/hosted-zones/${selectedZoneId}/edit`)}
             disabled={!selectedZoneId}
-            className="px-4 py-2 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-sm font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
+            className="px-3 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
           >
             Edit
           </button>
@@ -220,7 +220,7 @@ export default function HostedZonesPage() {
           <button
             onClick={() => selectedZone && setZoneToDelete(selectedZone)}
             disabled={!selectedZoneId}
-            className="px-4 py-2 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-sm font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
+            className="px-3 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
           >
             Delete
           </button>
@@ -228,7 +228,7 @@ export default function HostedZonesPage() {
           {/* Create Hosted Zone Button */}
           <Link
             href="/hosted-zones/new"
-            className="px-5 py-2 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-900 font-bold text-sm transition-colors shadow-2xs inline-flex items-center justify-center"
+            className="px-4 py-1.5 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-900 font-bold text-xs transition-colors shadow-2xs inline-flex items-center justify-center"
           >
             Create hosted zone
           </Link>
@@ -236,7 +236,7 @@ export default function HostedZonesPage() {
       </div>
 
       {/* Helper text notice under header */}
-      <p className="text-sm text-slate-700 leading-relaxed">
+      <p className="text-xs text-slate-700 leading-relaxed">
         Automatic mode is the current search behavior optimized for best filter results.{' '}
         <a href="#settings" className="text-[#0972D3] hover:underline">
           To change modes go to settings.

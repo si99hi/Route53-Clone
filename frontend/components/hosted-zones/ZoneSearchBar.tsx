@@ -271,7 +271,7 @@ export default function ZoneSearchBar({
 
           {/* Quick Property Dropdown Buttons: Type ▼, Routing p... ▼, Alias ▼ */}
           {showPropertyDropdowns && (
-            <div className="flex items-center space-x-2 shrink-0">
+            <div className="flex items-center space-x-1.5 shrink-0">
               {/* Type Dropdown */}
               <div className="relative">
                 <button
@@ -279,18 +279,18 @@ export default function ZoneSearchBar({
                   onClick={() =>
                     setOpenFilterMenu(openFilterMenu === 'type' ? null : 'type')
                   }
-                  className="px-3.5 py-2 border border-slate-300 rounded bg-white hover:bg-slate-50 text-sm font-normal text-[#16191F] flex items-center space-x-1.5 transition-colors shadow-2xs"
+                  className="px-2.5 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 text-xs font-normal text-[#16191F] flex items-center space-x-1 transition-colors shadow-2xs"
                 >
                   <span>
                     {selectedType === 'all'
                       ? 'Type'
                       : `Type: ${selectedType}`}
                   </span>
-                  <ChevronDown className="h-4 w-4 text-[#0972D3]" strokeWidth={2} />
+                  <ChevronDown className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 {openFilterMenu === 'type' && (
-                  <div className="absolute left-0 top-full mt-1 w-44 bg-white border border-slate-300 rounded-md shadow-lg z-50 py-1 text-sm text-slate-800">
+                  <div className="absolute left-0 top-full mt-1 w-40 bg-white border border-slate-300 rounded-md shadow-lg z-50 py-1 text-xs text-slate-800">
                     {['all', 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'SOA', 'TXT'].map(
                       (t) => (
                         <button
@@ -300,7 +300,7 @@ export default function ZoneSearchBar({
                             if (onTypeChange) onTypeChange(t);
                             setOpenFilterMenu(null);
                           }}
-                          className={`w-full text-left px-4 py-1.5 hover:bg-slate-100 transition-colors ${
+                          className={`w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors ${
                             selectedType === t ? 'font-bold text-[#0972D3]' : ''
                           }`}
                         >
@@ -319,18 +319,18 @@ export default function ZoneSearchBar({
                   onClick={() =>
                     setOpenFilterMenu(openFilterMenu === 'routing' ? null : 'routing')
                   }
-                  className="px-3.5 py-2 border border-slate-300 rounded bg-white hover:bg-slate-50 text-sm font-normal text-[#16191F] flex items-center space-x-1.5 transition-colors shadow-2xs"
+                  className="px-2.5 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 text-xs font-normal text-[#16191F] flex items-center space-x-1 transition-colors shadow-2xs"
                 >
                   <span>
                     {selectedRoutingPolicy === 'all'
                       ? 'Routing p...'
                       : `Routing: ${selectedRoutingPolicy}`}
                   </span>
-                  <ChevronDown className="h-4 w-4 text-[#0972D3]" strokeWidth={2} />
+                  <ChevronDown className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 {openFilterMenu === 'routing' && (
-                  <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-slate-300 rounded-md shadow-lg z-50 py-1 text-sm text-slate-800">
+                  <div className="absolute left-0 top-full mt-1 w-44 bg-white border border-slate-300 rounded-md shadow-lg z-50 py-1 text-xs text-slate-800">
                     {['all', 'Simple', 'Weighted', 'Latency', 'Failover'].map(
                       (r) => (
                         <button
@@ -340,7 +340,7 @@ export default function ZoneSearchBar({
                             if (onRoutingPolicyChange) onRoutingPolicyChange(r);
                             setOpenFilterMenu(null);
                           }}
-                          className={`w-full text-left px-4 py-1.5 hover:bg-slate-100 transition-colors ${
+                          className={`w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors ${
                             selectedRoutingPolicy === r ? 'font-bold text-[#0972D3]' : ''
                           }`}
                         >
@@ -359,18 +359,18 @@ export default function ZoneSearchBar({
                   onClick={() =>
                     setOpenFilterMenu(openFilterMenu === 'alias' ? null : 'alias')
                   }
-                  className="px-3.5 py-2 border border-slate-300 rounded bg-white hover:bg-slate-50 text-sm font-normal text-[#16191F] flex items-center space-x-1.5 transition-colors shadow-2xs"
+                  className="px-2.5 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 text-xs font-normal text-[#16191F] flex items-center space-x-1 transition-colors shadow-2xs"
                 >
                   <span>
                     {selectedAlias === 'all'
                       ? 'Alias'
                       : `Alias = ${selectedAlias}`}
                   </span>
-                  <ChevronDown className="h-4 w-4 text-[#0972D3]" strokeWidth={2} />
+                  <ChevronDown className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 {openFilterMenu === 'alias' && (
-                  <div className="absolute left-0 top-full mt-1 w-40 bg-white border border-slate-300 rounded-md shadow-lg z-50 py-1 text-sm text-slate-800">
+                  <div className="absolute left-0 top-full mt-1 w-36 bg-white border border-slate-300 rounded-md shadow-lg z-50 py-1 text-xs text-slate-800">
                     {['all', 'Yes', 'No'].map((a) => (
                       <button
                         key={a}
@@ -379,7 +379,7 @@ export default function ZoneSearchBar({
                           if (onAliasChange) onAliasChange(a);
                           setOpenFilterMenu(null);
                         }}
-                        className={`w-full text-left px-4 py-1.5 hover:bg-slate-100 transition-colors ${
+                        className={`w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors ${
                           selectedAlias === a ? 'font-bold text-[#0972D3]' : ''
                         }`}
                       >
@@ -394,17 +394,17 @@ export default function ZoneSearchBar({
         </div>
 
         {/* Far-Right Pagination Controls: < 1 > ⚙ */}
-        <div className="flex items-center space-x-3 text-[#16191F] text-sm shrink-0 self-end md:self-center">
+        <div className="flex items-center space-x-2 text-[#16191F] text-xs shrink-0 self-end md:self-center">
           <button
             onClick={() => onPageChange && page > 1 && onPageChange(page - 1)}
             disabled={page <= 1}
             className="p-1 rounded text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-600 transition-colors"
             title="Previous Page"
           >
-            <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
           </button>
 
-          <span className="font-semibold text-[#16191F] px-1 min-w-[20px] text-center">
+          <span className="font-semibold text-[#16191F] px-1 min-w-[16px] text-center">
             {page}
           </span>
 
@@ -414,14 +414,14 @@ export default function ZoneSearchBar({
             className="p-1 rounded text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-600 transition-colors"
             title="Next Page"
           >
-            <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
+            <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
           </button>
 
           <button
-            className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors ml-1"
+            className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors ml-0.5"
             title="Table preferences"
           >
-            <Settings className="h-5 w-5" strokeWidth={1.5} />
+            <Settings className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>
       </div>
