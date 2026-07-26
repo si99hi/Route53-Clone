@@ -96,8 +96,8 @@ async function request<T>(
 
 export const api = {
   // Auth
-  async sendOTP(payload: { email: string; account_name?: string }): Promise<{ message: string; email: string }> {
-    return request<{ message: string; email: string }>('/auth/send-otp', {
+  async sendOTP(payload: { email: string; account_name?: string }): Promise<{ message: string; email: string; code?: string }> {
+    return request<{ message: string; email: string; code?: string }>('/auth/send-otp', {
       method: 'POST',
       body: JSON.stringify(payload),
     });

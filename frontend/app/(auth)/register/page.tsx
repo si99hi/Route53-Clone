@@ -18,6 +18,7 @@ export default function RegisterPage() {
 
   // Step 2 fields
   const [code, setCode] = useState('');
+  const [demoCode, setDemoCode] = useState<string | null>(null);
 
   // Status & Timers
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,8 +59,11 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await api.sendOTP({ email, account_name: accountName });
+      const res = await api.sendOTP({ email, account_name: accountName });
       setIsSubmitting(false);
+      if (res.code) {
+        setDemoCode(res.code);
+      }
       setStep(2);
       setResendTimer(300); // Reset to 5:00
     } catch (err: any) {
@@ -74,8 +78,11 @@ export default function RegisterPage() {
     setErrorMsg(null);
     setIsSubmitting(true);
     try {
-      await api.sendOTP({ email, account_name: accountName });
+      const res = await api.sendOTP({ email, account_name: accountName });
       setIsSubmitting(false);
+      if (res.code) {
+        setDemoCode(res.code);
+      }
       setResendTimer(300);
     } catch (err: any) {
       setIsSubmitting(false);
@@ -360,11 +367,32 @@ export default function RegisterPage() {
                 )}
               </button>
 
+              {/* Demo Mode / Fallback Notice */}
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-900 space-y-1.5">
+                <div className="font-semibold text-amber-950 flex items-center space-x-1.5">
+                  <span>💡 Demo & Testing Note:</span>
+                </div>
+                <p className="text-[11px] leading-normal text-amber-800">
+                  Cloud hosting providers often block outgoing SMTP email ports. Your verification code is{' '}
+                  <strong className="font-mono bg-amber-100 px-1 py-0.5 rounded text-amber-950 font-bold border border-amber-300">
+                    {demoCode || '123456'}
+                  </strong>
+                  . You can also use universal test code <code className="bg-amber-100 px-1 py-0.5 rounded font-mono font-bold">123456</code>.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCode(demoCode || '123456')}
+                  className="mt-1 text-[11px] text-amber-900 font-bold underline hover:text-amber-950 block"
+                >
+                  Click to auto-fill code ({demoCode || '123456'})
+                </button>
+              </div>
+
               {/* Help Notes */}
-              <div className="pt-4 text-xs text-slate-700 space-y-1">
+              <div className="pt-2 text-xs text-slate-700 space-y-1">
                 <p className="font-bold text-slate-800 mb-1">Didn't get the code?</p>
-                <p>• Codes can take up to 5 minutes to arrive.</p>
-                <p>• Check your spam folder.</p>
+                <p>• Check your spam/junk folder.</p>
+                <p>• Use test code <strong className="font-mono">123456</strong> if using a temporary email address.</p>
               </div>
             </form>
           )}
