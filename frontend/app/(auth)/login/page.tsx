@@ -6,12 +6,13 @@ import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../../../lib/api';
 import AwsLogo from '../../../components/layout/AwsLogo';
+import loginPromoImg from '../../../public/images/login-promo.png';
 
 export default function LoginPage() {
   const router = useRouter();
 
-  // Step state: 'email' | 'password'
-  const [step, setStep] = useState<'email' | 'password'>('email');
+  // Step state: 'email' | 'password' | 'forgot'
+  const [step, setStep] = useState<'email' | 'password' | 'forgot'>('email');
 
   // User type selection: 'root' | 'iam'
   const [userType, setUserType] = useState<'root' | 'iam'>('root');
@@ -21,6 +22,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Forgot password OTP fields
+  const [otpCode, setOtpCode] = useState('');
+  const [demoOtpCode, setDemoOtpCode] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const loginMutation = useMutation({
     mutationFn: api.login,
@@ -57,6 +65,47 @@ export default function LoginPage() {
     loginMutation.mutate({ email, password });
   };
 
+  const handleStartForgotPassword = async () => {
+    setFormError(null);
+    setStep('forgot');
+    setIsSendingOtp(true);
+    try {
+      const res = await api.sendOTP({ email });
+      setIsSendingOtp(false);
+      if (res.code) {
+        setDemoOtpCode(res.code);
+      }
+    } catch (err: any) {
+      setIsSendingOtp(false);
+      setFormError(err.detail || 'Failed to send verification code. Please try again.');
+    }
+  };
+
+  const handleVerifyForgotOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!otpCode || otpCode.trim().length < 4) {
+      setFormError('Please enter the 6-digit verification code sent to your email.');
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    try {
+      await api.verifyOTP({
+        email,
+        code: otpCode.trim(),
+        password: newPassword.trim() || undefined,
+      });
+      setIsVerifyingOtp(false);
+      router.refresh();
+      router.push('/hosted-zones');
+    } catch (err: any) {
+      setIsVerifyingOtp(false);
+      setFormError(err.detail || 'Invalid or expired verification code. Please check your inputs.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-slate-900 flex flex-col justify-between font-sans relative selection:bg-amber-200 selection:text-amber-900">
       {/* Background Isometric Graphic Pattern */}
@@ -76,14 +125,14 @@ export default function LoginPage() {
       </header>
 
       {/* Main Container Layout */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10">
-        <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-5 z-10">
+        <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
           {/* LEFT CARD: Sign In Form Box */}
-          <div className="lg:col-span-6 bg-white border border-slate-300 rounded-2xl shadow-sm p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 bg-white border border-slate-300 rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col justify-between space-y-4">
             <div>
-              <h1 className="text-2xl font-bold text-[#16191f] mb-1">Sign In</h1>
-              <p className="text-xs text-slate-600 mb-5">Access your AWS account by user type.</p>
+              <h1 className="text-xl font-bold text-[#16191f] mb-1">Sign In</h1>
+              <p className="text-xs text-slate-600 mb-4">Access your AWS account by user type.</p>
 
               {formError && (
                 <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-xs text-red-800 flex items-start space-x-2 rounded-r">
@@ -229,9 +278,13 @@ export default function LoginPage() {
                       <label className="block text-xs font-bold text-[#16191f]">
                         {userType === 'root' ? 'Root user password' : 'IAM password'}
                       </label>
-                      <a href="#forgot" className="text-[11px] text-[#0972D3] hover:underline font-medium">
+                      <button
+                        type="button"
+                        onClick={handleStartForgotPassword}
+                        className="text-[11px] text-[#0972D3] hover:underline font-medium cursor-pointer"
+                      >
                         Forgot password?
-                      </a>
+                      </button>
                     </div>
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -286,127 +339,128 @@ export default function LoginPage() {
                   </button>
                 </form>
               )}
+
+              {/* STEP 3: Forgot Password & Sign in with OTP */}
+              {step === 'forgot' && (
+                <form onSubmit={handleVerifyForgotOTP} className="space-y-4">
+                  {/* Active Email Display Badge */}
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Password Assistance
+                      </span>
+                      <span className="text-xs font-semibold text-slate-900">{email}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setStep('email')}
+                      className="text-xs text-[#0972D3] font-bold hover:underline"
+                    >
+                      Change
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    We sent a 6-digit verification code to your email. Enter it below to sign in.
+                  </p>
+
+                  {/* Input: OTP Code */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#16191f] mb-1.5">
+                      Verification code (OTP)
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      required
+                      placeholder="Enter 6-digit code"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-shadow font-mono tracking-widest text-center text-base"
+                      disabled={isVerifyingOtp}
+                    />
+                  </div>
+
+                  {/* Input: New Password (Optional) */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#16191f] mb-1.5">
+                      New Password <span className="font-normal text-slate-500">(optional)</span>
+                    </label>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password to update"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-shadow placeholder:text-slate-400"
+                      disabled={isVerifyingOtp}
+                    />
+                  </div>
+
+                  {/* OTP Code Badge Notice */}
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900 space-y-1">
+                    <div className="font-semibold flex items-center justify-between">
+                      <span>💡 Your OTP Code: <strong className="font-mono bg-blue-100 px-1.5 py-0.5 rounded font-bold text-blue-950">{demoOtpCode || '123456'}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setOtpCode(demoOtpCode || '123456')}
+                        className="text-[11px] text-[#0972D3] font-bold underline hover:text-[#065399]"
+                      >
+                        Auto-fill code
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={isVerifyingOtp || !otpCode.trim()}
+                    className="w-full bg-[#ec7211] hover:bg-[#d9650c] active:bg-[#c45a0a] text-[#16191f] font-bold py-2.5 px-4 rounded-full text-sm mt-3 transition-colors shadow-xs disabled:opacity-50 cursor-pointer flex items-center justify-center"
+                  >
+                    {isVerifyingOtp ? (
+                      <span className="flex items-center space-x-2">
+                        <svg className="animate-spin h-4 w-4 text-[#16191f]" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        <span>Verifying & Signing in...</span>
+                      </span>
+                    ) : (
+                      <span>Verify OTP & Sign In</span>
+                    )}
+                  </button>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <button
+                      type="button"
+                      onClick={handleStartForgotPassword}
+                      disabled={isSendingOtp}
+                      className="text-xs text-[#0972D3] hover:underline font-semibold"
+                    >
+                      {isSendingOtp ? 'Sending code...' : 'Resend OTP code'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setStep('password')}
+                      className="text-xs text-slate-600 hover:text-slate-900 font-medium"
+                    >
+                      ← Back to password
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
 
-            {/* Quick Demo Credentials Badge */}
-            <div className="p-3 bg-amber-50/80 border border-amber-200/90 rounded-lg text-[11px] text-amber-900 space-y-1 mt-4">
-              <div className="font-semibold text-amber-950 flex items-center space-x-1">
-                <span>💡 Demo Credentials:</span>
-              </div>
-              <p className="flex items-center space-x-1">
-                <span>Email:</span>
-                <span className="font-mono bg-amber-100/80 px-1.5 py-0.5 rounded font-bold">demo@route53clone.dev</span>
-              </p>
-              <p className="flex items-center space-x-1">
-                <span>Password:</span>
-                <span className="font-mono bg-amber-100/80 px-1.5 py-0.5 rounded font-bold">Demo1234!</span>
-              </p>
-            </div>
+
           </div>
 
-          {/* RIGHT CARD: AWS Amazon Quick Promo Banner (Matching exact AWS Design in User Image) */}
-          <div className="lg:col-span-6 bg-[#f4f3ee] border border-slate-300/70 rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
-            <div>
-              {/* Graphic Banner: Connecting Line & Colorful 3D Blocks */}
-              <div className="w-full h-36 bg-[#e9e7e1] rounded-xl overflow-hidden relative shadow-inner border border-slate-300/50 flex items-center justify-center p-2">
-                <svg className="w-full h-full" viewBox="0 0 460 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Center Horizontal Connecting Wire */}
-                  <line x1="0" y1="70" x2="460" y2="70" stroke="#1e293b" strokeWidth="2.5" />
-
-                  {/* Block 1: Cyan Arc Block */}
-                  <g transform="translate(10, 20)">
-                    <rect x="0" y="0" width="45" height="100" rx="4" fill="#5eead4" stroke="#1e293b" strokeWidth="2" />
-                    <path d="M 0 0 C 45 20 45 80 0 100" stroke="#1e293b" strokeWidth="2" fill="none" />
-                  </g>
-                  {/* Dot 1 */}
-                  <circle cx="62" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 2: Orange Pyramid Block */}
-                  <g transform="translate(70, 20)">
-                    <rect x="0" y="0" width="48" height="100" rx="4" fill="#f97316" stroke="#1e293b" strokeWidth="2" />
-                    <polygon points="24,0 0,100 48,100" fill="#ea580c" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                  {/* Dot 2 */}
-                  <circle cx="125" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 3: Blue Grid Block */}
-                  <g transform="translate(133, 20)">
-                    <rect x="0" y="0" width="52" height="100" rx="4" fill="#38bdf8" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="33" x2="52" y2="33" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="66" x2="52" y2="66" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="26" y1="0" x2="26" y2="100" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                  {/* Dot 3 */}
-                  <circle cx="192" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 4: Narrow Cyan Curve */}
-                  <g transform="translate(200, 20)">
-                    <rect x="0" y="0" width="28" height="100" rx="4" fill="#2dd4bf" stroke="#1e293b" strokeWidth="2" />
-                    <path d="M 0 0 Q 28 50 0 100" fill="#0f766e" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                  {/* Dot 4 */}
-                  <circle cx="234" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 5: Pink Grid Block */}
-                  <g transform="translate(242, 20)">
-                    <rect x="0" y="0" width="52" height="100" rx="4" fill="#f472b6" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="33" x2="52" y2="33" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="66" x2="52" y2="66" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="26" y1="0" x2="26" y2="100" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                  {/* Dot 5 */}
-                  <circle cx="301" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 6: Yellow X Block */}
-                  <g transform="translate(309, 20)">
-                    <rect x="0" y="0" width="48" height="100" rx="4" fill="#facc15" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="0" x2="48" y2="100" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="48" y1="0" x2="0" y2="100" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                  {/* Dot 6 */}
-                  <circle cx="363" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 7: Green Vertical Stripes Block */}
-                  <g transform="translate(371, 20)">
-                    <rect x="0" y="0" width="42" height="100" rx="4" fill="#34d399" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="14" y1="0" x2="14" y2="100" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="28" y1="0" x2="28" y2="100" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                  {/* Dot 7 */}
-                  <circle cx="420" cy="70" r="5" fill="#1e293b" />
-
-                  {/* Block 8: Orange Stripes Block */}
-                  <g transform="translate(427, 20)">
-                    <rect x="0" y="0" width="30" height="100" rx="4" fill="#fb923c" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="30" x2="30" y2="60" stroke="#1e293b" strokeWidth="2" />
-                    <line x1="0" y1="70" x2="30" y2="100" stroke="#1e293b" strokeWidth="2" />
-                  </g>
-                </svg>
-              </div>
-
-              {/* Headline & Description Copy */}
-              <div className="pt-6">
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#16191f] tracking-tight leading-snug mb-3">
-                  Amazon Quick is AI built for how you work
-                </h2>
-                <p className="text-sm text-slate-700 leading-relaxed">
-                  No more hunting across systems. Quick connects your apps and delivers answers fast.
-                </p>
-              </div>
-            </div>
-
-            {/* Bottom Promo CTA Link */}
-            <div className="pt-4 border-t border-slate-300/60">
-              <a
-                href="https://aws.amazon.com/quick/"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center space-x-1.5 font-bold text-xs text-[#16191f] hover:underline group"
-              >
-                <span>Get Started with Amazon Quick</span>
-                <span className="text-sm leading-none transition-transform group-hover:translate-x-0.5">→</span>
-              </a>
-            </div>
+          {/* RIGHT CARD: Actual AWS Promo Image */}
+          <div className="lg:col-span-6 border border-slate-300 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center bg-[#d5f3fe]">
+            <img
+              src={loginPromoImg.src}
+              alt="AWS Local Zones Promo"
+              className="w-full h-full object-fill rounded-2xl"
+            />
           </div>
 
         </div>
