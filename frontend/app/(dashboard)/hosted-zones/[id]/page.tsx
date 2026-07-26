@@ -121,6 +121,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     setSelectedType('all');
     setSelectedRoutingPolicy('all');
     setSelectedAlias('all');
+    setSelectedRecordIds([]);
     setPage(1);
   };
 
@@ -544,6 +545,16 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                     ? `(${selectedRecordIds.length}/${totalRecords})`
                     : `(${totalRecords})`}
                 </h2>
+                {selectedRecordIds.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRecordIds([])}
+                    className="px-2.5 py-0.5 rounded border border-[#0972D3] bg-blue-50/50 text-[#0972D3] hover:bg-blue-100 text-xs font-semibold transition-colors cursor-pointer"
+                    title="Clear selected records"
+                  >
+                    Clear selection
+                  </button>
+                )}
                 <button
                   type="button"
                   className="text-[#0972D3] hover:underline text-xs font-normal"
@@ -676,17 +687,11 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                           }
                         }}
                         onChange={() => {
-                          const currentPageIds = records.map((r) => r.id);
-                          const isAllPageSelected = currentPageIds.every((id) =>
-                            selectedRecordIds.includes(id)
-                          );
-                          if (isAllPageSelected) {
-                            setSelectedRecordIds(
-                              selectedRecordIds.filter((id) => !currentPageIds.includes(id))
-                            );
+                          if (selectedRecordIds.length > 0) {
+                            setSelectedRecordIds([]);
                           } else {
-                            const combined = new Set([...selectedRecordIds, ...currentPageIds]);
-                            setSelectedRecordIds(Array.from(combined));
+                            const currentPageIds = records.map((r) => r.id);
+                            setSelectedRecordIds(currentPageIds);
                           }
                         }}
                         className="rounded border-slate-400 text-[#0972D3] focus:ring-[#0972D3]"
@@ -793,13 +798,25 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             <div className="lg:col-span-4 border border-slate-300 rounded-2xl bg-white p-6 space-y-5 shadow-2xs min-h-[360px] font-sans animate-fadeIn">
               {/* Header matching user screenshots: "Record details" vs "2 records selected" vs "0 records selected" */}
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                <h3 className="text-base font-bold text-[#16191F]">
-                  {selectedRecordIds.length === 0
-                    ? '0 records selected'
-                    : selectedRecordIds.length === 1
-                    ? 'Record details'
-                    : `${selectedRecordIds.length} records selected`}
-                </h3>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-base font-bold text-[#16191F]">
+                    {selectedRecordIds.length === 0
+                      ? '0 records selected'
+                      : selectedRecordIds.length === 1
+                      ? 'Record details'
+                      : `${selectedRecordIds.length} records selected`}
+                  </h3>
+                  {selectedRecordIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRecordIds([])}
+                      className="text-[#0972D3] hover:underline text-xs font-semibold"
+                      title="Clear selection"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center space-x-1.5">
                   <button
                     type="button"
