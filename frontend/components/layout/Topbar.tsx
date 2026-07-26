@@ -64,7 +64,7 @@ export default function Topbar() {
           className="flex items-center cursor-pointer hover:opacity-90 transition-opacity pr-1"
           onClick={() => router.push('/hosted-zones')}
         >
-          <AwsLogo className="h-4 w-auto text-white" variant="light" />
+          <AwsLogo className="h-4 w-auto" variant="dark" />
         </div>
 
         {/* AWS Q Icon (Gradient Hexagon) */}

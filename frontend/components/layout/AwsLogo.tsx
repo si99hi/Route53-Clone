@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
+import awsLogoPic from '../../public/aws-logo.png';
 
 interface AwsLogoProps {
   className?: string;
@@ -15,35 +17,20 @@ export default function AwsLogo({
   height,
   width,
 }: AwsLogoProps) {
-  let fillColor = 'currentColor';
-  if (variant === 'light') fillColor = '#000000';
-  if (variant === 'dark') fillColor = '#ffffff';
-  if (variant === 'orange') fillColor = '#ec7211';
-
   return (
-    <svg
-      viewBox="-15 30 290 135"
-      className={`${className} inline-block shrink-0 align-middle select-none`}
-      style={{ fill: fillColor, height, width }}
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="AWS Logo"
-    >
-      <g>
-        {/* 'a' */}
-        <path d="M 68.2 58.6 C 54.7 58.6 44.5 66.5 44.5 80.4 C 44.5 94.3 54.7 102.2 67.5 102.2 C 76.5 102.2 84.8 97.1 89.2 88.9 L 89.2 99.9 L 105.1 99.9 L 105.1 39.2 L 89.2 39.2 L 89.2 51.4 C 84.1 43.9 76.2 38.5 66.1 38.5 C 49.3 38.5 33.7 52.3 33.7 75.4 C 33.7 98.1 48.6 112.8 68.2 112.8 C 78.7 112.8 87.7 107.3 93.3 98.7 L 93.3 109.9 L 109.2 109.9 L 109.2 39.2 L 93.3 39.2 L 93.3 51.4 Z M 71.5 51.5 C 81.6 51.5 89.2 59.3 89.2 72.5 C 89.2 85.7 81.6 93.5 71.5 93.5 C 61.4 93.5 53.8 85.7 53.8 72.5 C 53.8 59.3 61.4 51.5 71.5 51.5 Z" />
-
-        {/* 'w' */}
-        <path d="M 166.5 39.2 L 149.3 109.9 L 133.7 109.9 L 120.3 54.1 L 106.9 109.9 L 91.3 109.9 L 74.1 39.2 L 90.7 39.2 L 100.8 87.1 L 114.2 39.2 L 127.6 39.2 L 141 87.1 L 151.1 39.2 Z" />
-
-        {/* 's' */}
-        <path d="M 197.6 55.7 C 189.6 52.3 182.9 50.3 176.1 50.3 C 168.4 50.3 163.6 53.7 163.6 58.6 C 163.6 64.1 169.2 66.5 179.2 68.7 C 196.2 73.1 206.5 79.1 206.5 92.6 C 206.5 107.1 192 113.7 176.1 113.7 C 164.7 113.7 153.6 110.3 144.6 104.7 L 150.5 91.2 C 158.4 96.8 168.4 100.2 177.3 100.2 C 185.2 100.2 190.8 97.1 190.8 91.6 C 190.8 86.1 185.2 83.7 174.1 81.3 C 158.4 77.5 147.6 71.6 147.6 58.1 C 147.6 44.2 162.2 37.3 176.8 37.3 C 186.8 37.3 195.8 39.8 203.4 43.3 Z" />
-
-        {/* Smile Arrow Curve */}
-        <path d="M 22 112 C 60 138 152 152 242 120 C 247 118 252 121 250 126 C 246 133 238 139 229 142 C 132 178 30 162 -9 121 C -13 117 -10 112 -4 112 C -1 112 3 114 7 106 Z" />
-
-        {/* Smile Arrow Head */}
-        <path d="M 238 111 C 243 108 253 108 259 114 C 262 117 260 122 254 129 C 247 137 232 148 226 151 C 222 153 219 150 221 146 C 224 139 230 122 238 111 Z" />
-      </g>
-    </svg>
+    <Image
+      src={awsLogoPic}
+      alt="AWS Logo"
+      priority
+      className={`${className} inline-block shrink-0 align-middle select-none object-contain ${
+        variant === 'dark' ? 'brightness-0 invert' : ''
+      }`}
+      style={{ height, width }}
+    />
   );
 }
+
+
+
+
+
