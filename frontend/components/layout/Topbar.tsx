@@ -35,8 +35,9 @@ export default function Topbar() {
     mutationFn: api.logout,
     onSuccess: () => {
       queryClient.clear();
-      router.refresh();
-      router.push('/login');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     },
   });
 
