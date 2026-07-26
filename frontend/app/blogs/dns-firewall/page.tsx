@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import figure1 from './figure1.jpg';
-import figure2 from './figure2.jpg';
+import figure1 from '../../../public/images/figure1.jpg';
+import figure2 from '../../../public/images/figure2.jpg';
 import AwsLogo from '../../../components/layout/AwsLogo';
 
 export default function DNSFirewallBlogPage() {

@@ -320,9 +320,9 @@ export default function FeaturesPage() {
           </div>
 
           <div className="text-xs text-slate-600 flex items-center space-x-2 pt-2">
-            <span className="hover:underline cursor-not-allowed" {...inactiveProps}>Networking and Content Delivery</span>
+            <span {...inactiveProps}>Networking and Content Delivery</span>
             <span>&rsaquo;</span>
-            <span className="hover:underline cursor-not-allowed" {...inactiveProps}>Amazon Route 53</span>
+            <span {...inactiveProps}>Amazon Route 53</span>
             <span>&rsaquo;</span>
             <span className="font-medium text-slate-800">Features</span>
           </div>
