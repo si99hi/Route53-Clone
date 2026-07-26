@@ -11,8 +11,13 @@ import {
   RecordType,
 } from './types';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const getApiBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  const cleanUrl = url.replace(/\/$/, '');
+  return cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class APIError extends Error {
   status: number;
