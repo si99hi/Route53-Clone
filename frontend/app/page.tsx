@@ -2,7 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import AwsLogo from '../components/layout/AwsLogo';
+import blueWaves from '../public/images/blue-waves.png';
+import redWaves from '../public/images/red-waves.png';
 
 export default function LandingPage() {
   const [openBenefit, setOpenBenefit] = useState<number | null>(null);
@@ -376,49 +379,105 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto space-y-8">
           <h2 className="text-3xl font-bold text-slate-900">Get started with Route 53</h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Card 1: Read more about Amazon Route 53 -> REDIRECTS TO /features */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* LEFT TALL CARD: Features Page (Blue Waves) */}
             <Link
               href="/features"
-              className="relative overflow-hidden rounded-xl bg-[#0073bb] text-white p-8 min-h-[260px] flex flex-col justify-between shadow-md hover:bg-[#005f9e] transition-colors group"
+              className="relative overflow-hidden rounded-2xl p-8 sm:p-10 min-h-[540px] flex flex-col justify-between shadow-md transition-all duration-300 hover:shadow-xl group"
             >
-              <div className="space-y-3">
-                <p className="text-xs uppercase tracking-wider font-semibold text-blue-200">Featured</p>
-                <h3 className="text-xl font-semibold leading-snug text-white">
-                  Read more about Amazon Route 53 features and technical capabilities
-                </h3>
+              {/* Background Image & Gradient Overlay */}
+              <Image
+                src={blueWaves}
+                alt="Blue Waves"
+                fill
+                priority
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/40" />
+
+              {/* Top Badge Tag */}
+              <div className="relative z-10">
+                <span className="inline-block bg-black/75 border border-slate-700/80 text-slate-200 font-mono text-xs px-3 py-1 rounded shadow-sm">
+                  Features page
+                </span>
               </div>
-              <div className="pt-4 flex items-center space-x-2 text-sm font-medium text-white">
-                <span>Learn more</span>
-                <span className="text-xl transition-transform group-hover:translate-x-1">&rarr;</span>
+
+              {/* Bottom Content */}
+              <div className="relative z-10 space-y-4 pt-12">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white leading-snug tracking-tight">
+                  Read more about Amazon Route 53
+                </h3>
+                <div className="text-white text-2xl font-light transition-transform duration-300 group-hover:translate-x-2">
+                  &rarr;
+                </div>
               </div>
             </Link>
 
-            {/* Card 2: Secure your Amazon VPC DNS resolution -> REDIRECTS TO /blogs/dns-firewall */}
-            <Link
-              href="/blogs/dns-firewall"
-              className="relative overflow-hidden rounded-xl bg-slate-900 text-white p-8 min-h-[260px] flex flex-col justify-between shadow-md hover:bg-slate-800 transition-colors group"
-            >
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold leading-snug text-white group-hover:text-amber-400 transition-colors">
-                  Secure your Amazon VPC DNS resolution with Amazon Route 53 Resolver DNS Firewall
-                </h3>
-              </div>
-              <div className="pt-4 flex items-center space-x-2 text-sm font-medium text-amber-400">
-                <span>Read blog post</span>
-                <span className="text-xl transition-transform group-hover:translate-x-1">&rarr;</span>
-              </div>
-            </Link>
+            {/* RIGHT COLUMN: STACKED CARDS */}
+            <div className="flex flex-col space-y-6 justify-between">
+              {/* TOP RIGHT CARD: Getting Started (Dark Pattern) */}
+              <Link
+                href="/blogs/dns-firewall"
+                className="relative overflow-hidden rounded-2xl p-8 min-h-[256px] flex flex-col justify-between shadow-md transition-all duration-300 hover:shadow-xl group flex-1 bg-[#121a24]"
+              >
+                {/* Background Isometric Pattern */}
+                <div 
+                  className="absolute inset-0 opacity-20 pointer-events-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l20 11.54v23.08L20 40 0 34.62V11.54L20 0zm0 3.08L3.55 12.58 20 22.07l16.45-9.49L20 3.08zm17.33 11.91L20.89 24.48v18.03L37.33 33.02V14.99zM2.67 14.99v18.03L19.11 42.51V24.48L2.67 14.99z' fill='%23ffffff' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+                    backgroundSize: '50px 50px'
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0b1017] via-[#121a24]/90 to-[#182330]/80" />
 
-            {/* Card 3: Contact us / Connect with an expert */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#991b1b] to-[#450a0a] text-white p-8 min-h-[260px] flex flex-col justify-between shadow-md">
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold leading-snug text-white">
-                  Connect with an AWS cloud networking expert for personalized guidance
-                </h3>
-              </div>
-              <div className="pt-4 flex items-center justify-between text-slate-300 text-xs">
-                <span className="font-medium cursor-not-allowed opacity-75" {...inactiveProps}>Contact sales &rarr;</span>
+                {/* Top Badge Tag */}
+                <div className="relative z-10">
+                  <span className="inline-block bg-black/75 border border-slate-700/80 text-slate-200 font-mono text-xs px-3 py-1 rounded shadow-sm">
+                    Getting started
+                  </span>
+                </div>
+
+                {/* Bottom Content */}
+                <div className="relative z-10 space-y-4 pt-6">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white leading-snug tracking-tight">
+                    Secure your Amazon VPC DNS resolution with Amazon Route 53 Resolver DNS Firewall
+                  </h3>
+                  <div className="text-white text-2xl font-light transition-transform duration-300 group-hover:translate-x-2">
+                    &rarr;
+                  </div>
+                </div>
+              </Link>
+
+              {/* BOTTOM RIGHT CARD: Contact Us (Red Waves) */}
+              <div
+                className="relative overflow-hidden rounded-2xl p-8 min-h-[256px] flex flex-col justify-between shadow-md transition-all duration-300 hover:shadow-xl group flex-1 cursor-not-allowed"
+                {...inactiveProps}
+              >
+                {/* Background Image & Gradient Overlay */}
+                <Image
+                  src={redWaves}
+                  alt="Red Waves"
+                  fill
+                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/30" />
+
+                {/* Top Badge Tag */}
+                <div className="relative z-10">
+                  <span className="inline-block bg-black/75 border border-slate-700/80 text-slate-200 font-mono text-xs px-3 py-1 rounded shadow-sm">
+                    Contact us
+                  </span>
+                </div>
+
+                {/* Bottom Content */}
+                <div className="relative z-10 space-y-4 pt-6">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white leading-snug tracking-tight">
+                    Connect with an expert
+                  </h3>
+                  <div className="text-white text-2xl font-light transition-transform duration-300 group-hover:translate-x-2">
+                    &rarr;
+                  </div>
+                </div>
               </div>
             </div>
           </div>
