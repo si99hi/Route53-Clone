@@ -350,37 +350,37 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
       )}
 
       {/* 2. Top Title Row & Action Buttons */}
-      <div className="space-y-3 font-sans">
+      <div className="flex flex-wrap items-center justify-between gap-3 font-sans">
         {/* Left: Type Badge + Domain Name + Info */}
-        <div className="flex items-center space-x-2.5">
-          <span className="bg-[#0972D3] text-white text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+        <div className="flex items-center space-x-2">
+          <span className="bg-[#0972D3] text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
             {zoneTypeLabel === 'public' ? 'Public' : 'Private'}
           </span>
-          <h1 className="text-2xl font-bold text-[#16191F] tracking-tight">
+          <h1 className="text-lg sm:text-xl font-bold text-[#16191F] tracking-tight">
             {domainDisplayName}
           </h1>
-          <button className="text-[#0972D3] hover:underline text-xs font-medium">
+          <button className="text-[#0972D3] hover:underline text-[11px] font-medium ml-0.5">
             Info
           </button>
         </div>
 
         {/* Action Buttons Row */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setIsDeleteZoneModalOpen(true)}
-            className="px-5 py-1.5 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-xs font-semibold transition-colors shadow-2xs"
+            className="px-3 py-1 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-[11px] font-semibold transition-colors shadow-2xs"
           >
             Delete zone
           </button>
           <button
             onClick={() => toast.info('Test record feature coming soon!')}
-            className="px-5 py-1.5 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-xs font-semibold transition-colors shadow-2xs"
+            className="px-3 py-1 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-[11px] font-semibold transition-colors shadow-2xs"
           >
             Test record
           </button>
           <button
             onClick={() => toast.info('Configure query logging feature coming soon!')}
-            className="px-5 py-1.5 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-xs font-semibold transition-colors shadow-2xs"
+            className="px-3 py-1 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-[11px] font-semibold transition-colors shadow-2xs"
           >
             Configure query logging
           </button>
@@ -388,16 +388,16 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
       </div>
 
       {/* 3. Collapsible Hosted Zone Details Card */}
-      <div className="border border-slate-300 rounded-2xl bg-white p-5 shadow-2xs font-sans">
+      <div className="border border-slate-300 rounded-xl bg-white p-3 sm:p-4 shadow-2xs font-sans">
         <div
           className="flex items-center justify-between cursor-pointer select-none"
           onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
         >
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-[#16191F] font-bold">
+            <span className="text-[11px] text-[#16191F] font-bold">
               {isDetailsExpanded ? '▼' : '►'}
             </span>
-            <h2 className="text-lg font-bold text-[#16191F]">Hosted zone details</h2>
+            <h2 className="text-sm font-bold text-[#16191F]">Hosted zone details</h2>
           </div>
 
           <button
@@ -406,58 +406,61 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
               e.stopPropagation();
               router.push(`/hosted-zones/${zoneId}/edit`);
             }}
-            className="px-5 py-1.5 border-2 border-[#0972D3] hover:bg-blue-50/60 text-[#0972D3] font-semibold text-xs rounded-full transition-colors shadow-2xs"
+            className="px-3 py-1 border-2 border-[#0972D3] hover:bg-blue-50/60 text-[#0972D3] font-semibold text-[11px] rounded-full transition-colors shadow-2xs"
           >
             Edit hosted zone
           </button>
         </div>
 
         {isDetailsExpanded && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-5 mt-4 border-t border-slate-200 text-xs">
-            {/* Left Column */}
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 mt-2 border-t border-slate-200 text-[11px]">
+            {/* Column 1: Zone Name, ID, Description */}
+            <div className="space-y-2.5">
               <div>
-                <div className="font-bold text-[#16191F] text-xs">Hosted zone name</div>
-                <div className="text-[#16191F] text-xs mt-0.5">{domainDisplayName}</div>
+                <div className="font-bold text-[#16191F] text-[11px]">Hosted zone name</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5">{domainDisplayName}</div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-xs">Hosted zone ID</div>
-                <div className="text-[#16191F] text-xs mt-0.5">{zone?.id || zoneId}</div>
+                <div className="font-bold text-[#16191F] text-[11px]">Hosted zone ID</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5">{zone?.id || zoneId}</div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-xs">Description</div>
-                <div className="text-[#16191F] text-xs mt-0.5">{zone?.description || '-'}</div>
-              </div>
-
-              <div>
-                <div className="font-bold text-[#16191F] text-xs">Name servers</div>
-                <div className="text-[#16191F] text-xs mt-0.5 space-y-0.5">
-                  {nameServersToDisplay.map((ns, i) => (
-                    <div key={i}>{ns}</div>
-                  ))}
-                </div>
+                <div className="font-bold text-[#16191F] text-[11px]">Description</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5">{zone?.description || '-'}</div>
               </div>
             </div>
 
-            {/* Right Column with vertical line */}
-            <div className="space-y-4 md:border-l md:border-slate-200 md:pl-8">
+            {/* Column 2: Query Log, Type, Record Count */}
+            <div className="space-y-2.5 md:border-l md:border-slate-200 md:pl-5">
               <div>
-                <div className="font-bold text-[#16191F] text-xs">Query log</div>
-                <div className="text-[#16191F] text-xs mt-0.5">-</div>
+                <div className="font-bold text-[#16191F] text-[11px]">Query log</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5">-</div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-xs">Type</div>
-                <div className="text-[#16191F] text-xs mt-0.5">
+                <div className="font-bold text-[#16191F] text-[11px]">Type</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5">
                   {zoneTypeLabel === 'public' ? 'Public hosted zone' : 'Private hosted zone'}
                 </div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-xs">Record count</div>
-                <div className="text-[#16191F] text-xs mt-0.5">{rawRecords.length}</div>
+                <div className="font-bold text-[#16191F] text-[11px]">Record count</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5">{rawRecords.length}</div>
+              </div>
+            </div>
+
+            {/* Column 3: Name Servers */}
+            <div className="space-y-2.5 md:border-l md:border-slate-200 md:pl-5">
+              <div>
+                <div className="font-bold text-[#16191F] text-[11px]">Name servers</div>
+                <div className="text-[#16191F] text-[11px] mt-0.5 space-y-0.5">
+                  {nameServersToDisplay.map((ns, i) => (
+                    <div key={i}>{ns}</div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -465,18 +468,18 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
       </div>
 
       {/* 4. AWS-Style Tab Navigation Bar */}
-      <div className="border-b border-slate-200 font-sans select-none flex items-center space-x-6 text-xs font-semibold pt-1">
+      <div className="border-b border-slate-200 font-sans select-none flex items-center space-x-4 text-[11px] font-semibold pt-1">
         <button
           type="button"
-          className="pb-2.5 text-slate-500 hover:text-slate-800 transition-colors"
+          className="pb-2 text-slate-500 hover:text-slate-800 transition-colors"
           title="Previous tabs"
         >
-          <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+          <ChevronLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
         </button>
 
         <button
           onClick={() => setActiveTab('records')}
-          className={`pb-2.5 border-b-[3px] transition-colors ${
+          className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'records'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
               : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
@@ -487,7 +490,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
         <button
           onClick={() => setActiveTab('recovery')}
-          className={`pb-2.5 border-b-[3px] transition-colors ${
+          className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'recovery'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
               : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
@@ -498,7 +501,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
         <button
           onClick={() => setActiveTab('dnssec')}
-          className={`pb-2.5 border-b-[3px] transition-colors ${
+          className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'dnssec'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
               : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
@@ -509,7 +512,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
         <button
           onClick={() => setActiveTab('tags')}
-          className={`pb-2.5 border-b-[3px] transition-colors ${
+          className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'tags'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
               : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
@@ -520,26 +523,26 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
         <button
           type="button"
-          className="pb-2.5 text-slate-500 hover:text-slate-800 transition-colors"
+          className="pb-2 text-slate-500 hover:text-slate-800 transition-colors"
           title="Next tabs"
         >
-          <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+          <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
         </button>
       </div>
 
       {/* TAB 1: Records View */}
       {activeTab === 'records' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left Section: Records Section Card (8 cols if expanded, 12 cols if collapsed) */}
           <div
             className={`${
               isInspectorCollapsed ? 'lg:col-span-12' : 'lg:col-span-8'
-            } border border-slate-300 rounded-2xl bg-white p-6 space-y-6 shadow-2xs transition-all duration-200`}
+            } border border-slate-300 rounded-xl bg-white p-4 space-y-4 shadow-2xs transition-all duration-200`}
           >
             {/* Header Row: Section Title & Action Buttons */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-200 pb-3">
               <div className="flex items-center space-x-2">
-                <h2 className="text-xl font-bold text-[#16191F] tracking-tight">
+                <h2 className="text-base font-bold text-[#16191F] tracking-tight">
                   Records{' '}
                   {selectedRecordIds.length > 0
                     ? `(${selectedRecordIds.length}/${totalRecords})`
@@ -549,7 +552,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                   <button
                     type="button"
                     onClick={() => setSelectedRecordIds([])}
-                    className="px-2.5 py-0.5 rounded border border-[#0972D3] bg-blue-50/50 text-[#0972D3] hover:bg-blue-100 text-xs font-semibold transition-colors cursor-pointer"
+                    className="px-2 py-0.5 rounded border border-[#0972D3] bg-blue-50/50 text-[#0972D3] hover:bg-blue-100 text-[10px] font-semibold transition-colors cursor-pointer"
                     title="Clear selected records"
                   >
                     Clear selection
@@ -557,7 +560,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                 )}
                 <button
                   type="button"
-                  className="text-[#0972D3] hover:underline text-xs font-normal"
+                  className="text-[#0972D3] hover:underline text-[11px] font-normal"
                   onClick={(e) => e.preventDefault()}
                 >
                   Info
@@ -565,24 +568,24 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
               </div>
 
               {/* Action Buttons Toolbar */}
-              <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-2">
                 {isInspectorCollapsed && (
                   <button
                     onClick={() => setIsInspectorCollapsed(false)}
-                    className="px-4 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-800 flex items-center space-x-1.5 transition-colors shadow-2xs mr-1"
+                    className="px-3 py-1 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-800 flex items-center space-x-1 transition-colors shadow-2xs mr-1"
                     title="Expand details panel"
                   >
-                    <ChevronLeft className="h-4 w-4 text-[#0972D3]" strokeWidth={2} />
+                    <ChevronLeft className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
                     <span>Record details</span>
                   </button>
                 )}
 
                 <button
                   onClick={() => refetchRecords()}
-                  className="h-8 w-8 rounded-full border-2 border-[#0972D3] bg-white hover:bg-blue-50 flex items-center justify-center text-[#0972D3] transition-colors shadow-2xs"
+                  className="h-7 w-7 rounded-full border-2 border-[#0972D3] bg-white hover:bg-blue-50 flex items-center justify-center text-[#0972D3] transition-colors shadow-2xs"
                   title="Refresh"
                 >
-                  <RotateCw className="h-4 w-4 text-[#0972D3]" strokeWidth={2} />
+                  <RotateCw className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 <button
@@ -590,7 +593,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                     if (selectedRecord) setRecordToDelete(selectedRecord);
                   }}
                   disabled={selectedRecordIds.length === 0}
-                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-colors shadow-2xs ${
+                  className={`px-3.5 py-1 rounded-full text-[11px] font-bold transition-colors shadow-2xs ${
                     selectedRecordIds.length === 0
                       ? 'border border-slate-300 bg-white text-[#879596] cursor-not-allowed'
                       : 'border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50'
@@ -601,7 +604,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
                 <button
                   onClick={() => toast.info('Import zone file feature coming soon!')}
-                  className="px-5 py-1.5 rounded-full border-2 border-[#0972D3] hover:bg-blue-50 text-[#0972D3] text-xs font-bold transition-colors shadow-2xs"
+                  className="px-3.5 py-1 rounded-full border-2 border-[#0972D3] hover:bg-blue-50 text-[#0972D3] text-[11px] font-bold transition-colors shadow-2xs"
                 >
                   Import zone file
                 </button>
@@ -612,7 +615,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                     setFormErrorMsg(null);
                     setIsRecordModalOpen(true);
                   }}
-                  className="px-5 py-1.5 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-950 font-bold text-xs transition-colors shadow-2xs"
+                  className="px-3.5 py-1 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-950 font-bold text-[11px] transition-colors shadow-2xs"
                 >
                   Create record
                 </button>
@@ -620,7 +623,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             </div>
 
             {/* Subtitle / Helper notice */}
-            <p className="text-xs text-[#16191F] font-normal leading-relaxed">
+            <p className="text-[11px] text-[#16191F] font-normal leading-relaxed">
               Automatic mode is the current search behavior optimized for best filter results.{' '}
               <button
                 type="button"
@@ -636,6 +639,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
               {/* Search Bar */}
               <div className="w-full">
                 <ZoneSearchBar
+                  mode="records"
                   value={search}
                   onChange={(val) => {
                     setSearch(val);
@@ -673,9 +677,9 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             {/* Records Table */}
             <div className="border border-slate-300 rounded-xl overflow-x-auto bg-white shadow-2xs">
               <table className="w-full text-xs text-left text-slate-800 font-sans">
-                <thead className="bg-slate-50/80 border-b border-slate-300 text-xs font-bold select-none text-[#16191F]">
+                <thead className="bg-slate-50/90 border-b border-slate-300 text-[11px] font-semibold select-none text-slate-600">
                   <tr>
-                    <th className="w-10 px-3 py-3 text-center border-r border-slate-200">
+                    <th className="w-10 px-3 py-1.5 text-center border-r border-slate-200">
                       <input
                         type="checkbox"
                         checked={records.length > 0 && selectedRecordIds.length === records.length}
@@ -697,35 +701,35 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                         className="rounded border-slate-400 text-[#0972D3] focus:ring-[#0972D3]"
                       />
                     </th>
-                    <th className="px-4 py-3 font-bold min-w-[150px] border-r border-slate-200">Record name ▼</th>
-                    <th className="px-3 py-3 font-bold w-[70px] border-r border-slate-200">Type ▼</th>
-                    <th className="px-3 py-3 font-bold w-[100px] border-r border-slate-200">Routing policy ▼</th>
-                    <th className="px-3 py-3 font-bold w-[80px] border-r border-slate-200">Differentiator ▼</th>
-                    <th className="px-3 py-3 font-bold w-[70px] border-r border-slate-200">Alias ▼</th>
-                    <th className="px-4 py-3 font-bold min-w-[280px] border-r border-slate-200">Value/Route traffic to ▼</th>
-                    <th className="px-3 py-3 font-bold w-[90px]">TTL (seconds) ▼</th>
+                    <th className="px-4 py-1.5 font-semibold text-slate-600 min-w-[150px] border-r border-slate-200">Record name ▼</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[70px] border-r border-slate-200">Type ▼</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[100px] border-r border-slate-200">Routing policy ▼</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[80px] border-r border-slate-200">Differentiator ▼</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[70px] border-r border-slate-200">Alias ▼</th>
+                    <th className="px-4 py-1.5 font-semibold text-slate-600 min-w-[280px] border-r border-slate-200">Value/Route traffic to ▼</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[90px]">TTL (seconds) ▼</th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-slate-200 bg-white">
                   {isRecordsLoading ? (
                     [...Array(3)].map((_, i) => (
-                      <tr key={i} className="animate-pulse h-[70px]">
-                        <td className="px-3 py-4 text-center">
+                      <tr key={i} className="animate-pulse h-[40px]">
+                        <td className="px-3 py-2 text-center">
                           <div className="h-3.5 w-3.5 bg-slate-200 rounded mx-auto"></div>
                         </td>
-                        <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded w-32"></div></td>
-                        <td className="px-3 py-4"><div className="h-4 bg-slate-200 rounded w-10"></div></td>
-                        <td className="px-3 py-4"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
-                        <td className="px-3 py-4"><div className="h-4 bg-slate-200 rounded w-8"></div></td>
-                        <td className="px-3 py-4"><div className="h-4 bg-slate-200 rounded w-8"></div></td>
-                        <td className="px-4 py-4"><div className="h-4 bg-slate-200 rounded w-48"></div></td>
-                        <td className="px-3 py-4"><div className="h-4 bg-slate-200 rounded w-12"></div></td>
+                        <td className="px-4 py-2"><div className="h-4 bg-slate-200 rounded w-32"></div></td>
+                        <td className="px-3 py-2"><div className="h-4 bg-slate-200 rounded w-10"></div></td>
+                        <td className="px-3 py-2"><div className="h-4 bg-slate-200 rounded w-16"></div></td>
+                        <td className="px-3 py-2"><div className="h-4 bg-slate-200 rounded w-8"></div></td>
+                        <td className="px-3 py-2"><div className="h-4 bg-slate-200 rounded w-8"></div></td>
+                        <td className="px-4 py-2"><div className="h-4 bg-slate-200 rounded w-48"></div></td>
+                        <td className="px-3 py-2"><div className="h-4 bg-slate-200 rounded w-12"></div></td>
                       </tr>
                     ))
                   ) : records.length === 0 ? (
-                    <tr className="h-[100px]">
-                      <td colSpan={8} className="px-4 py-8 text-center text-slate-500 font-sans italic">
+                    <tr className="h-[80px]">
+                      <td colSpan={8} className="px-4 py-6 text-center text-slate-500 font-sans italic">
                         No records found matching criteria.
                       </td>
                     </tr>
@@ -747,41 +751,41 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                         <tr
                           key={rec.id}
                           onClick={toggleRow}
-                          className={`cursor-pointer transition-colors min-h-[70px] ${
+                          className={`cursor-pointer transition-colors min-h-[40px] ${
                             isSelected ? 'bg-blue-50/90 font-medium' : 'hover:bg-slate-50'
                           }`}
                         >
-                          <td className="px-3 py-4 text-center align-top border-r border-slate-200">
+                          <td className="px-3 py-2 text-center align-top border-r border-slate-200">
                             <input
                               type="checkbox"
                               checked={isSelected}
                               onChange={toggleRow}
-                              className="rounded border-slate-400 text-[#0972D3] focus:ring-[#0972D3] mt-1"
+                              className="rounded border-slate-400 text-[#0972D3] focus:ring-[#0972D3] mt-0.5"
                             />
                           </td>
-                          <td className="px-4 py-4 font-normal text-slate-900 align-top leading-relaxed border-r border-slate-200">
+                          <td className="px-4 py-2 font-normal text-slate-900 align-top leading-snug border-r border-slate-200">
                             {rec.name}
                           </td>
-                          <td className="px-3 py-4 font-semibold text-slate-800 align-top leading-relaxed border-r border-slate-200">
+                          <td className="px-3 py-2 font-semibold text-slate-800 align-top leading-snug border-r border-slate-200">
                             {rec.type}
                           </td>
-                          <td className="px-3 py-4 font-normal text-slate-700 align-top leading-relaxed border-r border-slate-200">
+                          <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug border-r border-slate-200">
                             Simple
                           </td>
-                          <td className="px-3 py-4 font-normal text-slate-500 align-top leading-relaxed border-r border-slate-200">
+                          <td className="px-3 py-2 font-normal text-slate-500 align-top leading-snug border-r border-slate-200">
                             -
                           </td>
-                          <td className="px-3 py-4 font-normal text-slate-700 align-top leading-relaxed border-r border-slate-200">
+                          <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug border-r border-slate-200">
                             {(rec as any).alias ? 'Yes' : 'No'}
                           </td>
-                          <td className="px-4 py-4 font-normal text-slate-800 align-top leading-relaxed whitespace-pre-wrap break-words border-r border-slate-200">
+                          <td className="px-4 py-2 font-normal text-slate-800 align-top leading-snug whitespace-pre-wrap break-words border-r border-slate-200">
                             {valueLines.map((line, lIdx) => (
-                              <div key={lIdx} className="leading-snug py-0.5">
+                              <div key={lIdx} className="leading-snug py-0.2">
                                 {line}
                               </div>
                             ))}
                           </td>
-                          <td className="px-3 py-4 font-normal text-slate-700 align-top leading-relaxed">
+                          <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug">
                             {formattedTtl}
                           </td>
                         </tr>

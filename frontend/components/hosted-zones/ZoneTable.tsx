@@ -115,19 +115,12 @@ export default function ZoneTable({
         {/* Header Row */}
         <thead className="bg-white border-b border-slate-300 select-none">
           <tr className="h-9">
-            {/* Checkbox Column */}
+            {/* Selection Column */}
             <th className="w-10 px-4 py-2.5 text-center">
               <input
-                type="checkbox"
-                checked={isAllSelected || (zones.length > 0 && zones.every((z) => z.id === selectedZoneId))}
-                onChange={() => {
-                  if (onSelectAll) {
-                    onSelectAll();
-                  } else if (zones.length > 0) {
-                    onSelectZone(selectedZoneId ? null : zones[0].id);
-                  }
-                }}
-                className="w-3.5 h-3.5 rounded-full border-2 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                type="radio"
+                disabled
+                className="w-3.5 h-3.5 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] opacity-40 cursor-not-allowed"
               />
             </th>
 
@@ -256,13 +249,16 @@ export default function ZoneTable({
                     isSelected ? 'bg-[#e6f2fc]' : 'hover:bg-[#f2f8fd]'
                   }`}
                 >
-                  {/* Checkbox Column */}
+                  {/* Selection Column */}
                   <td className="px-4 py-2.5 text-center align-middle">
                     <input
-                      type="checkbox"
+                      type="radio"
                       checked={isSelected}
                       onChange={() => onSelectZone(isSelected ? null : zone.id)}
-                      className="w-3.5 h-3.5 rounded-full border-2 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                      onClick={() => {
+                        if (isSelected) onSelectZone(null);
+                      }}
+                      className="w-3.5 h-3.5 border-slate-400 text-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
                     />
                   </td>
 

@@ -88,9 +88,9 @@ export default function RecordTable({
   return (
     <div className="w-full border border-slate-300 rounded overflow-x-auto bg-white shadow-2xs">
       <table className="w-full text-xs text-left text-slate-700 bg-white">
-        <thead className="text-xs font-bold text-slate-800 bg-slate-50 border-b border-slate-300 select-none">
+        <thead className="text-[11px] font-semibold text-slate-600 bg-slate-50 border-b border-slate-300 select-none">
           <tr>
-            <th className="w-10 px-3 py-2.5 text-center">
+            <th className="w-10 px-3 py-1.5 text-center">
               <input
                 type="checkbox"
                 disabled
@@ -99,7 +99,7 @@ export default function RecordTable({
             </th>
             <th
               onClick={() => onSort('name')}
-              className="px-4 py-2.5 cursor-pointer hover:bg-slate-100 transition-colors"
+              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors font-semibold text-slate-600"
             >
               <div className="flex items-center space-x-1">
                 <span>Record name</span>
@@ -108,24 +108,24 @@ export default function RecordTable({
             </th>
             <th
               onClick={() => onSort('type')}
-              className="px-4 py-2.5 cursor-pointer hover:bg-slate-100 transition-colors"
+              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors font-semibold text-slate-600"
             >
               <div className="flex items-center space-x-1">
                 <span>Type</span>
                 <ChevronDown className="h-3 w-3 text-slate-500" />
               </div>
             </th>
-            <th className="px-4 py-2.5">Value/Route to</th>
+            <th className="px-4 py-1.5 font-semibold text-slate-600">Value/Route to</th>
             <th
               onClick={() => onSort('ttl')}
-              className="px-4 py-2.5 cursor-pointer hover:bg-slate-100 transition-colors text-right"
+              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors text-right font-semibold text-slate-600"
             >
               <div className="flex items-center justify-end space-x-1">
                 <span>TTL (seconds)</span>
                 <ChevronDown className="h-3 w-3 text-slate-500" />
               </div>
             </th>
-            <th className="px-4 py-2.5 text-right">Actions</th>
+            <th className="px-4 py-1.5 text-right font-semibold text-slate-600">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200 bg-white font-mono">
@@ -136,7 +136,7 @@ export default function RecordTable({
                 key={record.id}
                 className={isSelected ? 'bg-blue-50/80 font-medium' : 'hover:bg-slate-50 transition-colors'}
               >
-                <td className="px-3 py-3 text-center font-sans">
+                <td className="px-3 py-2 text-center font-sans">
                   <input
                     type="checkbox"
                     checked={isSelected}
@@ -144,19 +144,19 @@ export default function RecordTable({
                     className="rounded border-slate-400 text-[#0073bb] focus:ring-[#0073bb]"
                   />
                 </td>
-                <td className="px-4 py-3 font-semibold text-slate-900 truncate max-w-[200px] font-sans">
+                <td className="px-4 py-2 font-semibold text-slate-900 truncate max-w-[200px] font-sans">
                   {record.name}
                 </td>
-                <td className="px-4 py-3 font-sans">
+                <td className="px-4 py-2 font-sans">
                   <Badge variant={getRecordTypeColor(record.type)}>{record.type}</Badge>
                 </td>
-                <td className="px-4 py-3 text-slate-700 truncate max-w-[300px]" title={record.value}>
+                <td className="px-4 py-2 text-slate-700 truncate max-w-[300px]" title={record.value}>
                   {record.value}
                 </td>
-                <td className="px-4 py-3 text-right text-slate-800 font-medium">
+                <td className="px-4 py-2 text-right text-slate-800 font-medium">
                   {record.ttl}
                 </td>
-                <td className="px-4 py-3 text-right space-x-2 shrink-0 font-sans">
+                <td className="px-4 py-2 text-right space-x-2 shrink-0 font-sans">
                   <button
                     onClick={() => onEditClick(record)}
                     className="inline-flex items-center p-1 text-slate-500 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"

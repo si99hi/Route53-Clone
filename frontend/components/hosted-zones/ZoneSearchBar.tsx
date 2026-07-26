@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronLeft, ChevronRight, Settings, X, ChevronDown } from 'lucide-react';
 
 interface ZoneSearchBarProps {
+  mode?: 'records' | 'hosted-zones';
   value: string;
   onChange: (value: string) => void;
   tags?: string[];
@@ -39,7 +40,17 @@ const RECORD_PROPERTIES = [
   'Record ID',
 ];
 
-const PROPERTY_VALUE_OPTIONS: Record<string, string[]> = {
+const HOSTED_ZONE_PROPERTIES = [
+  'Hosted zone name',
+  'Type',
+  'Accelerated recovery',
+  'Created by',
+  'Record count',
+  'Description',
+  'Hosted zone ID',
+];
+
+const RECORD_PROPERTY_VALUE_OPTIONS: Record<string, string[]> = {
   Alias: ['Alias = Yes', 'Alias = No'],
   Type: [
     'Type = A',
@@ -58,7 +69,13 @@ const PROPERTY_VALUE_OPTIONS: Record<string, string[]> = {
   ],
 };
 
+const HOSTED_ZONE_PROPERTY_VALUE_OPTIONS: Record<string, string[]> = {
+  Type: ['Type = Public', 'Type = Private'],
+  'Accelerated recovery': ['Accelerated recovery = Enabled', 'Accelerated recovery = Disabled'],
+};
+
 export default function ZoneSearchBar({
+  mode = 'records',
   value,
   onChange,
   tags = [],
@@ -67,11 +84,11 @@ export default function ZoneSearchBar({
   onAddTag,
   onRemoveTag,
   onClearFilters,
-  placeholder = 'Filter records by property or value',
+  placeholder,
   page = 1,
   totalPages = 1,
   onPageChange,
-  showPropertyDropdowns = true,
+  showPropertyDropdowns,
   selectedType = 'all',
   onTypeChange,
   selectedRoutingPolicy = 'all',
@@ -79,6 +96,12 @@ export default function ZoneSearchBar({
   selectedAlias = 'all',
   onAliasChange,
 }: ZoneSearchBarProps) {
+  const isHostedZones = mode === 'hosted-zones';
+  const shouldShowDropdowns = showPropertyDropdowns !== undefined ? showPropertyDropdowns : !isHostedZones;
+  const defaultPlaceholder = placeholder || (isHostedZones ? 'Filter hosted zones by property or value' : 'Filter records by property or value');
+  const propertiesList = isHostedZones ? HOSTED_ZONE_PROPERTIES : RECORD_PROPERTIES;
+  const propertyValueOptions = isHostedZones ? HOSTED_ZONE_PROPERTY_VALUE_OPTIONS : RECORD_PROPERTY_VALUE_OPTIONS;
+
   const [isPropertyDropdownOpen, setIsPropertyDropdownOpen] = useState(false);
   const [selectedPropertyKey, setSelectedPropertyKey] = useState<string | null>(null);
   const [openFilterMenu, setOpenFilterMenu] = useState<'type' | 'routing' | 'alias' | null>(null);
@@ -102,14 +125,16 @@ export default function ZoneSearchBar({
     if (selectedPropertyKey) return selectedPropertyKey;
     const trimmed = value.trim().toLowerCase();
     if (!trimmed) return null;
-    if (trimmed.startsWith('alias') || trimmed.includes('alias')) return 'Alias';
-    if (trimmed.startsWith('type') || trimmed.includes('type')) return 'Type';
-    if (trimmed.startsWith('routing') || trimmed.includes('routing')) return 'Routing policy';
+    for (const key of Object.keys(propertyValueOptions)) {
+      if (trimmed.startsWith(key.toLowerCase()) || trimmed.includes(key.toLowerCase())) {
+        return key;
+      }
+    }
     return null;
   };
 
   const activePropertyKey = getActivePropertyKey();
-  const currentPropOptions = activePropertyKey ? PROPERTY_VALUE_OPTIONS[activePropertyKey] : null;
+  const currentPropOptions = activePropertyKey ? propertyValueOptions[activePropertyKey] : null;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -204,7 +229,7 @@ export default function ZoneSearchBar({
                 }}
                 onKeyDown={handleKeyDown}
                 className="w-full pl-10 pr-9 py-2 border border-slate-300 rounded text-xs text-[#16191F] bg-white placeholder-slate-500 placeholder:italic font-normal focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-colors"
-                placeholder={placeholder}
+                placeholder={defaultPlaceholder}
               />
               {value.length > 0 && (
                 <button
@@ -220,49 +245,58 @@ export default function ZoneSearchBar({
 
             {/* AWS Property Suggestions & Values Dropdown Popover (Matches AWS Console Exact UI) */}
             {isPropertyDropdownOpen && (
-              <div className="absolute left-0 top-full mt-1 w-full max-w-sm bg-white border border-slate-300 rounded-md shadow-xl z-50 max-h-72 overflow-y-auto sidebar-scrollbar py-1 text-sm text-[#16191F]">
+              <div className="absolute left-0 top-full mt-1 w-52 bg-white border border-slate-300 rounded-lg shadow-lg z-50 max-h-56 overflow-y-auto sidebar-scrollbar text-[11px] text-[#16191F]">
                 {/* Header "Use: <query>" when typing or selecting a property */}
                 {value.trim().length > 0 && (
                   <button
                     type="button"
                     onClick={handleUseCurrentQuery}
-                    className="w-full text-left px-4 py-2 hover:bg-slate-100 transition-colors border-b border-slate-100 flex items-center font-normal text-slate-800"
+                    className="w-full text-left px-2.5 py-1.5 hover:bg-slate-100 transition-colors border-b border-slate-200 flex items-center font-normal text-slate-800"
                   >
                     <span className="text-slate-500 mr-1.5">Use:</span>
                     <span className="font-semibold text-slate-900">{value.trim()}</span>
                   </button>
                 )}
 
-                {/* Values section if active property key has predefined options (e.g. Alias = Yes / No) */}
+                {/* Values section if active property key has predefined options */}
                 {currentPropOptions ? (
                   <div>
-                    <div className="px-4 pt-2.5 pb-1 text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-50/50">
-                      values
+                    <div className="px-2.5 py-1 font-bold text-[11px] text-[#16191F] border-b border-slate-200 bg-slate-50/60">
+                      Values
                     </div>
-                    {currentPropOptions.map((opt) => (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => handleValueSelect(opt)}
-                        className="w-full text-left px-6 py-2 text-sm text-slate-800 hover:bg-blue-50 hover:text-[#0972D3] transition-colors border-b border-slate-100 last:border-none flex items-center font-medium"
-                      >
-                        <span>{opt}</span>
-                      </button>
-                    ))}
+                    <div className="divide-y divide-slate-200">
+                      {currentPropOptions.map((opt) => (
+                        <div key={opt} className="p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => handleValueSelect(opt)}
+                            className="w-full text-left pl-4 pr-2 py-1 text-[11px] text-[#16191F] font-medium hover:bg-[#f2f3f5] hover:border hover:border-slate-400 rounded transition-all border border-transparent flex items-center"
+                          >
+                            <span>{opt}</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   /* Standard property suggestion list */
                   <div>
-                    {RECORD_PROPERTIES.map((prop) => (
-                      <button
-                        key={prop}
-                        type="button"
-                        onClick={() => handlePropertySelect(prop)}
-                        className="w-full text-left px-4 py-2 text-sm text-slate-800 hover:bg-slate-100 transition-colors border-b border-slate-100 last:border-none flex items-center justify-between"
-                      >
-                        <span>{prop}</span>
-                      </button>
-                    ))}
+                    <div className="px-2.5 py-1 font-bold text-[11px] text-[#16191F] border-b border-slate-200">
+                      Properties
+                    </div>
+                    <div className="divide-y divide-slate-200">
+                      {propertiesList.map((prop) => (
+                        <div key={prop} className="p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => handlePropertySelect(prop)}
+                            className="w-full text-left pl-4 pr-2 py-1 text-[11px] text-[#16191F] font-normal hover:bg-[#f2f3f5] hover:border hover:border-slate-400 rounded transition-all border border-transparent flex items-center justify-between"
+                          >
+                            <span>{prop}</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -270,7 +304,7 @@ export default function ZoneSearchBar({
           </div>
 
           {/* Quick Property Dropdown Buttons: Type ▼, Routing p... ▼, Alias ▼ */}
-          {showPropertyDropdowns && (
+          {shouldShowDropdowns && (
             <div className="flex items-center space-x-1.5 shrink-0">
               {/* Type Dropdown */}
               <div className="relative">

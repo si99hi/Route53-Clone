@@ -245,6 +245,7 @@ export default function HostedZonesPage() {
 
       {/* Search Toolbar & Pagination */}
       <ZoneSearchBar
+        mode="hosted-zones"
         value={search}
         onChange={(val) => {
           setSearch(val);
