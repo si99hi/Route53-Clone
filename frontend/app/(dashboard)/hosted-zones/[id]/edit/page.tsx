@@ -142,33 +142,33 @@ export default function EditHostedZonePage({ params }: { params: { id: string } 
             </p>
           </div>
 
-          {/* Read-Only Fields Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Read-Only Fields Stacked Vertically */}
+          <div className="space-y-4">
             <div>
-              <div className="text-xs font-semibold text-[#16191F]">Domain name</div>
-              <div className="text-sm font-normal text-slate-800 mt-1">{domainName}</div>
+              <div className="text-xs font-bold text-[#16191F]">Domain name</div>
+              <div className="text-xs text-[#16191F] mt-0.5">{domainName}</div>
             </div>
 
             <div>
-              <div className="text-xs font-semibold text-[#16191F]">Hosted zone ID</div>
-              <div className="text-sm font-mono text-slate-800 mt-1">{zone.id}</div>
+              <div className="text-xs font-bold text-[#16191F]">Hosted zone ID</div>
+              <div className="text-xs text-[#16191F] mt-0.5">{zone.id}</div>
             </div>
 
             <div>
-              <div className="text-xs font-semibold text-[#16191F]">Record count</div>
-              <div className="text-sm font-normal text-slate-800 mt-1">{zone.record_count}</div>
+              <div className="text-xs font-bold text-[#16191F]">Record count</div>
+              <div className="text-xs text-[#16191F] mt-0.5">{zone.record_count}</div>
             </div>
 
             <div>
-              <div className="text-xs font-semibold text-[#16191F]">Type</div>
-              <div className="text-sm font-normal text-slate-800 mt-1">{displayType}</div>
+              <div className="text-xs font-bold text-[#16191F]">Type</div>
+              <div className="text-xs text-[#16191F] mt-0.5">{displayType}</div>
             </div>
           </div>
 
           {/* Description Input */}
-          <div className="space-y-2 pt-2 border-t border-slate-200">
-            <div className="flex items-center space-x-1.5">
-              <label htmlFor="description" className="text-xs font-semibold text-[#16191F]">
+          <div className="space-y-1.5 pt-2">
+            <div className="flex items-center space-x-1">
+              <label htmlFor="description" className="text-xs font-bold text-[#16191F]">
                 Description - optional
               </label>
               <button
@@ -190,7 +190,7 @@ export default function EditHostedZonePage({ params }: { params: { id: string } 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="The hosted zone is used for..."
-              className="w-full border border-slate-300 rounded-md p-3 text-sm text-[#16191F] focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+              className="w-full max-w-[650px] border border-slate-300 rounded-md p-3 text-xs text-[#16191F] focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
             />
 
             <div className="text-xs text-slate-500">

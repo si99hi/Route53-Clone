@@ -203,7 +203,7 @@ export default function ZoneSearchBar({
                   if (!isPropertyDropdownOpen) setIsPropertyDropdownOpen(true);
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-10 pr-9 py-2 border border-slate-300 rounded text-sm text-[#16191F] bg-white placeholder-slate-400 font-normal focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-colors"
+                className="w-full pl-10 pr-9 py-2 border border-slate-300 rounded text-xs text-[#16191F] bg-white placeholder-slate-500 placeholder:italic font-normal focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-colors"
                 placeholder={placeholder}
               />
               {value.length > 0 && (

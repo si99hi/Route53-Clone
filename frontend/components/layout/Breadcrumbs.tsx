@@ -3,6 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
 import { ChevronRight, PanelLeft, Info, Menu } from 'lucide-react';
 
 export default function Breadcrumbs() {
@@ -10,6 +12,15 @@ export default function Breadcrumbs() {
 
   // Parse pathname to generate breadcrumb links
   const pathSegments = pathname.split('/').filter(Boolean);
+
+  const isZoneRoute = pathSegments[0] === 'hosted-zones' && pathSegments[1] && pathSegments[1] !== 'new';
+  const zoneId = isZoneRoute ? pathSegments[1] : null;
+
+  const { data: zone } = useQuery({
+    queryKey: ['hosted-zone', zoneId],
+    queryFn: () => (zoneId ? api.getHostedZone(zoneId) : null),
+    enabled: Boolean(zoneId),
+  });
 
   const getBreadcrumbName = (segment: string, index: number) => {
     if (segment === 'hosted-zones') return 'Hosted zones';
@@ -31,8 +42,12 @@ export default function Breadcrumbs() {
     if (segment === 'outposts') return 'Outposts';
     if (segment === 'registered-domains') return 'Registered domains';
 
+    if (segment === zoneId) {
+      return zone?.domain_name || segment;
+    }
+
     if (segment.length === 36 && segment.includes('-')) {
-      if (index === 1) return 'Zone details';
+      if (index === 1) return zone?.domain_name || 'Zone details';
       return 'Record details';
     }
 
