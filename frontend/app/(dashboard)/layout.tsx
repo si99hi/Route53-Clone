@@ -20,7 +20,7 @@ export default function DashboardLayout({
     pathname.endsWith('/create');
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#16191f] font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0f1419] text-[#16191f] dark:text-[#eaedd5] font-sans antialiased">
       {/* Top Navbar */}
       <Topbar />
 
@@ -28,12 +28,12 @@ export default function DashboardLayout({
       <Breadcrumbs />
 
       <div className="flex flex-1">
-        {/* Left Sidebar (300px) */}
+        {/* Left Sidebar */}
         {!hideSidebar && <Sidebar />}
 
         {/* Scrollable Main Console Canvas */}
         <main
-          className={`flex-1 pt-20 pb-10 min-w-0 bg-white ${
+          className={`flex-1 pt-20 pb-10 min-w-0 bg-white dark:bg-[#0f1419] ${
             hideSidebar ? 'pl-0' : 'pl-[240px]'
           }`}
         >

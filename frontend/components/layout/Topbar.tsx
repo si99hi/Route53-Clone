@@ -17,6 +17,7 @@ import {
   Copy,
   User,
   Circle,
+  FlaskConical,
 } from 'lucide-react';
 import AwsLogo from './AwsLogo';
 
@@ -24,7 +25,11 @@ export default function Topbar() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [visualMode, setVisualMode] = useState<'browser' | 'light' | 'dark'>('browser');
+  const [selectedLanguage, setSelectedLanguage] = useState('browser');
   const menuRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const { data: user } = useQuery({
     queryKey: ['me'],
@@ -41,11 +46,43 @@ export default function Topbar() {
     },
   });
 
-  // Close dropdown on outside click
+  const applyVisualMode = (mode: 'browser' | 'light' | 'dark') => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('aws-visual-mode', mode);
+    const root = document.documentElement;
+    if (mode === 'dark') {
+      root.classList.add('dark');
+    } else if (mode === 'light') {
+      root.classList.remove('dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  };
+
+  useEffect(() => {
+    const savedMode = (localStorage.getItem('aws-visual-mode') as 'browser' | 'light' | 'dark') || 'browser';
+    setVisualMode(savedMode);
+    applyVisualMode(savedMode);
+  }, []);
+
+  const handleVisualModeChange = (mode: 'browser' | 'light' | 'dark') => {
+    setVisualMode(mode);
+    applyVisualMode(mode);
+  };
+
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setIsSettingsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -140,13 +177,112 @@ export default function Topbar() {
           <HelpCircle className="h-4 w-4" strokeWidth={1.5} />
         </button>
 
-        {/* Settings Icon */}
-        <button
-          className="p-1.5 text-slate-300 hover:text-white hover:bg-[#2e3542] rounded transition-colors"
-          title="Console Settings"
-        >
-          <Settings className="h-4 w-4" strokeWidth={1.5} />
-        </button>
+        {/* Settings Icon & Popover Menu */}
+        <div className="relative" ref={settingsRef}>
+          <button
+            onClick={() => {
+              setIsSettingsOpen(!isSettingsOpen);
+              setIsUserMenuOpen(false);
+            }}
+            className={`p-1.5 rounded transition-colors ${
+              isSettingsOpen ? 'bg-[#2e3542] text-white' : 'text-slate-300 hover:text-white hover:bg-[#2e3542]'
+            }`}
+            title="Console Settings"
+          >
+            <Settings className="h-4 w-4" strokeWidth={1.5} />
+          </button>
+
+          {/* Current User Settings Popover */}
+          {isSettingsOpen && (
+            <div className="absolute right-0 mt-1.5 w-[260px] bg-[#16191F] border border-slate-700/80 rounded-md shadow-2xl z-50 text-xs text-white font-sans p-4 space-y-4">
+              <h3 className="font-bold text-sm text-white tracking-tight">Current user settings</h3>
+
+              {/* Language Selection */}
+              <div>
+                <label className="text-[11px] font-bold text-slate-200 block mb-1">
+                  Language
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="w-full bg-[#0f1419] border border-slate-600 rounded px-3 py-1.5 text-xs text-white appearance-none cursor-pointer focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                  >
+                    <option value="browser">Browser default</option>
+                    <option value="en">English (US)</option>
+                    <option value="es">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                  </select>
+                  <ChevronDown className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-[#0972D3] pointer-events-none" strokeWidth={2} />
+                </div>
+              </div>
+
+              {/* Visual Mode Selection */}
+              <div>
+                <label className="text-[11px] font-bold text-slate-200 block mb-1.5">
+                  Visual mode - <span className="italic font-normal">beta</span>
+                </label>
+                <div className="space-y-1.5">
+                  <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-200 hover:text-white">
+                    <input
+                      type="radio"
+                      name="visualMode"
+                      value="browser"
+                      checked={visualMode === 'browser'}
+                      onChange={() => handleVisualModeChange('browser')}
+                      className="h-3.5 w-3.5 text-[#0972D3] accent-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                    />
+                    <span>Browser default</span>
+                  </label>
+
+                  <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-200 hover:text-white">
+                    <input
+                      type="radio"
+                      name="visualMode"
+                      value="light"
+                      checked={visualMode === 'light'}
+                      onChange={() => handleVisualModeChange('light')}
+                      className="h-3.5 w-3.5 text-[#0972D3] accent-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                    />
+                    <span>Light</span>
+                  </label>
+
+                  <label className="flex items-center space-x-2.5 cursor-pointer text-xs text-slate-200 hover:text-white">
+                    <input
+                      type="radio"
+                      name="visualMode"
+                      value="dark"
+                      checked={visualMode === 'dark'}
+                      onChange={() => handleVisualModeChange('dark')}
+                      className="h-3.5 w-3.5 text-[#0972D3] accent-[#0972D3] focus:ring-[#0972D3] cursor-pointer"
+                    />
+                    <span>Dark</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Bottom Divider & Links */}
+              <div className="border-t border-slate-700/80 pt-3 space-y-2 text-xs">
+                <a
+                  href="#user-settings"
+                  onClick={(e) => e.preventDefault()}
+                  className="block text-[#539fe5] hover:underline font-semibold"
+                >
+                  See all user settings
+                </a>
+                <a
+                  href="#preview"
+                  onClick={(e) => e.preventDefault()}
+                  className="flex items-center space-x-1.5 text-[#539fe5] hover:underline font-semibold"
+                >
+                  <span>AWS experimental preview</span>
+                  <FlaskConical className="h-3.5 w-3.5 ml-0.5" strokeWidth={1.5} />
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Vertical Divider */}
         <div className="h-4 w-[1px] bg-slate-700 mx-1" />

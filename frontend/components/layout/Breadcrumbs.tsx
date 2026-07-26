@@ -55,7 +55,7 @@ export default function Breadcrumbs() {
   };
 
   return (
-    <div className="h-10 bg-white border-b border-[#D5DBDB] px-4 flex items-center justify-between fixed top-10 left-0 right-0 z-40 select-none text-sm font-sans">
+    <div className="h-10 bg-white dark:bg-[#0f1419] border-b border-[#D5DBDB] dark:border-slate-800 px-4 flex items-center justify-between fixed top-10 left-0 right-0 z-40 select-none text-sm font-sans">
       {/* Left side: Blue menu icon & Breadcrumbs */}
       <div className="flex items-center space-x-3">
         {/* Blue Circle Hamburger Icon */}
@@ -68,7 +68,7 @@ export default function Breadcrumbs() {
 
         {/* Breadcrumb Links */}
         <nav className="flex items-center space-x-2 text-sm">
-          <Link href="/hosted-zones" className="text-[#0972D3] hover:underline font-medium">
+          <Link href="/hosted-zones" className="text-[#0972D3] dark:text-[#539fe5] hover:underline font-medium">
             Route 53
           </Link>
 
@@ -79,13 +79,13 @@ export default function Breadcrumbs() {
 
             return (
               <React.Fragment key={url}>
-                <ChevronRight className="h-4 w-4 text-[#687078]" strokeWidth={1.5} />
+                <ChevronRight className="h-4 w-4 text-[#687078] dark:text-slate-400" strokeWidth={1.5} />
                 {isLast ? (
-                  <span className="text-[#16191F] font-semibold truncate max-w-[280px]">
+                  <span className="text-[#16191F] dark:text-slate-200 font-semibold truncate max-w-[280px]">
                     {name}
                   </span>
                 ) : (
-                  <Link href={url} className="text-[#0972D3] hover:underline font-medium">
+                  <Link href={url} className="text-[#0972D3] dark:text-[#539fe5] hover:underline font-medium">
                     {name}
                   </Link>
                 )}
@@ -96,11 +96,11 @@ export default function Breadcrumbs() {
       </div>
 
       {/* Right side: Split window & info icons */}
-      <div className="flex items-center space-x-3 text-[#414D5C]">
-        <button className="p-1 hover:text-[#16191F] rounded hover:bg-[#F7F8FA] transition-colors" title="Split Panel View">
+      <div className="flex items-center space-x-3 text-[#414D5C] dark:text-slate-400">
+        <button className="p-1 hover:text-[#16191F] dark:hover:text-white rounded hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] transition-colors" title="Split Panel View">
           <PanelLeft className="h-4 w-4" strokeWidth={1.5} />
         </button>
-        <button className="p-1 hover:text-[#16191F] rounded hover:bg-[#F7F8FA] transition-colors" title="Information">
+        <button className="p-1 hover:text-[#16191F] dark:hover:text-white rounded hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] transition-colors" title="Information">
           <Info className="h-4 w-4" strokeWidth={1.5} />
         </button>
       </div>
