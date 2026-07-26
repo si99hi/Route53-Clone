@@ -1,5 +1,7 @@
+import os
 import random
 import smtplib
+import socket
 import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -7,6 +9,21 @@ from app.core.config import settings
 
 # In-memory OTP storage: { email: { "code": str, "expires_at": float } }
 _otp_store: dict[str, dict] = {}
+
+
+class IPv4SMTP(smtplib.SMTP):
+    """SMTP client that forces IPv4 socket connection (AF_INET) to prevent IPv6 unreachable errors on Linux containers."""
+
+    def _get_socket(self, host, port, timeout):
+        return socket.create_connection((host, port), timeout, family=socket.AF_INET)
+
+
+class IPv4SMTP_SSL(smtplib.SMTP_SSL):
+    """SMTP_SSL client that forces IPv4 socket connection (AF_INET)."""
+
+    def _get_socket(self, host, port, timeout):
+        new_socket = socket.create_connection((host, port), timeout, family=socket.AF_INET)
+        return self.context.wrap_socket(new_socket, server_hostname=self._host)
 
 
 def generate_otp() -> str:
@@ -38,7 +55,7 @@ def verify_otp_code(email: str, code: str) -> bool:
 
 
 def send_otp_email(to_email: str, code: str) -> None:
-    """Send OTP email using Gmail SMTP app password with multi-port fallback."""
+    """Send OTP email strictly via SMTP using forced IPv4 sockets."""
     subject = f"{code} is your AWS verification code"
 
     html_body = f"""
@@ -82,28 +99,30 @@ def send_otp_email(to_email: str, code: str) -> None:
     msg["To"] = to_email
     msg.attach(MIMEText(html_body, "html"))
 
-    print(f"[Email Service] Attempting to send OTP to {to_email} from {user}...")
+    smtp_host = settings.smtp_host or "smtp.gmail.com"
 
-    # Method 1: Try SSL on Port 465 (Direct & fast for Gmail)
-    try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=12) as server:
-            server.login(user, password)
-            server.sendmail(from_email, [to_email], msg.as_string())
-        print(f"[Email Service] Successfully sent OTP email to {to_email} via SSL:465!")
-        return
-    except Exception as ssl_err:
-        print(f"[Email Service] SSL:465 failed ({ssl_err}), trying TLS:587...")
+    print(f"[Email Service] Attempting IPv4 SMTP connection to {smtp_host} for {to_email}...")
 
-    # Method 2: Fallback to TLS on Port 587
+    # Method 1: Try IPv4 TLS on Port 587
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=12) as server:
+        with IPv4SMTP(smtp_host, 587, timeout=15) as server:
             server.ehlo()
             server.starttls()
             server.ehlo()
             server.login(user, password)
             server.sendmail(from_email, [to_email], msg.as_string())
-        print(f"[Email Service] Successfully sent OTP email to {to_email} via TLS:587!")
+        print(f"[Email Service] Successfully sent OTP email to {to_email} via IPv4 TLS:587!")
         return
     except Exception as tls_err:
-        print(f"[Email Error] Failed to send OTP to {to_email}: {tls_err}")
+        print(f"[Email Service] IPv4 TLS:587 failed ({tls_err}), trying IPv4 SSL:465...")
+
+    # Method 2: Try IPv4 SSL on Port 465
+    try:
+        with IPv4SMTP_SSL(smtp_host, 465, timeout=15) as server:
+            server.login(user, password)
+            server.sendmail(from_email, [to_email], msg.as_string())
+        print(f"[Email Service] Successfully sent OTP email to {to_email} via IPv4 SSL:465!")
+        return
+    except Exception as ssl_err:
+        print(f"[Email Error] Failed to send OTP via IPv4 SMTP to {to_email}: {ssl_err}")
         print(f"[DEV FALLBACK CODE] Verification code for {to_email} is: {code}")
