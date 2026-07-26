@@ -29,10 +29,10 @@ html.dark .bg-white {
 
 html.dark .border-slate-300,
 html.dark .border-slate-200 {
-  border-color: #2e3542 !important;
+  border-color: #384252 !important;
 }
 
-html.dark .text-\[\#16191F\],
+html.dark .text-[#16191F],
 html.dark .text-slate-900,
 html.dark .text-slate-800 {
   color: #f3f4f6 !important;
@@ -52,6 +52,29 @@ html.dark .bg-slate-50\/90 {
 
 html.dark .hover\:bg-slate-50:hover {
   background-color: #242b35 !important;
+}
+
+/* Explicit Table Header Styling for AWS Dark Mode */
+html.dark table thead th {
+  color: #aab7c4 !important;
+  font-weight: 400 !important;
+  border-color: #384252 !important;
+}
+
+html.dark table thead th span,
+html.dark table thead th div {
+  color: #aab7c4 !important;
+  font-weight: 400 !important;
+}
+
+html.dark table thead th svg {
+  fill: #8795a5 !important;
+  color: #8795a5 !important;
+}
+
+html.dark table thead {
+  border-color: #384252 !important;
+  background-color: #16191F !important;
 }
 
 body {

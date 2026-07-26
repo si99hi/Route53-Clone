@@ -675,11 +675,11 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             </div>
 
             {/* Records Table */}
-            <div className="border border-slate-300 rounded-xl overflow-x-auto bg-white shadow-2xs">
-              <table className="w-full text-xs text-left text-slate-800 font-sans">
-                <thead className="bg-slate-50/90 border-b border-slate-300 text-[11px] font-semibold select-none text-slate-600">
+            <div className="border border-slate-300 dark:border-[#384252] rounded-xl overflow-x-auto bg-white dark:bg-[#16191F] shadow-2xs">
+              <table className="w-full text-xs text-left text-slate-800 dark:text-slate-200 font-sans">
+                <thead className="bg-slate-50/90 dark:bg-[#16191F] border-b border-slate-300 dark:border-[#384252] text-[11px] font-normal select-none text-slate-700 dark:text-slate-300">
                   <tr>
-                    <th className="w-10 px-3 py-1.5 text-center border-r border-slate-200">
+                    <th className="w-10 px-3 py-1.5 text-center border-r border-slate-300 dark:border-[#384252]">
                       <input
                         type="checkbox"
                         checked={records.length > 0 && selectedRecordIds.length === records.length}
@@ -701,13 +701,48 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                         className="rounded border-slate-400 text-[#0972D3] focus:ring-[#0972D3]"
                       />
                     </th>
-                    <th className="px-4 py-1.5 font-semibold text-slate-600 min-w-[150px] border-r border-slate-200">Record name ▼</th>
-                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[70px] border-r border-slate-200">Type ▼</th>
-                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[100px] border-r border-slate-200">Routing policy ▼</th>
-                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[80px] border-r border-slate-200">Differentiator ▼</th>
-                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[70px] border-r border-slate-200">Alias ▼</th>
-                    <th className="px-4 py-1.5 font-semibold text-slate-600 min-w-[280px] border-r border-slate-200">Value/Route traffic to ▼</th>
-                    <th className="px-3 py-1.5 font-semibold text-slate-600 w-[90px]">TTL (seconds) ▼</th>
+                    <th className="px-4 py-1.5 font-normal min-w-[150px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>Record name</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
+                    <th className="px-3 py-1.5 font-normal w-[70px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>Type</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
+                    <th className="px-3 py-1.5 font-normal w-[100px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>Routing policy</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
+                    <th className="px-3 py-1.5 font-normal w-[80px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>Differentiator</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
+                    <th className="px-3 py-1.5 font-normal w-[70px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>Alias</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
+                    <th className="px-4 py-1.5 font-normal min-w-[280px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>Value/Route traffic to</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
+                    <th className="px-3 py-1.5 font-normal w-[90px] border-r border-slate-300 dark:border-[#384252]">
+                      <div className="flex items-center justify-between space-x-1">
+                        <span>TTL (seconds)</span>
+                        <span className="text-slate-400 text-[9px]">▼</span>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
 

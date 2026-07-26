@@ -137,7 +137,7 @@ export default function Sidebar() {
                 )}
               >
                 <span>Global resolvers</span>
-                <span className="text-[10px] font-semibold text-[#0972D3] dark:text-[#539fe5] bg-[#EBF3FE] dark:bg-[#1c2738] border border-[#A5C8FF] dark:border-blue-900/60 px-1.5 py-0.5 rounded-[3px] leading-none">
+                <span className="text-[11px] font-semibold text-[#0972D3] dark:text-[#539fe5] border-b border-dotted border-[#0972D3] dark:border-[#539fe5] leading-none pb-[1px]">
                   New
                 </span>
               </Link>
@@ -152,7 +152,7 @@ export default function Sidebar() {
                 )}
               >
                 <span>Shared DNS views</span>
-                <span className="text-[10px] font-semibold text-[#0972D3] dark:text-[#539fe5] bg-[#EBF3FE] dark:bg-[#1c2738] border border-[#A5C8FF] dark:border-blue-900/60 px-1.5 py-0.5 rounded-[3px] leading-none">
+                <span className="text-[11px] font-semibold text-[#0972D3] dark:text-[#539fe5] border-b border-dotted border-[#0972D3] dark:border-[#539fe5] leading-none pb-[1px]">
                   New
                 </span>
               </Link>

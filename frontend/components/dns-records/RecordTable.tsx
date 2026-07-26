@@ -86,46 +86,51 @@ export default function RecordTable({
   }
 
   return (
-    <div className="w-full border border-slate-300 rounded overflow-x-auto bg-white shadow-2xs">
-      <table className="w-full text-xs text-left text-slate-700 bg-white">
-        <thead className="text-[11px] font-semibold text-slate-600 bg-slate-50 border-b border-slate-300 select-none">
+    <div className="w-full border border-slate-300 dark:border-[#384252] rounded overflow-x-auto bg-white dark:bg-[#16191F] shadow-2xs">
+      <table className="w-full text-xs text-left text-slate-700 dark:text-slate-200 bg-white dark:bg-[#16191F]">
+        <thead className="text-[11px] font-normal text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-[#16191F] border-b border-slate-300 dark:border-[#384252] select-none">
           <tr>
-            <th className="w-10 px-3 py-1.5 text-center">
+            <th className="w-10 px-3 py-1.5 text-center border-r border-slate-300 dark:border-[#384252]">
               <input
                 type="checkbox"
                 disabled
-                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
               />
             </th>
             <th
               onClick={() => onSort('name')}
-              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors font-semibold text-slate-600"
+              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#242b35] transition-colors font-normal text-slate-700 dark:text-slate-300 border-r border-slate-300 dark:border-[#384252]"
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-between space-x-1">
                 <span>Record name</span>
-                <ChevronDown className="h-3 w-3 text-slate-500" />
+                <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
               </div>
             </th>
             <th
               onClick={() => onSort('type')}
-              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors font-semibold text-slate-600"
+              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#242b35] transition-colors font-normal text-slate-700 dark:text-slate-300 border-r border-slate-300 dark:border-[#384252]"
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-between space-x-1">
                 <span>Type</span>
-                <ChevronDown className="h-3 w-3 text-slate-500" />
+                <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
               </div>
             </th>
-            <th className="px-4 py-1.5 font-semibold text-slate-600">Value/Route to</th>
+            <th className="px-4 py-1.5 font-normal text-slate-700 dark:text-slate-300 border-r border-slate-300 dark:border-[#384252]">
+              <div className="flex items-center justify-between space-x-1">
+                <span>Value/Route to</span>
+                <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+              </div>
+            </th>
             <th
               onClick={() => onSort('ttl')}
-              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors text-right font-semibold text-slate-600"
+              className="px-4 py-1.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#242b35] transition-colors font-normal text-slate-700 dark:text-slate-300 border-r border-slate-300 dark:border-[#384252]"
             >
-              <div className="flex items-center justify-end space-x-1">
+              <div className="flex items-center justify-between space-x-1">
                 <span>TTL (seconds)</span>
-                <ChevronDown className="h-3 w-3 text-slate-500" />
+                <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
               </div>
             </th>
-            <th className="px-4 py-1.5 text-right font-semibold text-slate-600">Actions</th>
+            <th className="px-4 py-1.5 text-right font-normal text-slate-700 dark:text-slate-300 border-r border-slate-300 dark:border-[#384252]">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200 bg-white font-mono">

@@ -18,18 +18,35 @@ import {
   User,
   Circle,
   FlaskConical,
+  Layers,
+  Hexagon,
 } from 'lucide-react';
 import AwsLogo from './AwsLogo';
+import FeedbackModal from '../ui/FeedbackModal';
 
 export default function Topbar() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [activeNotificationTab, setActiveNotificationTab] = useState<'most-recent' | 'user-configured' | 'aws-managed'>('most-recent');
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [comingSoonToast, setComingSoonToast] = useState<string | null>(null);
   const [visualMode, setVisualMode] = useState<'browser' | 'light' | 'dark'>('browser');
   const [selectedLanguage, setSelectedLanguage] = useState('browser');
   const menuRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const helpRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const triggerComingSoon = (featureName: string) => {
+    setComingSoonToast(featureName);
+    setTimeout(() => {
+      setComingSoonToast((prev) => (prev === featureName ? null : prev));
+    }, 3500);
+  };
 
   const { data: user } = useQuery({
     queryKey: ['me'],
@@ -84,6 +101,12 @@ export default function Topbar() {
       if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
         setIsSettingsOpen(false);
       }
+      if (helpRef.current && !helpRef.current.contains(event.target as Node)) {
+        setIsHelpOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -94,98 +117,342 @@ export default function Topbar() {
 
   return (
     <header className="h-10 bg-[#16191F] text-white flex items-center justify-between px-3 fixed top-0 left-0 right-0 z-50 select-none text-xs font-sans border-b border-slate-800">
+      {/* Toast Notification for Coming Soon features */}
+      {comingSoonToast && (
+        <div className="fixed top-12 right-4 z-50 bg-[#16191F] border border-[#0972D3] text-white px-4 py-2.5 rounded-md shadow-2xl flex items-center space-x-3 text-xs animate-in fade-in slide-in-from-top-2">
+          <div className="h-2 w-2 rounded-full bg-[#0972D3] animate-pulse shrink-0" />
+          <div>
+            <span className="font-semibold">{comingSoonToast}</span> — Feature coming soon
+          </div>
+          <button
+            onClick={() => setComingSoonToast(null)}
+            className="text-slate-400 hover:text-white ml-2 text-sm font-bold cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       {/* LEFT SECTION */}
-      <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+      <div className="flex items-center space-x-1 sm:space-x-1.5 flex-1 min-w-0">
         {/* AWS White Logo */}
         <div
-          className="flex items-center cursor-pointer hover:opacity-90 transition-opacity pr-1"
+          className="flex items-center cursor-pointer hover:opacity-90 transition-opacity px-1"
           onClick={() => router.push('/hosted-zones')}
         >
           <AwsLogo className="h-4 w-auto" variant="dark" />
         </div>
 
-        {/* AWS Q Icon (Gradient Hexagon) */}
+        {/* Vertical Divider */}
+        <div className="h-4 w-[1px] bg-slate-700/80 mx-0.5" />
+
+        {/* AWS Q Icon (Gradient Hexagon Button) */}
         <button
-          className="h-6 w-6 rounded flex items-center justify-center hover:bg-[#2e3542] transition-colors shrink-0"
+          onClick={() => triggerComingSoon('Amazon Q')}
+          className="p-1 rounded hover:bg-[#2e3542] transition-colors shrink-0 flex items-center justify-center"
           title="Amazon Q"
         >
-          <div className="h-4 w-4 bg-gradient-to-tr from-purple-500 via-indigo-500 to-blue-400 rounded-xs flex items-center justify-center font-semibold text-[9px] text-white shadow-2xs">
+          <div className="h-5 w-5 bg-gradient-to-tr from-purple-600 via-blue-600 to-indigo-500 rounded flex items-center justify-center font-bold text-[10px] text-white shadow-sm border border-indigo-400/40">
             Q
           </div>
         </button>
 
+        {/* Vertical Divider */}
+        <div className="h-4 w-[1px] bg-slate-700/80 mx-0.5" />
+
         {/* 9-Dots Grid Icon */}
         <button
-          className="p-1 rounded text-slate-300 hover:text-white hover:bg-[#2e3542] transition-colors shrink-0"
+          onClick={() => triggerComingSoon('AWS Services')}
+          className="p-1.5 rounded text-slate-300 hover:text-white hover:bg-[#2e3542] transition-colors shrink-0"
           title="AWS Services"
         >
           <Grid className="h-4 w-4" strokeWidth={1.5} />
         </button>
 
         {/* Global Search Bar */}
-        <div className="relative flex-1 max-w-xl mx-1 sm:mx-2">
+        <div className="relative flex-1 max-w-2xl mx-1">
           <div className="relative flex items-center">
-            <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400" strokeWidth={1.5} />
+            <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Search"
-              className="w-full bg-[#0f1419] border border-slate-700/80 rounded-[4px] py-1 pl-8 pr-16 text-xs text-white placeholder-slate-400 font-normal italic focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+              className="w-full bg-[#0b0e14] border border-slate-700/80 rounded-md py-1 pl-8 pr-20 text-xs text-white placeholder-slate-400 font-normal italic focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
             />
             <div className="absolute right-2 flex items-center space-x-1.5 text-[10px] text-slate-400 pointer-events-none">
-              <span className="bg-slate-800 px-1 py-0.5 rounded-xs text-[9px] font-mono border border-slate-700">
+              <span className="text-[10px] text-slate-400 font-sans">
                 [Alt+S]
               </span>
-              <div className="h-3.5 w-3.5 bg-gradient-to-tr from-purple-500 to-blue-400 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
-                Q
+              <div className="h-3.5 w-3.5 rounded flex items-center justify-center text-slate-400 border border-slate-700 bg-slate-800/80">
+                <Hexagon className="h-2.5 w-2.5 text-slate-300" strokeWidth={2} />
               </div>
             </div>
           </div>
         </div>
-
-        {/* External Launcher Icon next to search */}
-        <button
-          className="p-1 text-slate-400 hover:text-white hover:bg-[#2e3542] rounded transition-colors hidden md:block"
-          title="Open in new window"
-        >
-          <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
-        </button>
       </div>
 
       {/* RIGHT SECTION */}
-      <div className="flex items-center space-x-1 sm:space-x-2 shrink-0">
+      <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0 text-slate-300">
         {/* CloudShell Icon */}
         <button
-          className="p-1.5 text-slate-300 hover:text-white hover:bg-[#2e3542] rounded transition-colors"
+          onClick={() => triggerComingSoon('CloudShell')}
+          className="p-1.5 hover:text-[#539fe5] hover:bg-[#2e3542] rounded transition-colors"
           title="CloudShell"
         >
           <Terminal className="h-4 w-4" strokeWidth={1.5} />
         </button>
 
-        {/* Notifications Icon */}
-        <button
-          className="p-1.5 text-slate-300 hover:text-white hover:bg-[#2e3542] rounded transition-colors relative"
-          title="Notifications"
-        >
-          <Bell className="h-4 w-4" strokeWidth={1.5} />
-        </button>
+        {/* Vertical Divider */}
+        <div className="h-4 w-[1px] bg-slate-700/80 my-auto" />
 
-        {/* Help Icon */}
-        <button
-          className="p-1.5 text-slate-300 hover:text-white hover:bg-[#2e3542] rounded transition-colors"
-          title="Help"
-        >
-          <HelpCircle className="h-4 w-4" strokeWidth={1.5} />
-        </button>
+        {/* Notifications Icon & Popover Panel */}
+        <div className="relative" ref={notificationsRef}>
+          <button
+            onClick={() => {
+              setIsNotificationsOpen(!isNotificationsOpen);
+              setIsHelpOpen(false);
+              setIsUserMenuOpen(false);
+              setIsSettingsOpen(false);
+            }}
+            className={`p-1.5 rounded transition-colors ${
+              isNotificationsOpen
+                ? 'bg-[#2e3542] text-[#539fe5]'
+                : 'hover:text-[#539fe5] hover:bg-[#2e3542]'
+            }`}
+            title="Notifications"
+          >
+            <Bell className="h-4 w-4" strokeWidth={1.5} />
+          </button>
+
+          {/* Notifications Dropdown Panel */}
+          {isNotificationsOpen && (
+            <div className="absolute right-0 mt-1.5 w-[420px] bg-[#16191F] border border-slate-700/80 rounded-md shadow-2xl z-50 text-xs text-slate-200 font-sans overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/80">
+                <span className="font-bold text-sm text-white tracking-tight">Notifications</span>
+                <a
+                  href="#notification-center"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    triggerComingSoon('Notification center');
+                    setIsNotificationsOpen(false);
+                  }}
+                  className="text-[#539fe5] hover:underline font-semibold text-xs"
+                >
+                  Notification center
+                </a>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex items-center border-b border-slate-700/80 text-xs px-2 pt-1 bg-[#191d26]">
+                <button
+                  onClick={() => setActiveNotificationTab('most-recent')}
+                  className={`px-3 py-2 font-bold transition-colors border-b-2 ${
+                    activeNotificationTab === 'most-recent'
+                      ? 'border-[#539fe5] text-[#539fe5]'
+                      : 'border-transparent text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Most recent
+                </button>
+                <button
+                  onClick={() => setActiveNotificationTab('user-configured')}
+                  className={`px-3 py-2 font-bold transition-colors border-b-2 flex items-center space-x-1.5 ${
+                    activeNotificationTab === 'user-configured'
+                      ? 'border-[#539fe5] text-[#539fe5]'
+                      : 'border-transparent text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <User className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <span>User configured</span>
+                </button>
+                <button
+                  onClick={() => setActiveNotificationTab('aws-managed')}
+                  className={`px-3 py-2 font-bold transition-colors border-b-2 flex items-center space-x-1.5 ${
+                    activeNotificationTab === 'aws-managed'
+                      ? 'border-[#539fe5] text-[#539fe5]'
+                      : 'border-transparent text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Layers className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <span>AWS managed</span>
+                </button>
+              </div>
+
+              {/* Tab Contents */}
+              <div className="p-4 max-h-[340px] overflow-y-auto sidebar-scrollbar bg-[#16191F]">
+                {activeNotificationTab === 'most-recent' && (
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3 p-2.5 rounded bg-[#1c212a] border border-slate-700/60 hover:border-slate-600 transition-colors cursor-pointer">
+                      <div className="p-1.5 bg-slate-800 rounded border border-slate-700 shrink-0 mt-0.5">
+                        <Layers className="h-4 w-4 text-slate-300" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white text-xs">AWS Health Event</span>
+                          <span className="text-[11px] text-slate-400">8 hours ago</span>
+                        </div>
+                        <p className="text-slate-300 text-xs leading-relaxed">
+                          Health Event: AWS ACCOUNT CUSTOMER VERIFICATION SUCCESS in us-east-1 on account 103415319055.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeNotificationTab === 'user-configured' && (
+                  <div className="py-8 text-center text-slate-400 space-y-2">
+                    <User className="h-8 w-8 mx-auto text-slate-600" strokeWidth={1.5} />
+                    <p className="font-semibold text-white">No user configured notifications</p>
+                    <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                      You have not configured any custom notification rules in AWS User Notifications.
+                    </p>
+                  </div>
+                )}
+
+                {activeNotificationTab === 'aws-managed' && (
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3 p-2.5 rounded bg-[#1c212a] border border-slate-700/60 hover:border-slate-600 transition-colors cursor-pointer">
+                      <div className="p-1.5 bg-slate-800 rounded border border-slate-700 shrink-0 mt-0.5">
+                        <Layers className="h-4 w-4 text-slate-300" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white text-xs">AWS Health Event</span>
+                          <span className="text-[11px] text-slate-400">8 hours ago</span>
+                        </div>
+                        <p className="text-slate-300 text-xs leading-relaxed">
+                          Health Event: AWS ACCOUNT CUSTOMER VERIFICATION SUCCESS in us-east-1 on account 103415319055.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Vertical Divider */}
+        <div className="h-4 w-[1px] bg-slate-700/80 my-auto" />
+
+        {/* Help / Support Icon & Popover Menu */}
+        <div className="relative" ref={helpRef}>
+          <button
+            onClick={() => {
+              setIsHelpOpen(!isHelpOpen);
+              setIsNotificationsOpen(false);
+              setIsUserMenuOpen(false);
+              setIsSettingsOpen(false);
+            }}
+            className={`p-1.5 rounded transition-colors ${
+              isHelpOpen
+                ? 'bg-[#2e3542] text-[#539fe5]'
+                : 'hover:text-[#539fe5] hover:bg-[#2e3542]'
+            }`}
+            title="Support & Help"
+          >
+            <HelpCircle className="h-4 w-4" strokeWidth={1.5} />
+          </button>
+
+          {/* Support Dropdown Menu */}
+          {isHelpOpen && (
+            <div className="absolute right-0 mt-1.5 w-[230px] bg-[#16191F] border border-slate-700/80 rounded-md shadow-2xl z-50 text-xs text-slate-200 font-sans p-3 space-y-2">
+              {/* Header: Support [↗] */}
+              <div
+                onClick={() => {
+                  triggerComingSoon('Support');
+                  setIsHelpOpen(false);
+                }}
+                className="flex items-center justify-between font-bold text-sm text-white hover:text-[#539fe5] cursor-pointer py-1 border-b border-slate-700/80 pb-2.5"
+              >
+                <span>Support</span>
+                <ExternalLink className="h-3.5 w-3.5 text-slate-300" strokeWidth={1.5} />
+              </div>
+
+              {/* Section 1 */}
+              <div className="space-y-1.5 pt-1 border-b border-slate-700/80 pb-2">
+                <div
+                  onClick={() => {
+                    triggerComingSoon('Support Center');
+                    setIsHelpOpen(false);
+                  }}
+                  className="py-1 px-1.5 rounded hover:bg-[#242b35] hover:text-white cursor-pointer transition-colors"
+                >
+                  Support Center
+                </div>
+                <div
+                  onClick={() => {
+                    triggerComingSoon('re:Post');
+                    setIsHelpOpen(false);
+                  }}
+                  className="py-1 px-1.5 rounded hover:bg-[#242b35] hover:text-white cursor-pointer transition-colors"
+                >
+                  re:Post
+                </div>
+              </div>
+
+              {/* Section 2 */}
+              <div className="space-y-1.5 pt-1 border-b border-slate-700/80 pb-2">
+                <a
+                  href="https://docs.aws.amazon.com/route53/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsHelpOpen(false)}
+                  className="block py-1 px-1.5 rounded hover:bg-[#242b35] text-slate-200 hover:text-white cursor-pointer transition-colors"
+                >
+                  Documentation
+                </a>
+                <div
+                  onClick={() => {
+                    triggerComingSoon('Training');
+                    setIsHelpOpen(false);
+                  }}
+                  className="py-1 px-1.5 rounded hover:bg-[#242b35] hover:text-white cursor-pointer transition-colors"
+                >
+                  Training
+                </div>
+                <div
+                  onClick={() => {
+                    triggerComingSoon('Getting Started Resource Center');
+                    setIsHelpOpen(false);
+                  }}
+                  className="py-1 px-1.5 rounded hover:bg-[#242b35] hover:text-white cursor-pointer transition-colors"
+                >
+                  Getting Started Resource Center
+                </div>
+              </div>
+
+              {/* Section 3: Send Feedback */}
+              <div className="pt-1">
+                <div
+                  onClick={() => {
+                    setIsHelpOpen(false);
+                    setIsFeedbackOpen(true);
+                  }}
+                  className="py-1 px-1.5 rounded text-[#539fe5] hover:underline font-semibold cursor-pointer transition-colors"
+                >
+                  Send feedback
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Vertical Divider */}
+        <div className="h-4 w-[1px] bg-slate-700/80 my-auto" />
 
         {/* Settings Icon & Popover Menu */}
         <div className="relative" ref={settingsRef}>
           <button
             onClick={() => {
               setIsSettingsOpen(!isSettingsOpen);
+              setIsHelpOpen(false);
+              setIsNotificationsOpen(false);
               setIsUserMenuOpen(false);
             }}
             className={`p-1.5 rounded transition-colors ${
-              isSettingsOpen ? 'bg-[#2e3542] text-white' : 'text-slate-300 hover:text-white hover:bg-[#2e3542]'
+              isSettingsOpen
+                ? 'bg-[#2e3542] text-[#539fe5]'
+                : 'hover:text-[#539fe5] hover:bg-[#2e3542]'
             }`}
             title="Console Settings"
           >
@@ -285,13 +552,19 @@ export default function Topbar() {
         </div>
 
         {/* Vertical Divider */}
-        <div className="h-4 w-[1px] bg-slate-700 mx-1" />
+        <div className="h-4 w-[1px] bg-slate-700/80 mx-0.5" />
 
         {/* Region Selector */}
-        <button className="flex items-center space-x-1 px-2 py-1 rounded text-slate-300 hover:text-white hover:bg-[#2e3542] transition-colors font-medium">
+        <button
+          onClick={() => triggerComingSoon('Region selector')}
+          className="flex items-center space-x-1 px-2 py-1 rounded text-slate-300 hover:text-[#539fe5] hover:bg-[#2e3542] transition-colors font-medium cursor-pointer"
+        >
           <span>Global</span>
           <ChevronDown className="h-3 w-3 text-slate-400" strokeWidth={1.5} />
         </button>
+
+        {/* Vertical Divider */}
+        <div className="h-4 w-[1px] bg-slate-700/80 mx-0.5" />
 
         {/* User Account Menu Dropdown */}
         <div className="relative" ref={menuRef}>
@@ -420,6 +693,8 @@ export default function Topbar() {
           )}
         </div>
       </div>
+
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
     </header>
   );
 }
