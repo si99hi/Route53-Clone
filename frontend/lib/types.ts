@@ -8,6 +8,12 @@ export interface User {
   created_at: string;
 }
 
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
 export interface HostedZone {
   id: string;
   domain_name: string;

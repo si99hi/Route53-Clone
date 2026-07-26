@@ -29,5 +29,9 @@ class Settings(BaseSettings):
     smtp_password: str = "mvvvvumcqluprsvv"
     smtp_from_email: str = "siddhib011@gmail.com"
 
+    # HTTPS Email APIs (bypasses outbound SMTP port block on cloud hosts like Render)
+    resend_api_key: str = ""
+    brevo_api_key: str = ""
+
 
 settings = Settings()

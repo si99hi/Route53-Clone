@@ -1,7 +1,7 @@
 import uuid
 from dataclasses import dataclass
 
-from fastapi import Cookie, Depends
+from fastapi import Cookie, Header, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -14,11 +14,19 @@ __all__ = ["get_db", "get_current_user", "PaginationParams"]
 
 def get_current_user(
     session_token: str | None = Cookie(default=None),
+    authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
 ) -> User:
-    """Reads session cookie if available, or returns demo user for instant development use."""
-    if session_token:
-        user_id = decode_access_token(session_token)
+    """Reads session token from Header or Cookie if available, or returns demo user for instant development use."""
+    token = session_token
+    if not token and authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization.split(" ", 1)[1]
+        else:
+            token = authorization
+
+    if token:
+        user_id = decode_access_token(token)
         if user_id:
             user = db.get(User, user_id)
             if user:

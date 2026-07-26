@@ -6,7 +6,7 @@ from app.api.deps import get_current_user, get_db
 from app.core.config import settings
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.models.user import User
-from app.schemas.auth import LoginRequest, SendOTPRequest, UserOut, VerifyOTPRequest
+from app.schemas.auth import AuthResponse, LoginRequest, SendOTPRequest, UserOut, VerifyOTPRequest
 from app.services.email_service import generate_otp, send_otp_email, store_otp, verify_otp_code
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -24,8 +24,8 @@ def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks):
     return {"message": "Verification code sent to email", "email": payload.email, "code": code}
 
 
-@router.post("/verify-otp", response_model=UserOut)
-def verify_otp(payload: VerifyOTPRequest, response: Response, db: Session = Depends(get_db)) -> User:
+@router.post("/verify-otp", response_model=AuthResponse)
+def verify_otp(payload: VerifyOTPRequest, response: Response, db: Session = Depends(get_db)) -> AuthResponse:
     """Verify OTP code and create/login user."""
     is_valid = verify_otp_code(payload.email, payload.code)
     if not is_valid:
@@ -48,15 +48,15 @@ def verify_otp(payload: VerifyOTPRequest, response: Response, db: Session = Depe
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
-        httponly=True,
+        httponly=False,
         samesite="lax",
         max_age=settings.access_token_expire_minutes * 60,
     )
-    return user
+    return AuthResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
 
 
-@router.post("/login", response_model=UserOut)
-def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)) -> User:
+@router.post("/login", response_model=AuthResponse)
+def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)) -> AuthResponse:
     user = db.scalar(select(User).where(User.email == payload.email))
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
@@ -65,11 +65,11 @@ def login(payload: LoginRequest, response: Response, db: Session = Depends(get_d
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
-        httponly=True,
+        httponly=False,
         samesite="lax",
         max_age=settings.access_token_expire_minutes * 60,
     )
-    return user
+    return AuthResponse(access_token=token, token_type="bearer", user=UserOut.model_validate(user))
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

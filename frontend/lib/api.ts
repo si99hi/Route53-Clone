@@ -1,5 +1,6 @@
 import {
   User,
+  AuthResponse,
   HostedZone,
   HostedZoneCreate,
   HostedZoneUpdate,
@@ -40,6 +41,14 @@ async function request<T>(
 
   if (options.body && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
+  }
+
+  // Attach token if present in localStorage
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('session_token');
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
   }
 
   // Ensure cookies are sent (needed for session cookie auth)
@@ -104,20 +113,38 @@ export const api = {
   },
 
   async verifyOTP(payload: { email: string; code: string; account_name?: string; password?: string }): Promise<User> {
-    return request<User>('/auth/verify-otp', {
+    const res = await request<AuthResponse>('/auth/verify-otp', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+
+    if (res.access_token && typeof window !== 'undefined') {
+      localStorage.setItem('session_token', res.access_token);
+      document.cookie = `session_token=${res.access_token}; path=/; max-age=604800; SameSite=Lax`;
+    }
+
+    return res.user || (res as unknown as User);
   },
 
   async login(payload: { email: string; password: string }): Promise<User> {
-    return request<User>('/auth/login', {
+    const res = await request<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+
+    if (res.access_token && typeof window !== 'undefined') {
+      localStorage.setItem('session_token', res.access_token);
+      document.cookie = `session_token=${res.access_token}; path=/; max-age=604800; SameSite=Lax`;
+    }
+
+    return res.user || (res as unknown as User);
   },
 
   async logout(): Promise<void> {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('session_token');
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    }
     return request<void>('/auth/logout', {
       method: 'POST',
     });
