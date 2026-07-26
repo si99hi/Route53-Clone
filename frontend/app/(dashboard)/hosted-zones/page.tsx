@@ -209,6 +209,7 @@ export default function HostedZonesPage() {
 
           {/* Edit Button */}
           <button
+            onClick={() => selectedZoneId && router.push(`/hosted-zones/${selectedZoneId}/edit`)}
             disabled={!selectedZoneId}
             className="px-4 py-2 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-sm font-semibold text-[#16191F] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-colors shadow-2xs"
           >

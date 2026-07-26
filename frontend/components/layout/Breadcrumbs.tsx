@@ -14,7 +14,7 @@ export default function Breadcrumbs() {
   const getBreadcrumbName = (segment: string, index: number) => {
     if (segment === 'hosted-zones') return 'Hosted zones';
     if (segment === 'new') return 'Create hosted zone';
-    if (segment === 'edit') return 'Edit record';
+    if (segment === 'edit') return 'Edit';
     if (segment === 'records') return 'Records';
     if (segment === 'dashboard') return 'Dashboard';
     if (segment === 'traffic-policies') return 'Traffic policies';

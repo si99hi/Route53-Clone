@@ -14,6 +14,7 @@ export interface HostedZone {
   description: string | null;
   type: ZoneType;
   record_count: number;
+  tags?: TagItem[];
   created_at: string;
   updated_at: string;
 }
@@ -59,6 +60,7 @@ export interface HostedZoneCreate {
 export interface HostedZoneUpdate {
   description?: string;
   type?: ZoneType;
+  tags?: TagItem[];
 }
 
 export interface DNSRecordCreate {

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 
-export type ToastType = 'success' | 'error';
+export type ToastType = 'success' | 'error' | 'info';
 
 export interface ToastMessage {
   id: string;
@@ -14,6 +14,7 @@ export interface ToastMessage {
 interface ToastContextType {
   success: (message: string) => void;
   error: (message: string) => void;
+  info: (message: string) => void;
   remove: (id: string) => void;
 }
 
@@ -38,9 +39,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const success = useCallback((msg: string) => add('success', msg), [add]);
   const error = useCallback((msg: string) => add('error', msg), [add]);
+  const info = useCallback((msg: string) => add('info', msg), [add]);
 
   return (
-    <ToastContext.Provider value={{ success, error, remove }}>
+    <ToastContext.Provider value={{ success, error, info, remove }}>
       {children}
       
       {/* Toast Portal Container */}
@@ -49,11 +51,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={toast.id}
             className={`pointer-events-auto flex items-start space-x-3 p-4 bg-white border rounded shadow-lg border-l-4 animate-in slide-in-from-bottom-5 duration-300 ${
-              toast.type === 'success' ? 'border-green-500 text-green-800' : 'border-red-500 text-red-800'
+              toast.type === 'success'
+                ? 'border-green-500 text-green-800'
+                : toast.type === 'info'
+                ? 'border-[#0972D3] text-[#0972D3]'
+                : 'border-red-500 text-red-800'
             }`}
           >
             {toast.type === 'success' ? (
               <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+            ) : toast.type === 'info' ? (
+              <AlertCircle className="h-5 w-5 text-[#0972D3] shrink-0" />
             ) : (
               <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
             )}

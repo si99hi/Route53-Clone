@@ -70,23 +70,12 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
   const domainDisplayName = zone?.domain_name || createdDomain || 'Hosted zone';
 
-  // Load user-chosen tags from localStorage on mount/domain change
+  // Sync tags from backend zone data
   useEffect(() => {
-    if (typeof window !== 'undefined' && domainDisplayName) {
-      const raw = localStorage.getItem(`hz_tags_${domainDisplayName}`);
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setUserTags(parsed);
-            return;
-          }
-        } catch (e) {}
-      }
-      // Default tag matching screenshot 3 if none saved
-      setUserTags([{ key: 'key', value: 'value' }]);
+    if (zone && zone.tags !== undefined) {
+      setUserTags(zone.tags);
     }
-  }, [domainDisplayName]);
+  }, [zone]);
 
   // Fetch Records
   const { data: recordsData, isLoading: isRecordsLoading, refetch: refetchRecords } = useQuery({
@@ -224,15 +213,28 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     );
   }, [userTags, tagSearch]);
 
+  // Update Zone Tags Mutation
+  const updateTagsMutation = useMutation({
+    mutationFn: (tagsToSave: TagItem[]) =>
+      api.updateHostedZone(zoneId, { tags: tagsToSave }),
+    onSuccess: (updated) => {
+      setUserTags(updated.tags || []);
+      queryClient.invalidateQueries({ queryKey: ['hosted-zone', zoneId] });
+      queryClient.invalidateQueries({ queryKey: ['hosted-zones'] });
+      setIsManageTagsOpen(false);
+      toast.success('Hosted zone tags updated.');
+    },
+    onError: (err: any) => {
+      toast.error(err.detail || 'Failed to update hosted zone tags.');
+    },
+  });
+
   // Save tags from Manage Tags Modal
   const handleSaveManagedTags = () => {
-    const valid = editTags.filter((t) => t.key.trim().length > 0);
-    setUserTags(valid);
-    if (typeof window !== 'undefined' && domainDisplayName) {
-      localStorage.setItem(`hz_tags_${domainDisplayName}`, JSON.stringify(valid));
-    }
-    setIsManageTagsOpen(false);
-    toast.success('Hosted zone tags updated.');
+    const valid = editTags
+      .filter((t) => t.key.trim().length > 0)
+      .map((t) => ({ key: t.key.trim(), value: t.value.trim() }));
+    updateTagsMutation.mutate(valid);
   };
 
   // Create Record Mutation
@@ -271,7 +273,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     onSuccess: () => {
       toast.success('DNS record deleted successfully.');
       setRecordToDelete(null);
-      setSelectedRecordId(null);
+      setSelectedRecordIds([]);
       queryClient.invalidateQueries({ queryKey: ['records', zoneId] });
       queryClient.invalidateQueries({ queryKey: ['hosted-zone', zoneId] });
     },
@@ -390,7 +392,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              router.push('/hosted-zones/new');
+              router.push(`/hosted-zones/${zoneId}/edit`);
             }}
             className="px-4 py-1.5 border border-[#0972D3] hover:bg-blue-50/60 text-[#0972D3] font-semibold text-xs rounded-full transition-colors shadow-2xs"
           >
@@ -1082,6 +1084,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
         title="Manage tags"
         onConfirm={handleSaveManagedTags}
         confirmText="Save changes"
+        isConfirmLoading={updateTagsMutation.isPending}
       >
         <div className="space-y-4 text-xs font-sans">
           <p className="text-slate-600">

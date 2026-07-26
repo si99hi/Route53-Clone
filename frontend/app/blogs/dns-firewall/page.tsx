@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import figure1 from '../../../public/images/figure1.jpg';
-import figure2 from '../../../public/images/figure2.jpg';
+import figure1 from './figure1.jpg';
+import figure2 from './figure2.jpg';
 import AwsLogo from '../../../components/layout/AwsLogo';
 
 export default function DNSFirewallBlogPage() {
@@ -50,7 +50,7 @@ export default function DNSFirewallBlogPage() {
 
             <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center cursor-not-allowed" title="Account profile">
               <svg className="w-4 h-4 text-slate-300" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
             </div>
           </div>
