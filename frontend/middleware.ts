@@ -8,8 +8,8 @@ export function middleware(request: NextRequest) {
   // Public paths accessible without authentication
   const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/features' || pathname.startsWith('/blogs');
 
-  // If user has token and visits public auth pages or root landing page, redirect to dashboard
-  if (token && isPublicPath) {
+  // If user has token and visits public auth pages (but not root landing page), redirect to dashboard
+  if (token && isPublicPath && pathname !== '/') {
     const dashboardUrl = new URL('/hosted-zones', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
