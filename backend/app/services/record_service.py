@@ -79,27 +79,45 @@ def update_record(
 ) -> DNSRecord:
     record = get_record(db, owner_id, zone_id, record_id)
 
+    # Update type first if provided (needed for value validation)
+    if payload.type is not None:
+        record.type = payload.type
+
+    # Validate value if provided
     if payload.value is not None:
         _validate_value_for_type(record.type, payload.value)
+        record.value = payload.value
 
+    # Validate TTL if provided
     if payload.ttl is not None:
         if payload.ttl < 60 or payload.ttl > 172800:
             raise ValueError("TTL must be between 60 and 172800 seconds")
-
-    if record.type in (RecordType.MX, RecordType.SRV):
-        priority_was_provided = "priority" in payload.model_fields_set
-        if priority_was_provided and payload.priority is None:
-            raise ValueError(f"{record.type.value} records require a priority")
-        new_priority = payload.priority if payload.priority is not None else record.priority
-        if new_priority is None:
-            raise ValueError(f"{record.type.value} records require a priority")
-
-    if payload.value is not None:
-        record.value = payload.value
-    if payload.ttl is not None:
         record.ttl = payload.ttl
-    if payload.priority is not None:
+
+    # Validate priority for MX/SRV records
+    if record.type in (RecordType.MX, RecordType.SRV):
+        # If priority is explicitly being set to None, that's an error
+        if "priority" in payload.model_fields_set and payload.priority is None:
+            raise ValueError(f"{record.type.value} records require a priority")
+        # Use provided priority or keep existing
+        if payload.priority is not None:
+            record.priority = payload.priority
+        elif record.priority is None:
+            raise ValueError(f"{record.type.value} records require a priority")
+    elif payload.priority is not None:
         record.priority = payload.priority
+
+    # Update name if provided
+    if payload.name is not None:
+        record.name = payload.name
+
+    # Update alias if provided
+    if payload.alias is not None:
+        record.alias = payload.alias
+
+    # Update routing_policy if provided
+    if payload.routing_policy is not None:
+        record.routing_policy = payload.routing_policy
 
     db.commit()
     db.refresh(record)

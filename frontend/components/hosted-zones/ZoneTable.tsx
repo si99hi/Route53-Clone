@@ -66,39 +66,39 @@ export default function ZoneTable({
     return (
       <div className="w-full overflow-x-auto bg-white dark:bg-[#16191F]">
         <table className="w-full text-xs text-left text-[#16191F] dark:text-slate-200 border-collapse">
-          <thead className="bg-white dark:bg-[#16191F] border-b border-slate-300 dark:border-slate-700">
-            <tr className="h-9">
-              <th className="w-10 px-4 py-2.5 border-r border-slate-300 dark:border-slate-700"></th>
-              <th className="px-4 py-2.5 font-bold border-r border-slate-300 dark:border-slate-700 text-[#16191F] dark:text-white">Hosted zone name</th>
-              <th className="px-4 py-2.5 font-bold border-r border-slate-300 dark:border-slate-700 text-[#16191F] dark:text-white">Type</th>
-              <th className="px-4 py-2.5 font-bold border-r border-slate-300 dark:border-slate-700 text-[#16191F] dark:text-white">Created by</th>
-              <th className="px-4 py-2.5 font-bold border-r border-slate-300 dark:border-slate-700 text-[#16191F] dark:text-white">Record count</th>
-              <th className="px-4 py-2.5 font-bold border-r border-slate-300 dark:border-slate-700 text-[#16191F] dark:text-white">Description</th>
-              <th className="px-4 py-2.5 font-bold border-r border-slate-300 dark:border-slate-700 text-[#16191F] dark:text-white">Hosted zone ID</th>
+          <thead className="bg-white dark:bg-[#16191F] border-b border-[#d5dbdb] dark:border-[#384252]">
+            <tr className="h-8">
+              <th className="w-10 px-4 py-2 border-r border-[#d5dbdb] dark:border-[#384252]"></th>
+              <th className="px-4 py-2 font-semibold border-r border-[#d5dbdb] dark:border-[#384252] text-[#1b2733] dark:text-white">Hosted zone name</th>
+              <th className="px-4 py-2 font-semibold border-r border-[#d5dbdb] dark:border-[#384252] text-[#1b2733] dark:text-white">Type</th>
+              <th className="px-4 py-2 font-semibold border-r border-[#d5dbdb] dark:border-[#384252] text-[#1b2733] dark:text-white">Created by</th>
+              <th className="px-4 py-2 font-semibold border-r border-[#d5dbdb] dark:border-[#384252] text-[#1b2733] dark:text-white">Record count</th>
+              <th className="px-4 py-2 font-semibold border-r border-[#d5dbdb] dark:border-[#384252] text-[#1b2733] dark:text-white">Description</th>
+              <th className="px-4 py-2 font-semibold border-r border-[#d5dbdb] dark:border-[#384252] text-[#1b2733] dark:text-white">Hosted zone ID</th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-[#16191F] divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody className="bg-white dark:bg-[#16191F] divide-y divide-[#d5dbdb] dark:divide-slate-800">
             {[...Array(5)].map((_, i) => (
-              <tr key={i} className="h-10 animate-pulse">
-                <td className="px-4 py-2.5">
+              <tr key={i} className="h-16 animate-pulse">
+                <td className="px-4 py-4">
                   <div className="h-3.5 w-3.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-4">
                   <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-36"></div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-4">
                   <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-12"></div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-4">
                   <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-4">
                   <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-8"></div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-4">
                   <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-4">
                   <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
                 </td>
               </tr>
@@ -111,12 +111,28 @@ export default function ZoneTable({
 
   return (
     <div className="w-full overflow-x-auto bg-white dark:bg-[#16191F]">
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
       <table className="w-full text-xs text-left text-[#16191F] dark:text-slate-200 border-collapse bg-white dark:bg-[#16191F]">
         {/* Header Row */}
-        <thead className="bg-white dark:bg-[#16191F] border-b border-slate-300 dark:border-[#384252] select-none">
-          <tr className="h-9">
+        <thead className="bg-white dark:bg-[#16191F] border-b border-[#d5dbdb] dark:border-[#384252] select-none">
+          <tr className="h-8">
             {/* Selection Column */}
-            <th className="w-10 px-4 py-2.5 text-center border-r border-slate-300 dark:border-[#384252]">
+            <th className="w-10 px-4 py-2 text-center border-r border-[#d5dbdb] dark:border-[#384252]">
               <input
                 type="radio"
                 disabled
@@ -127,7 +143,7 @@ export default function ZoneTable({
             {/* Hosted zone name */}
             <th
               onClick={() => handleHeaderClick('domain_name')}
-              className="px-4 py-2.5 font-normal text-slate-700 dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-slate-300 dark:border-[#384252]"
+              className="px-4 py-2 font-semibold text-[#1b2733] dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-[#d5dbdb] dark:border-[#384252]"
             >
               <div className="flex items-center justify-between space-x-1">
                 <span>Hosted zone name</span>
@@ -141,7 +157,7 @@ export default function ZoneTable({
             {/* Type */}
             <th
               onClick={() => handleHeaderClick('type')}
-              className="px-4 py-2.5 font-normal text-slate-700 dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-slate-300 dark:border-[#384252]"
+              className="px-4 py-2 font-semibold text-[#1b2733] dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-[#d5dbdb] dark:border-[#384252]"
             >
               <div className="flex items-center justify-between space-x-1">
                 <span>Type</span>
@@ -155,7 +171,7 @@ export default function ZoneTable({
             {/* Created by */}
             <th
               onClick={() => handleHeaderClick('created_by')}
-              className="px-4 py-2.5 font-normal text-slate-700 dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-slate-300 dark:border-[#384252]"
+              className="px-4 py-2 font-semibold text-[#1b2733] dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-[#d5dbdb] dark:border-[#384252]"
             >
               <div className="flex items-center justify-between space-x-1">
                 <span>Created by</span>
@@ -169,7 +185,7 @@ export default function ZoneTable({
             {/* Record count */}
             <th
               onClick={() => handleHeaderClick('record_count')}
-              className="px-4 py-2.5 font-normal text-slate-700 dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-slate-300 dark:border-[#384252]"
+              className="px-4 py-2 font-semibold text-[#1b2733] dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-[#d5dbdb] dark:border-[#384252]"
             >
               <div className="flex items-center justify-between space-x-1">
                 <span>Record count</span>
@@ -183,7 +199,7 @@ export default function ZoneTable({
             {/* Description */}
             <th
               onClick={() => handleHeaderClick('description')}
-              className="px-4 py-2.5 font-normal text-slate-700 dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-slate-300 dark:border-[#384252]"
+              className="px-4 py-2 font-semibold text-[#1b2733] dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-[#d5dbdb] dark:border-[#384252]"
             >
               <div className="flex items-center justify-between space-x-1">
                 <span>Description</span>
@@ -197,7 +213,7 @@ export default function ZoneTable({
             {/* Hosted zone ID */}
             <th
               onClick={() => handleHeaderClick('id')}
-              className="px-4 py-2.5 font-normal text-slate-700 dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-slate-300 dark:border-[#384252]"
+              className="px-4 py-2 font-semibold text-[#1b2733] dark:text-[#aab7c4] cursor-pointer hover:bg-slate-50 dark:hover:bg-[#242b35] transition-colors border-r border-[#d5dbdb] dark:border-[#384252]"
             >
               <div className="flex items-center justify-between space-x-1">
                 <span className="truncate">Hosted zone ID</span>
@@ -231,7 +247,7 @@ export default function ZoneTable({
             </tr>
           </tbody>
         ) : (
-          <tbody className="bg-white dark:bg-[#16191F] divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody className="bg-white dark:bg-[#16191F] divide-y divide-[#d5dbdb] dark:divide-slate-800">
             {zones.map((zone) => {
               const isSelected = selectedZoneId === zone.id;
               const displayType =
@@ -245,12 +261,13 @@ export default function ZoneTable({
               return (
                 <tr
                   key={zone.id}
-                  className={`h-10 transition-colors ${
-                    isSelected ? 'bg-[#e6f2fc] dark:bg-[#1d324f]' : 'hover:bg-[#f2f8fd] dark:hover:bg-[#1c2533]'
+                  onClick={() => onSelectZone(isSelected ? null : zone.id)}
+                  className={`h-16 cursor-pointer transition-colors duration-200 ${
+                    isSelected ? 'bg-[#e6f2fc] dark:bg-[#1d324f]' : 'hover:bg-[#f2f8ff] dark:hover:bg-[#1c2533]'
                   }`}
                 >
                   {/* Selection Column */}
-                  <td className="px-4 py-2.5 text-center align-middle">
+                  <td className="px-4 py-4 text-center align-middle" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="radio"
                       checked={isSelected}
@@ -263,37 +280,37 @@ export default function ZoneTable({
                   </td>
 
                   {/* Domain Name Link */}
-                  <td className="px-4 py-2.5 font-normal align-middle">
+                  <td className="px-4 py-4 font-normal align-middle" onClick={(e) => e.stopPropagation()}>
                     <Link
                       href={`/hosted-zones/${zone.id}`}
-                      className="text-[#0972D3] dark:text-[#539fe4] hover:underline cursor-pointer font-normal text-xs"
+                      className="text-[#0972d3] dark:text-[#539fe4] hover:underline cursor-pointer font-semibold text-xs"
                     >
                       {zone.domain_name}
                     </Link>
                   </td>
 
                   {/* Type */}
-                  <td className="px-4 py-2.5 font-normal text-[#16191F] dark:text-slate-200 align-middle">
+                  <td className="px-4 py-4 font-normal text-[#16191F] dark:text-slate-200 align-middle">
                     {displayType}
                   </td>
 
                   {/* Created By */}
-                  <td className="px-4 py-2.5 font-normal text-[#16191F] dark:text-slate-200 align-middle">
+                  <td className="px-4 py-4 font-normal text-[#16191F] dark:text-slate-200 align-middle">
                     Route 53
                   </td>
 
                   {/* Record Count */}
-                  <td className="px-4 py-2.5 font-normal text-[#16191F] dark:text-slate-200 align-middle">
+                  <td className="px-4 py-4 font-normal text-[#16191F] dark:text-slate-200 align-middle">
                     {zone.record_count}
                   </td>
 
                   {/* Description */}
-                  <td className="px-4 py-2.5 font-normal text-[#16191F] dark:text-slate-200 align-middle max-w-xs truncate">
+                  <td className="px-4 py-4 font-normal text-[#16191F] dark:text-slate-200 align-middle max-w-xs truncate">
                     {zone.description && zone.description.trim() ? zone.description : '-'}
                   </td>
 
                   {/* Hosted Zone ID */}
-                  <td className="px-4 py-2.5 font-normal text-[#16191F] dark:text-slate-200 align-middle">
+                  <td className="px-4 py-4 font-normal text-[#16191F] dark:text-slate-200 align-middle">
                     <span title={zone.id}>{truncatedId}</span>
                   </td>
                 </tr>

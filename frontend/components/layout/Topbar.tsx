@@ -194,7 +194,7 @@ export default function Topbar() {
               className="w-full bg-[#0b0e14] border border-slate-700/80 rounded-md py-2 pl-10 pr-24 text-sm text-white placeholder-slate-400 font-normal italic focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
             />
             <div className="absolute right-2 flex items-center space-x-1.5 text-sm text-slate-400 pointer-events-none">
-              <span className="text-sm text-[#0972D3] font-bold font-sans">
+              <span className="text-sm text-slate-400 font-bold font-sans">
                 [Alt+S]
               </span>
               <div className="h-4 w-4 rounded flex items-center justify-center text-slate-400 border border-slate-700 bg-slate-800/80">

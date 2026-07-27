@@ -99,7 +99,7 @@ export default function RecordFormModal({
 
         {/* Record Name */}
         <div>
-          <label className="block font-semibold text-slate-800 mb-1">
+          <label className="block font-semibold text-slate-800 dark:text-slate-300 mb-1">
             Record name
           </label>
           <input
@@ -108,23 +108,23 @@ export default function RecordFormModal({
             onChange={(e) => setName(e.target.value)}
             placeholder={zoneDomainName}
             disabled={isPending}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded text-xs text-slate-900 focus:outline-none focus:border-[#0972D3]"
+            className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none focus:border-[#0972D3]"
           />
-          <p className="text-[11px] text-slate-500 mt-0.5">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             Leave blank or enter subdomain relative to {zoneDomainName}
           </p>
         </div>
 
         {/* Record Type */}
         <div>
-          <label className="block font-semibold text-slate-800 mb-1">
+          <label className="block font-semibold text-slate-800 dark:text-slate-300 mb-1">
             Record type
           </label>
           <select
             value={type}
             onChange={(e) => setType(e.target.value as RecordType)}
             disabled={isPending}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded text-xs text-slate-900 bg-white focus:outline-none focus:border-[#0972D3]"
+            className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none focus:border-[#0972D3]"
           >
             {recordTypeOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -136,7 +136,7 @@ export default function RecordFormModal({
 
         {/* Value */}
         <div>
-          <label className="block font-semibold text-slate-800 mb-1">
+          <label className="block font-semibold text-slate-800 dark:text-slate-300 mb-1">
             Value / Route traffic to
           </label>
           <textarea
@@ -145,13 +145,13 @@ export default function RecordFormModal({
             onChange={(e) => setValue(e.target.value)}
             placeholder={type === 'A' ? '192.0.2.1' : 'Enter record value'}
             disabled={isPending}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded text-xs text-slate-900 bg-white focus:outline-none focus:border-[#0972D3]"
+            className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none focus:border-[#0972D3]"
           />
         </div>
 
         {/* TTL */}
         <div>
-          <label className="block font-semibold text-slate-800 mb-1">
+          <label className="block font-semibold text-slate-800 dark:text-slate-300 mb-1">
             TTL (seconds)
           </label>
           <input
@@ -161,14 +161,14 @@ export default function RecordFormModal({
             min={60}
             max={172800}
             disabled={isPending}
-            className="w-full px-3 py-1.5 border border-slate-300 rounded text-xs text-slate-900 bg-white focus:outline-none focus:border-[#0972D3]"
+            className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none focus:border-[#0972D3]"
           />
         </div>
 
         {/* Priority (for MX / SRV) */}
         {(type === 'MX' || type === 'SRV') && (
           <div>
-            <label className="block font-semibold text-slate-800 mb-1">
+            <label className="block font-semibold text-slate-800 dark:text-slate-300 mb-1">
               Priority
             </label>
             <input
@@ -178,7 +178,7 @@ export default function RecordFormModal({
               min={0}
               max={65535}
               disabled={isPending}
-              className="w-full px-3 py-1.5 border border-slate-300 rounded text-xs text-slate-900 bg-white focus:outline-none focus:border-[#0972D3]"
+              className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:outline-none focus:border-[#0972D3]"
             />
           </div>
         )}

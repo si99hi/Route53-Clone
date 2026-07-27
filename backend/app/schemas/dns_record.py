@@ -85,9 +85,43 @@ class DNSRecordCreate(BaseModel):
 
 
 class DNSRecordUpdate(BaseModel):
+    name: str | None = None
+    type: RecordType | None = None
     value: str | None = None
     ttl: int | None = None
     priority: int | None = None
+    alias: bool | None = None
+    routing_policy: str | None = None
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str | None) -> str | None:
+        if v is not None:
+            v = v.strip().lower().rstrip(".")
+            if not HOSTNAME_RE.match(v):
+                raise ValueError("Enter a valid record name, e.g. www.example.com")
+            return v
+        return v
+
+    @field_validator("ttl")
+    @classmethod
+    def validate_ttl(cls, v: int | None) -> int | None:
+        if v is not None and (v < 60 or v > 172800):
+            raise ValueError("TTL must be between 60 and 172800 seconds")
+        return v
+
+    @model_validator(mode="after")
+    def validate_value_and_priority(self) -> "DNSRecordUpdate":
+        # Only validate if value is being updated
+        if self.value is not None and self.type is not None:
+            _validate_value_for_type(self.type, self.value)
+        # Only validate priority if type is being updated to MX/SRV AND priority is explicitly set to None
+        if (self.type is not None and 
+            self.type in (RecordType.MX, RecordType.SRV) and 
+            self.priority is None and 
+            "priority" in self.model_fields_set):
+            raise ValueError(f"{self.type.value} records require a priority")
+        return self
 
 
 class DNSRecordOut(BaseModel):

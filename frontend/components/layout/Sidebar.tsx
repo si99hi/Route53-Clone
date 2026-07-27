@@ -27,6 +27,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
     globalResolver: true,
     vpcResolver: true,
     domains: true,
+    ipRouting: true,
+    trafficFlow: true,
   });
 
   const toggleSection = (key: keyof typeof openSections) => {
@@ -43,7 +45,7 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
       isCollapsed ? 'w-[56px]' : 'w-[240px]'
     }`} style={{ height: 'calc(100vh - 112px)' }}>
       {/* 1. Sidebar Header */}
-      <div className={`${isCollapsed ? 'px-2' : 'px-4'} pb-2 flex items-center justify-center`}>
+      <div className={`${isCollapsed ? 'px-2' : 'px-4'} pb-2 flex items-center justify-start`}>
         {!isCollapsed && (
           <h2 className="text-base font-bold text-[#16191F] dark:text-white tracking-tight">
             Route 53
@@ -112,11 +114,7 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
         <div className="mt-3.5">
           <button
             onClick={() => toggleSection('globalResolver')}
-            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} ${
-              openSections.globalResolver 
-                ? 'text-[#0972D3] dark:text-[#0972D3]' 
-                : 'text-[#16191F] dark:text-white hover:text-[#539fe5] dark:hover:text-[#539fe5]'
-            }`}
+            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} text-[#16191F] dark:text-white hover:text-[#0972D3] dark:hover:text-[#539fe5]`}
           >
             {!isCollapsed && <TriangleDisclosure isOpen={openSections.globalResolver} />}
             {!isCollapsed && <span>Global Resolver</span>}
@@ -161,11 +159,7 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
         <div className="mt-3.5">
           <button
             onClick={() => toggleSection('vpcResolver')}
-            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} ${
-              openSections.vpcResolver 
-                ? 'text-[#0972D3] dark:text-[#0972D3]' 
-                : 'text-[#16191F] dark:text-white hover:text-[#539fe5] dark:hover:text-[#539fe5]'
-            }`}
+            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} text-[#16191F] dark:text-white hover:text-[#0972D3] dark:hover:text-[#539fe5]`}
           >
             {!isCollapsed && <TriangleDisclosure isOpen={openSections.vpcResolver} />}
             {!isCollapsed && <span>VPC Resolver</span>}
@@ -252,11 +246,7 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
         <div className="mt-3.5">
           <button
             onClick={() => toggleSection('domains')}
-            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} ${
-              openSections.domains 
-                ? 'text-[#0972D3] dark:text-[#0972D3]' 
-                : 'text-[#16191F] dark:text-white hover:text-[#539fe5] dark:hover:text-[#539fe5]'
-            }`}
+            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} text-[#16191F] dark:text-white hover:text-[#0972D3] dark:hover:text-[#539fe5]`}
           >
             {!isCollapsed && <TriangleDisclosure isOpen={openSections.domains} />}
             {!isCollapsed && <span>Domains</span>}
@@ -274,6 +264,71 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 )}
               >
                 Registered domains
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* IP-based routing */}
+        <div className="mt-3.5">
+          <button
+            onClick={() => toggleSection('ipRouting')}
+            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} text-[#16191F] dark:text-white hover:text-[#0972D3] dark:hover:text-[#539fe5]`}
+          >
+            {!isCollapsed && <TriangleDisclosure isOpen={openSections.ipRouting} />}
+            {!isCollapsed && <span>IP-based routing</span>}
+          </button>
+
+          {!isCollapsed && openSections.ipRouting && (
+            <div className="space-y-0.5 mt-0.5">
+              <Link
+                href="/cidr-collections"
+                className={clsx(
+                  'flex items-center h-[32px] transition-colors text-xs',
+                  pathname === '/cidr-collections'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
+                )}
+              >
+                CIDR collections
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Traffic flow */}
+        <div className="mt-3.5">
+          <button
+            onClick={() => toggleSection('trafficFlow')}
+            className={`w-full flex items-center h-[32px] text-xs font-bold transition-colors text-left ${isCollapsed ? 'justify-center px-2' : 'px-4'} text-[#16191F] dark:text-white hover:text-[#0972D3] dark:hover:text-[#539fe5]`}
+          >
+            {!isCollapsed && <TriangleDisclosure isOpen={openSections.trafficFlow} />}
+            {!isCollapsed && <span>Traffic flow</span>}
+          </button>
+
+          {!isCollapsed && openSections.trafficFlow && (
+            <div className="space-y-0.5 mt-0.5">
+              <Link
+                href="/traffic-policies"
+                className={clsx(
+                  'flex items-center h-[32px] transition-colors text-xs',
+                  pathname === '/traffic-policies'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
+                )}
+              >
+                Traffic policies
+              </Link>
+              <Link
+                href="/policy-records"
+                className={clsx(
+                  'flex items-center h-[32px] transition-colors text-xs',
+                  pathname === '/policy-records'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
+                )}
+              >
+                Policy records
               </Link>
             </div>
           )}
