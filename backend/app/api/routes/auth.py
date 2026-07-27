@@ -56,7 +56,23 @@ def verify_otp(payload: VerifyOTPRequest, response: Response, db: Session = Depe
     # Check if user already exists
     user = db.scalar(select(User).where(User.email == payload.email))
     if not user:
-        user = User(email=payload.email, password_hash=password_hash)
+        user = User(
+            email=payload.email,
+            password_hash=password_hash,
+            account_name=payload.account_name,
+            full_name=payload.full_name,
+            organization_name=payload.organization_name,
+            phone_number=payload.phone_number,
+            country=payload.country,
+            address_line1=payload.address_line1,
+            address_line2=payload.address_line2,
+            city=payload.city,
+            state=payload.state,
+            postal_code=payload.postal_code,
+            billing_plan=payload.billing_plan,
+            experience=payload.experience,
+            language=payload.language,
+        )
         db.add(user)
     else:
         if payload.password:

@@ -20,6 +20,18 @@ class VerifyOTPRequest(BaseModel):
     password: Optional[str] = None
     account_name: Optional[str] = None
     is_signup: Optional[bool] = False
+    full_name: Optional[str] = None
+    organization_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    country: Optional[str] = None
+    address_line1: Optional[str] = None
+    address_line2: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    postal_code: Optional[str] = None
+    billing_plan: Optional[str] = None
+    experience: Optional[str] = None
+    language: Optional[str] = None
 
 
 class UserOut(BaseModel):

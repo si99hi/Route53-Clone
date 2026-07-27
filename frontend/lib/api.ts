@@ -112,7 +112,25 @@ export const api = {
     });
   },
 
-  async verifyOTP(payload: { email: string; code: string; account_name?: string; password?: string; is_signup?: boolean }): Promise<User> {
+  async verifyOTP(payload: { 
+    email: string; 
+    code: string; 
+    account_name?: string; 
+    password?: string; 
+    is_signup?: boolean;
+    full_name?: string;
+    organization_name?: string;
+    phone_number?: string;
+    country?: string;
+    address_line1?: string;
+    address_line2?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+    billing_plan?: string;
+    experience?: string;
+    language?: string;
+  }): Promise<User> {
     const res = await request<AuthResponse>('/auth/verify-otp', {
       method: 'POST',
       body: JSON.stringify(payload),

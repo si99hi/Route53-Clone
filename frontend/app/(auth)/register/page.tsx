@@ -9,8 +9,8 @@ import { api } from '../../../lib/api';
 export default function RegisterPage() {
   const router = useRouter();
 
-  // State: 1 = Email & Account Name, 2 = Verification Code, 3 = Set Password
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  // State: 1 = Email & Account Name, 2 = Verification Code, 3 = Set Password, 4 = Billing Plan, 5 = Contact Info, 6 = Feedback & Language
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
 
   // Step 1 fields
   const [email, setEmail] = useState('');
@@ -23,6 +23,68 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // Step 4 fields (Billing Plan)
+  const [billingPlan, setBillingPlan] = useState<'free' | 'paid'>('free');
+
+  // Step 5 fields (Contact Information)
+  const [fullName, setFullName] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
+  const [countryCode, setCountryCode] = useState('US');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [country, setCountry] = useState('United States');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
+  // Country to country code mapping
+  const countryToCodeMap: Record<string, string> = {
+    'United States': 'US',
+    'United Kingdom': 'UK',
+    'India': 'IN',
+    'Canada': 'CA',
+    'Australia': 'AU',
+  };
+
+  // Auto-update country code when country changes
+  useEffect(() => {
+    if (country && countryToCodeMap[country]) {
+      setCountryCode(countryToCodeMap[country]);
+    }
+  }, [country]);
+
+  // Simple postal code to city mapping (demo purposes)
+  const postalCodeToCityMap: Record<string, string> = {
+    '10001': 'New York',
+    '90210': 'Beverly Hills',
+    '33101': 'Miami',
+    '60601': 'Chicago',
+    '94102': 'San Francisco',
+    '110001': 'New Delhi',
+    '400001': 'Mumbai',
+    '560001': 'Bangalore',
+    '600001': 'Chennai',
+    '700001': 'Kolkata',
+    '2000': 'Sydney',
+    '3000': 'Melbourne',
+    '4000': 'Brisbane',
+    '5000': 'Adelaide',
+    '6000': 'Perth',
+  };
+
+  // Auto-update city when postal code changes
+  useEffect(() => {
+    if (postalCode && postalCodeToCityMap[postalCode]) {
+      setCity(postalCodeToCityMap[postalCode]);
+    }
+  }, [postalCode]);
+
+  // Step 6 fields (Feedback & Language)
+  const [experience, setExperience] = useState('');
+  const [language, setLanguage] = useState('English');
 
   // Status & Timers
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,7 +164,7 @@ export default function RegisterPage() {
     setStep(3);
   };
 
-  // Step 3 Submission: Complete registration with user's password
+  // Step 3 Submission: Proceed to Billing Plan selection
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -117,6 +179,77 @@ export default function RegisterPage() {
       return;
     }
 
+    // Proceed to Step 4: Billing Plan
+    setStep(4);
+  };
+
+  // Step 4 Submission: Proceed to Contact Information
+  const handleBillingPlan = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    if (billingPlan === 'paid') {
+      setErrorMsg('Paid plans are not available in this demo. Please select the Free plan.');
+      return;
+    }
+
+    setStep(5);
+  };
+
+  // Step 5 Submission: Proceed to Feedback & Language
+  const handleContactInfo = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    if (!fullName.trim()) {
+      setErrorMsg('Please enter your full name.');
+      return;
+    }
+
+    if (!countryCode || !phoneNumber.trim()) {
+      setErrorMsg('Please enter your phone number.');
+      return;
+    }
+
+    if (!/^\d{10}$/.test(phoneNumber.trim())) {
+      setErrorMsg('Phone number must be exactly 10 digits.');
+      return;
+    }
+
+    if (!country.trim()) {
+      setErrorMsg('Please select your country or region.');
+      return;
+    }
+
+    if (!addressLine1.trim()) {
+      setErrorMsg('Please enter your address.');
+      return;
+    }
+
+    if (!city.trim()) {
+      setErrorMsg('Please enter your city.');
+      return;
+    }
+
+    if (!state.trim()) {
+      setErrorMsg('Please enter your state, province, or region.');
+      return;
+    }
+
+    if (!postalCode.trim()) {
+      setErrorMsg('Please enter your postal code.');
+      return;
+    }
+
+
+    setStep(6);
+  };
+
+  // Step 6 Submission: Complete registration
+  const handleCompleteSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
     setIsSubmitting(true);
     try {
       await api.verifyOTP({
@@ -125,6 +258,19 @@ export default function RegisterPage() {
         account_name: accountName,
         password,
         is_signup: true,
+        // Additional signup data
+        full_name: fullName,
+        organization_name: organizationName,
+        phone_number: `${countryCode}${phoneNumber}`,
+        country,
+        address_line1: addressLine1,
+        address_line2: addressLine2,
+        city,
+        state,
+        postal_code: postalCode,
+        billing_plan: billingPlan,
+        experience,
+        language,
       });
       setIsSubmitting(false);
       // Redirect to console hosted zones page
@@ -467,6 +613,343 @@ export default function RegisterPage() {
                   </span>
                 ) : (
                   <span>Submit & Continue</span>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* STEP 4: Billing Plan Selection */}
+          {step === 4 && (
+            <form onSubmit={handleBillingPlan} className="space-y-4">
+              <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign up for AWS</h1>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">Choose your plan</h2>
+
+              <p className="text-xs text-slate-700 leading-relaxed mb-4">
+                Select a billing plan for your AWS account.
+              </p>
+
+              {/* Free Plan Card */}
+              <div
+                onClick={() => setBillingPlan('free')}
+                className={`p-5 border-2 rounded-lg cursor-pointer transition-all ${
+                  billingPlan === 'free'
+                    ? 'border-[#ec7211] bg-orange-50'
+                    : 'border-slate-300 hover:border-slate-400'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">Free (6 months)</h3>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    billingPlan === 'free' ? 'border-[#ec7211]' : 'border-slate-300'
+                  }`}>
+                    {billingPlan === 'free' && (
+                      <div className="w-3 h-3 rounded-full bg-[#ec7211]" />
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 text-xs text-slate-700">
+                  <p className="font-semibold text-slate-900">$200 in credits</p>
+                  <p>Free usage of select services</p>
+                  <p className="text-red-600">✗ Workloads scale beyond credit thresholds</p>
+                  <p className="text-red-600">✗ Access to all AWS services and features</p>
+                </div>
+              </div>
+
+              {/* Paid Plan Card */}
+              <div
+                onClick={() => setBillingPlan('paid')}
+                className={`p-5 border-2 rounded-lg cursor-pointer transition-all ${
+                  billingPlan === 'paid'
+                    ? 'border-[#ec7211] bg-orange-50'
+                    : 'border-slate-300 hover:border-slate-400'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">Paid</h3>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    billingPlan === 'paid' ? 'border-[#ec7211]' : 'border-slate-300'
+                  }`}>
+                    {billingPlan === 'paid' && (
+                      <div className="w-3 h-3 rounded-full bg-[#ec7211]" />
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 text-xs text-slate-700">
+                  <p className="font-semibold text-slate-900">$200 in credits</p>
+                  <p>Free usage of select services</p>
+                  <p className="text-green-600">✓ Workloads scale beyond credit thresholds</p>
+                  <p className="text-green-600">✓ Access to all AWS services and features</p>
+                </div>
+              </div>
+
+              {/* Primary Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#ec7211] hover:bg-[#d9650c] text-white font-bold py-2.5 px-4 rounded-full text-sm mt-4 transition-colors disabled:bg-slate-200 disabled:text-slate-400 cursor-pointer flex items-center justify-center shadow-2xs"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center space-x-2">
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span>Processing...</span>
+                  </span>
+                ) : (
+                  <span>Continue</span>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* STEP 5: Contact Information */}
+          {step === 5 && (
+            <form onSubmit={handleContactInfo} className="space-y-4">
+              <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign up for AWS</h1>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">Contact Information</h2>
+
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Organization Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Organization name - optional
+                </label>
+                <input
+                  type="text"
+                  value={organizationName}
+                  onChange={(e) => setOrganizationName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div className="grid grid-cols-4 gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-900 mb-1">
+                    Country Code
+                  </label>
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                    disabled={isSubmitting}
+                  >
+                    <option value="US">+1</option>
+                    <option value="UK">+44</option>
+                    <option value="IN">+91</option>
+                    <option value="CA">+1</option>
+                    <option value="AU">+61</option>
+                  </select>
+                </div>
+                <div className="col-span-3">
+                  <label className="block text-xs font-bold text-slate-900 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* Country */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Country or Region
+                </label>
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                >
+                  <option value="United States">United States</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="India">India</option>
+                  <option value="Canada">Canada</option>
+                  <option value="Australia">Australia</option>
+                </select>
+              </div>
+
+              {/* Address Line 1 */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Address line 1
+                </label>
+                <input
+                  type="text"
+                  value={addressLine1}
+                  onChange={(e) => setAddressLine1(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Address Line 2 */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Address line 2 - optional
+                </label>
+                <input
+                  type="text"
+                  value={addressLine2}
+                  onChange={(e) => setAddressLine2(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* State */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  State, Province, or Region
+                </label>
+                <input
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Postal Code */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Postal Code
+                </label>
+                <input
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Primary Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#ec7211] hover:bg-[#d9650c] text-white font-bold py-2.5 px-4 rounded-full text-sm mt-4 transition-colors disabled:bg-slate-200 disabled:text-slate-400 cursor-pointer flex items-center justify-center shadow-2xs"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center space-x-2">
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span>Processing...</span>
+                  </span>
+                ) : (
+                  <span>Continue</span>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* STEP 6: Feedback & Language */}
+          {step === 6 && (
+            <form onSubmit={handleCompleteSignup} className="space-y-4">
+              <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign up for AWS</h1>
+              <h2 className="text-lg font-bold text-slate-900 mb-2">How is your experience?</h2>
+
+              <p className="text-xs text-slate-700 leading-relaxed mb-4">
+                Provide Feedback
+              </p>
+
+              {/* Experience Feedback */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  Language
+                </label>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                >
+                  <option value="English">English</option>
+                  <option value="Spanish">Spanish</option>
+                  <option value="French">French</option>
+                  <option value="German">German</option>
+                </select>
+              </div>
+
+              {/* Experience Text Area */}
+              <div>
+                <label className="block text-xs font-bold text-slate-900 mb-1">
+                  How is your experience? (optional)
+                </label>
+                <textarea
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-slate-400 rounded-md text-sm text-slate-900 focus:outline-none focus:border-[#ec7211] focus:ring-1 focus:ring-[#ec7211]"
+                  disabled={isSubmitting}
+                  placeholder="Share your thoughts..."
+                />
+              </div>
+
+              {/* Primary Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#ec7211] hover:bg-[#d9650c] text-white font-bold py-2.5 px-4 rounded-full text-sm mt-4 transition-colors disabled:bg-slate-200 disabled:text-slate-400 cursor-pointer flex items-center justify-center shadow-2xs"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center space-x-2">
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span>Creating account...</span>
+                  </span>
+                ) : (
+                  <span>Sign in</span>
                 )}
               </button>
             </form>
