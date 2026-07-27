@@ -18,6 +18,7 @@ _otp_store: dict[str, dict] = {}
 
 def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: str) -> bool:
     """Send email using Resend SDK (HTTPS port 443, never blocked by cloud hosts)."""
+    start_time = time.time()
     try:
         resend.api_key = api_key.strip()
         # Use Resend's default verified domain for testing
@@ -28,15 +29,18 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
             "subject": subject,
             "html": html_body,
         }
-        result = resend.Emails.send(params)
+        # Set timeout for Resend API call (5 seconds)
+        result = resend.Emails.send(params, timeout=5)
+        elapsed = time.time() - start_time
         if result and result.get("id"):
-            print(f"[Email Service] Successfully sent OTP email to {to_email} via Resend API! Email ID: {result.get('id')}")
+            print(f"[Email Service] Successfully sent OTP email to {to_email} via Resend API! Email ID: {result.get('id')} (took {elapsed:.2f}s)")
             return True
         else:
-            print(f"[Email Service] Resend API returned unexpected result: {result}")
+            print(f"[Email Service] Resend API returned unexpected result: {result} (took {elapsed:.2f}s)")
             return False
     except Exception as err:
-        print(f"[Email Service] Resend API attempt failed: {err}")
+        elapsed = time.time() - start_time
+        print(f"[Email Service] Resend API attempt failed after {elapsed:.2f}s: {err}")
         return False
 
 
