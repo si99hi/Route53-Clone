@@ -50,6 +50,8 @@ class DNSRecordCreate(BaseModel):
     value: str
     ttl: int = 300
     priority: int | None = None
+    alias: bool = False
+    routing_policy: str = "Simple routing"
 
     @field_validator("name")
     @classmethod
@@ -64,6 +66,14 @@ class DNSRecordCreate(BaseModel):
     def validate_ttl(cls, v: int) -> int:
         if v < 60 or v > 172800:
             raise ValueError("TTL must be between 60 and 172800 seconds")
+        return v
+
+    @field_validator("routing_policy")
+    @classmethod
+    def validate_routing_policy(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Routing policy is required")
         return v
 
     @model_validator(mode="after")
@@ -88,6 +98,8 @@ class DNSRecordOut(BaseModel):
     value: str
     ttl: int
     priority: int | None
+    alias: bool
+    routing_policy: str
     created_at: datetime
     updated_at: datetime
 
@@ -99,4 +111,3 @@ class DNSRecordPage(BaseModel):
     total: int
     page: int
     page_size: int
-

@@ -28,7 +28,7 @@ function ChevronCollapseIcon() {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = true, onToggle }: { isOpen?: boolean; onToggle?: () => void }) {
   const pathname = usePathname();
 
   // Section collapse states
@@ -48,13 +48,16 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-[240px] bg-white dark:bg-[#16191F] border-r border-[#D5DBDB] dark:border-slate-800 text-[#16191F] dark:text-slate-200 flex flex-col fixed top-20 bottom-8 left-0 z-30 select-none overflow-y-auto font-sans sidebar-scrollbar">
+    <aside className={`bg-white dark:bg-[#16191F] border-r border-[#D5DBDB] dark:border-slate-800 text-[#16191F] dark:text-slate-200 flex flex-col fixed top-20 bottom-8 left-0 z-30 select-none overflow-y-auto font-sans sidebar-scrollbar transition-all duration-200 ${
+      isOpen ? 'w-[240px]' : 'w-0 -left-full'
+    }`}>
       {/* 1. Sidebar Header */}
       <div className="px-4 pt-3.5 pb-2 flex items-center justify-between">
         <h2 className="text-base font-bold text-[#16191F] dark:text-white tracking-tight">
           Route 53
         </h2>
         <button
+          onClick={onToggle}
           className="p-1 rounded hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] transition-colors flex items-center justify-center"
           title="Collapse sidebar"
         >

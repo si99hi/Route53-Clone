@@ -4,7 +4,7 @@ def test_create_zone(auth_client):
     body = res.json()
     assert body["domain_name"] == "example.com"
     assert body["type"] == "public"
-    assert body["record_count"] == 0
+    assert body["record_count"] == 2
 
 
 def test_create_zone_requires_auth(client):

@@ -13,6 +13,7 @@ interface ModalProps {
   confirmText?: string;
   confirmVariant?: 'primary' | 'secondary' | 'danger';
   isConfirmLoading?: boolean;
+  showConfirmButton?: boolean;
 }
 
 export default function Modal({
@@ -24,6 +25,7 @@ export default function Modal({
   confirmText = 'Confirm',
   confirmVariant = 'primary',
   isConfirmLoading = false,
+  showConfirmButton = true,
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -35,25 +37,25 @@ export default function Modal({
         onClick={onClose}
       />
 
-      {/* Dialog container */}
-      <div className="relative w-full max-w-md bg-white border border-slate-200 rounded shadow-xl overflow-hidden flex flex-col z-10 animate-in fade-in zoom-in-95 duration-200">
+      {/* Dialog container - Smaller compact modal */}
+      <div className="relative w-full max-w-md bg-white border border-slate-300 rounded-lg shadow-lg overflow-hidden flex flex-col z-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-slate-50">
-          <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+          <h3 className="text-lg font-semibold text-black">{title}</h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+            className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-5 text-sm text-slate-600 leading-relaxed">{children}</div>
+        <div className="p-4 text-sm text-black leading-relaxed">{children}</div>
 
         {/* Action Footer */}
-        {onConfirm && (
-          <div className="flex items-center justify-end space-x-2 px-5 py-3 border-t border-slate-200 bg-slate-50">
+        {showConfirmButton && onConfirm && (
+          <div className="flex items-center justify-end space-x-3 px-4 py-3 border-t border-slate-200">
             <Button variant="secondary" onClick={onClose} disabled={isConfirmLoading}>
               Cancel
             </Button>

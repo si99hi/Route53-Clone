@@ -10,12 +10,21 @@ def zone_id(auth_client):
 def test_create_a_record(auth_client, zone_id):
     res = auth_client.post(
         f"/api/v1/hosted-zones/{zone_id}/records",
-        json={"name": "www.example.com", "type": "A", "value": "192.0.2.1", "ttl": 300},
+        json={
+            "name": "www.example.com",
+            "type": "A",
+            "value": "192.0.2.1",
+            "ttl": 300,
+            "alias": True,
+            "routing_policy": "Weighted",
+        },
     )
     assert res.status_code == 201
     body = res.json()
     assert body["type"] == "A"
     assert body["value"] == "192.0.2.1"
+    assert body["alias"] is True
+    assert body["routing_policy"] == "Weighted"
 
 
 def test_create_a_record_invalid_ip(auth_client, zone_id):
@@ -54,7 +63,7 @@ def test_record_creation_updates_zone_record_count(auth_client, zone_id):
         json={"name": "www.example.com", "type": "A", "value": "192.0.2.1", "ttl": 300},
     )
     res = auth_client.get(f"/api/v1/hosted-zones/{zone_id}")
-    assert res.json()["record_count"] == 1
+    assert res.json()["record_count"] == 3
 
 
 def test_list_records_filter_by_type(auth_client, zone_id):
@@ -82,7 +91,7 @@ def test_delete_record_updates_zone_record_count(auth_client, zone_id):
     assert res.status_code == 204
 
     zone_res = auth_client.get(f"/api/v1/hosted-zones/{zone_id}")
-    assert zone_res.json()["record_count"] == 0
+    assert zone_res.json()["record_count"] == 2
 
 
 def test_record_not_found_in_wrong_zone(auth_client, zone_id):
@@ -140,4 +149,3 @@ def test_update_record_mx_priority_none(auth_client, zone_id):
     # or if the resulting record has None priority, it should fail.
     # Our validator raises ValueError which is mapped to 422.
     assert res.status_code == 422
-

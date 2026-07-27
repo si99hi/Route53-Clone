@@ -59,6 +59,14 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
   const [recordToEdit, setRecordToEdit] = useState<DNSRecord | null>(null);
   const [recordToDelete, setRecordToDelete] = useState<DNSRecord | null>(null);
   const [formErrorMsg, setFormErrorMsg] = useState<string | null>(null);
+  
+  // Delete Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteSearch, setDeleteSearch] = useState('');
+  const [deleteFilterTags, setDeleteFilterTags] = useState<string[]>([]);
+  const [selectedDeleteRecordIds, setSelectedDeleteRecordIds] = useState<string[]>([]);
+  const [deleteSearchProperty, setDeleteSearchProperty] = useState<'name' | 'type' | 'value'>('name');
+  const [isPropertyDropdownOpen, setIsPropertyDropdownOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -128,13 +136,13 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
   // Filter records by type, routing policy, alias, search tags, operator ('and' | 'or')
   const filteredRecords = React.useMemo(() => {
     return rawRecords.filter((rec) => {
-      const recAliasStr = (rec as any).alias ? 'Yes' : 'No';
+      const recAliasStr = rec.alias ? 'Yes' : 'No';
 
       if (selectedType !== 'all' && rec.type !== selectedType) {
         return false;
       }
       if (selectedRoutingPolicy !== 'all') {
-        const recRouting = ((rec as any).routing_policy || 'Simple').toLowerCase();
+        const recRouting = (rec.routing_policy || 'Simple routing').toLowerCase();
         if (!recRouting.includes(selectedRoutingPolicy.toLowerCase())) {
           return false;
         }
@@ -172,7 +180,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           }
 
           if (key === 'routing' || key === 'routing policy') {
-            const recRouting = ((rec as any).routing_policy || 'simple').toLowerCase();
+            const recRouting = (rec.routing_policy || 'Simple routing').toLowerCase();
             return recRouting.includes(val);
           }
 
@@ -297,6 +305,23 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     },
   });
 
+  // Delete Multiple Records Mutation
+  const deleteMultipleRecordsMutation = useMutation({
+    mutationFn: (recIds: string[]) => Promise.all(recIds.map(id => api.deleteRecord(zoneId, id))),
+    onSuccess: () => {
+      toast.success(`${selectedDeleteRecordIds.length} DNS record(s) deleted successfully.`);
+      setIsDeleteModalOpen(false);
+      setSelectedDeleteRecordIds([]);
+      setDeleteSearch('');
+      setDeleteFilterTags([]);
+      queryClient.invalidateQueries({ queryKey: ['records', zoneId] });
+      queryClient.invalidateQueries({ queryKey: ['hosted-zone', zoneId] });
+    },
+    onError: (err: any) => {
+      toast.error(err.detail || 'Failed to delete records.');
+    },
+  });
+
   // Delete Hosted Zone Mutation
   const deleteZoneMutation = useMutation({
     mutationFn: () => api.deleteHostedZone(zoneId),
@@ -373,7 +398,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             Delete zone
           </button>
           <button
-            onClick={() => toast.info('Test record feature coming soon!')}
+            onClick={() => router.push(`/hosted-zones/${zoneId}/test-record`)}
             className="px-3 py-1 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-[11px] font-semibold transition-colors shadow-2xs"
           >
             Test record
@@ -590,7 +615,8 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
                 <button
                   onClick={() => {
-                    if (selectedRecord) setRecordToDelete(selectedRecord);
+                    setIsDeleteModalOpen(true);
+                    setSelectedDeleteRecordIds(selectedRecordIds);
                   }}
                   disabled={selectedRecordIds.length === 0}
                   className={`px-3.5 py-1 rounded-full text-[11px] font-bold transition-colors shadow-2xs ${
@@ -611,11 +637,9 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
                 <button
                   onClick={() => {
-                    setRecordToEdit(null);
-                    setFormErrorMsg(null);
-                    setIsRecordModalOpen(true);
+                    router.push(`/hosted-zones/${zoneId}/create-record`);
                   }}
-                  className="px-3.5 py-1 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-950 font-bold text-[11px] transition-colors shadow-2xs"
+                  className="px-3.5 py-1 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-950 font-bold text-[11px] transition-colors shadow-2xs cursor-pointer"
                 >
                   Create record
                 </button>
@@ -805,13 +829,13 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                             {rec.type}
                           </td>
                           <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug border-r border-slate-200">
-                            Simple
+                            {rec.routing_policy || 'Simple routing'}
                           </td>
                           <td className="px-3 py-2 font-normal text-slate-500 align-top leading-snug border-r border-slate-200">
                             -
                           </td>
                           <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug border-r border-slate-200">
-                            {(rec as any).alias ? 'Yes' : 'No'}
+                            {rec.alias ? 'Yes' : 'No'}
                           </td>
                           <td className="px-4 py-2 font-normal text-slate-800 align-top leading-snug whitespace-pre-wrap break-words border-r border-slate-200">
                             {valueLines.map((line, lIdx) => (
@@ -939,7 +963,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                     <div>
                       <div className="text-slate-600 font-medium text-xs mb-0.5">Alias</div>
                       <div className="font-normal text-slate-900 text-xs">
-                        {(selectedRecord as any).alias ? 'Yes' : 'No'}
+                        {selectedRecord.alias ? 'Yes' : 'No'}
                       </div>
                     </div>
 
@@ -952,7 +976,9 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
                     <div>
                       <div className="text-slate-600 font-medium text-xs mb-0.5">Routing policy</div>
-                      <div className="font-normal text-slate-900 text-xs">Simple</div>
+                      <div className="font-normal text-slate-900 text-xs">
+                        {selectedRecord.routing_policy || 'Simple routing'}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1261,20 +1287,303 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
         errorMsg={formErrorMsg}
       />
 
-      {/* Delete Record Confirmation Modal */}
+      {/* Delete Record Modal */}
       <Modal
-        isOpen={recordToDelete !== null}
-        onClose={() => setRecordToDelete(null)}
-        title="Delete record"
-        onConfirm={() => recordToDelete && deleteRecordMutation.mutate(recordToDelete.id)}
-        confirmText="Delete"
-        confirmVariant="danger"
-        isConfirmLoading={deleteRecordMutation.isPending}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Delete selected record?"
+        showConfirmButton={false}
       >
-        <p className="text-xs text-slate-700">
-          Are you sure you want to delete the <strong className="text-[#16191F]">{recordToDelete?.type}</strong> record for{' '}
-          <strong className="text-[#16191F]">{recordToDelete?.name}</strong>?
-        </p>
+        <div className="space-y-3 font-sans">
+          <p className="text-sm text-black leading-relaxed">
+            Delete the record permanently? This action cannot be undone. Your domain might become unavailable on the internet.
+          </p>
+
+          {/* Single Record View - AWS-style simple table */}
+          {selectedDeleteRecordIds.length === 1 && (() => {
+            const record = rawRecords.find(r => r.id === selectedDeleteRecordIds[0]);
+            if (!record) return null;
+            return (
+              <>
+                {/* Search Bar */}
+                <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <div className="relative flex-1 min-w-[200px]">
+                    <Search className="absolute left-3 top-2 h-3 w-3 text-slate-400" />
+                    <input
+                      type="text"
+                      value={deleteSearch}
+                      onChange={(e) => setDeleteSearch(e.target.value)}
+                      placeholder="Search"
+                      className="w-full bg-white border border-slate-400 rounded px-3 py-1 pl-9 text-xs text-slate-900 focus:outline-none focus:border-[#0972D3]"
+                    />
+                  </div>
+                  
+                  {/* Properties Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsPropertyDropdownOpen(!isPropertyDropdownOpen)}
+                      className="flex items-center space-x-1 px-3 py-1 border border-slate-400 rounded text-xs text-slate-700 hover:bg-slate-50"
+                    >
+                      <span>Properties</span>
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    
+                    {isPropertyDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-1 bg-white border border-slate-300 rounded shadow-lg z-10 min-w-[150px]">
+                        <button
+                          onClick={() => {
+                            setDeleteSearchProperty('name');
+                            setIsPropertyDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 ${
+                            deleteSearchProperty === 'name' ? 'bg-blue-50 text-[#0972D3]' : 'text-slate-700'
+                          }`}
+                        >
+                          Record name
+                        </button>
+                        <button
+                          onClick={() => {
+                            setDeleteSearchProperty('type');
+                            setIsPropertyDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 ${
+                            deleteSearchProperty === 'type' ? 'bg-blue-50 text-[#0972D3]' : 'text-slate-700'
+                          }`}
+                        >
+                          Type
+                        </button>
+                        <button
+                          onClick={() => {
+                            setDeleteSearchProperty('value');
+                            setIsPropertyDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 ${
+                            deleteSearchProperty === 'value' ? 'bg-blue-50 text-[#0972D3]' : 'text-slate-700'
+                          }`}
+                        >
+                          Value/Route traffic to
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 text-xs text-slate-500">
+                    <span>&lt; 1 &gt;</span>
+                  </div>
+                </div>
+
+                <div className="border border-slate-200 rounded overflow-hidden">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-[#f8f9fb] border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                      <tr>
+                        <th className="px-3 py-1.5">Record name</th>
+                        <th className="px-3 py-1.5">Type</th>
+                        <th className="px-3 py-1.5">Value/Route traffic to</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      <tr className="hover:bg-slate-50">
+                        <td className="px-3 py-1.5">
+                          <span className="text-slate-600 hover:underline cursor-pointer">
+                            {record.name}
+                          </span>
+                        </td>
+                        <td className="px-3 py-1.5 font-semibold text-slate-600">
+                          {record.type}
+                        </td>
+                        <td className="px-3 py-1.5 text-slate-500 truncate max-w-xs">
+                          {record.value}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            );
+          })()}
+
+          {/* Multiple Records View - With Search/Filter */}
+          {selectedDeleteRecordIds.length > 1 && (
+            <>
+              {/* Search and Filter Bar */}
+              <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="absolute left-3 top-2 h-3 w-3 text-slate-400" />
+                  <input
+                    type="text"
+                    value={deleteSearch}
+                    onChange={(e) => setDeleteSearch(e.target.value)}
+                    placeholder="Search"
+                    className="w-full bg-white border border-slate-400 rounded px-3 py-1 pl-9 text-xs text-slate-900 focus:outline-none focus:border-[#0972D3]"
+                  />
+                </div>
+                
+                {/* Properties Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsPropertyDropdownOpen(!isPropertyDropdownOpen)}
+                    className="flex items-center space-x-1 px-3 py-1 border border-slate-400 rounded text-xs text-slate-700 hover:bg-slate-50"
+                  >
+                    <span>Properties</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  
+                  {isPropertyDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-1 bg-white border border-slate-300 rounded shadow-lg z-10 min-w-[150px]">
+                      <button
+                        onClick={() => {
+                          setDeleteSearchProperty('name');
+                          setIsPropertyDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 ${
+                          deleteSearchProperty === 'name' ? 'bg-blue-50 text-[#0972D3]' : 'text-slate-700'
+                        }`}
+                      >
+                        Record name
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDeleteSearchProperty('type');
+                          setIsPropertyDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 ${
+                          deleteSearchProperty === 'type' ? 'bg-blue-50 text-[#0972D3]' : 'text-slate-700'
+                        }`}
+                      >
+                        Type
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDeleteSearchProperty('value');
+                          setIsPropertyDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 ${
+                          deleteSearchProperty === 'value' ? 'bg-blue-50 text-[#0972D3]' : 'text-slate-700'
+                        }`}
+                      >
+                        Value/Route traffic to
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Filter Tags */}
+                {deleteFilterTags.map((tag, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setDeleteFilterTags(deleteFilterTags.filter((_, i) => i !== index))}
+                    className="flex items-center space-x-1 px-2 py-1 rounded-full bg-blue-50 border border-[#0972D3] text-[#0972D3] text-xs font-medium"
+                  >
+                    <span>{tag}</span>
+                    <X className="h-3 w-3" />
+                  </button>
+                ))}
+
+                {deleteFilterTags.length > 0 && (
+                  <button
+                    onClick={() => setDeleteFilterTags([])}
+                    className="text-xs font-semibold text-[#0972D3] hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+
+                <div className="flex items-center space-x-2 text-xs text-slate-500 ml-auto">
+                  <span>&lt; 1 &gt;</span>
+                  <span className="text-slate-700 font-medium">
+                    {rawRecords.filter(r => 
+                      r.name.toLowerCase().includes(deleteSearch.toLowerCase()) ||
+                      r.value.toLowerCase().includes(deleteSearch.toLowerCase())
+                    ).length} match{rawRecords.filter(r => 
+                      r.name.toLowerCase().includes(deleteSearch.toLowerCase()) ||
+                      r.value.toLowerCase().includes(deleteSearch.toLowerCase())
+                    ).length !== 1 ? 'es' : ''}
+                  </span>
+                </div>
+              </div>
+
+              {/* Records Table */}
+              <div className="border border-slate-200 rounded overflow-hidden">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-[#f8f9fb] border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="px-3 py-1.5 w-8">
+                        <input
+                          type="checkbox"
+                          checked={selectedDeleteRecordIds.length > 0 && selectedDeleteRecordIds.length === rawRecords.length}
+                          onChange={() => {
+                            if (selectedDeleteRecordIds.length === rawRecords.length) {
+                              setSelectedDeleteRecordIds([]);
+                            } else {
+                              setSelectedDeleteRecordIds(rawRecords.map(r => r.id));
+                            }
+                          }}
+                          className="rounded border-slate-300"
+                        />
+                      </th>
+                      <th className="px-3 py-1.5">Record name</th>
+                      <th className="px-3 py-1.5">Type</th>
+                      <th className="px-3 py-1.5">Value/Route traffic to</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {rawRecords
+                      .filter(r => 
+                        r.name.toLowerCase().includes(deleteSearch.toLowerCase()) ||
+                        r.value.toLowerCase().includes(deleteSearch.toLowerCase())
+                      )
+                      .map((rec) => (
+                        <tr key={rec.id} className="hover:bg-slate-50">
+                          <td className="px-3 py-1.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedDeleteRecordIds.includes(rec.id)}
+                              onChange={() => {
+                                if (selectedDeleteRecordIds.includes(rec.id)) {
+                                  setSelectedDeleteRecordIds(selectedDeleteRecordIds.filter(id => id !== rec.id));
+                                } else {
+                                  setSelectedDeleteRecordIds([...selectedDeleteRecordIds, rec.id]);
+                                }
+                              }}
+                              className="rounded border-slate-300"
+                            />
+                          </td>
+                          <td className="px-3 py-1.5">
+                            <span className="text-slate-600 hover:underline cursor-pointer">
+                              {rec.name}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1.5 font-semibold text-slate-600">
+                            {rec.type}
+                          </td>
+                          <td className="px-3 py-1.5 text-slate-500 truncate max-w-xs">
+                            {rec.value}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end space-x-3 pt-2">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-3 py-1.5 text-xs font-semibold text-[#0972D3] hover:bg-slate-50 rounded transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => deleteMultipleRecordsMutation.mutate(selectedDeleteRecordIds)}
+              disabled={selectedDeleteRecordIds.length === 0 || deleteMultipleRecordsMutation.isPending}
+              className="px-3 py-1.5 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-black font-semibold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleteMultipleRecordsMutation.isPending ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

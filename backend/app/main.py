@@ -19,6 +19,21 @@ with engine.connect() as conn:
         conn.commit()
     except Exception:
         pass
+    try:
+        conn.execute(text("ALTER TABLE dns_records ADD COLUMN alias BOOLEAN DEFAULT 0 NOT NULL"))
+        conn.commit()
+    except Exception:
+        pass
+    try:
+        conn.execute(
+            text(
+                "ALTER TABLE dns_records ADD COLUMN routing_policy VARCHAR(64) "
+                "DEFAULT 'Simple routing' NOT NULL"
+            )
+        )
+        conn.commit()
+    except Exception:
+        pass
 
 app = FastAPI(title=settings.app_name)
 

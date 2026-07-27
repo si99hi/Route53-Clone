@@ -63,6 +63,8 @@ def create_record(db: Session, owner_id: str, zone_id: str, payload: DNSRecordCr
         value=payload.value,
         ttl=payload.ttl,
         priority=payload.priority,
+        alias=payload.alias,
+        routing_policy=payload.routing_policy,
     )
     db.add(record)
     db.flush()
@@ -85,6 +87,9 @@ def update_record(
             raise ValueError("TTL must be between 60 and 172800 seconds")
 
     if record.type in (RecordType.MX, RecordType.SRV):
+        priority_was_provided = "priority" in payload.model_fields_set
+        if priority_was_provided and payload.priority is None:
+            raise ValueError(f"{record.type.value} records require a priority")
         new_priority = payload.priority if payload.priority is not None else record.priority
         if new_priority is None:
             raise ValueError(f"{record.type.value} records require a priority")

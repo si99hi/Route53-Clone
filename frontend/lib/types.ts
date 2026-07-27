@@ -33,6 +33,8 @@ export interface DNSRecord {
   value: string;
   ttl: number;
   priority: number | null;
+  alias: boolean;
+  routing_policy: string;
   created_at: string;
   updated_at: string;
 }
@@ -75,6 +77,8 @@ export interface DNSRecordCreate {
   value: string;
   ttl?: number;
   priority?: number;
+  alias?: boolean;
+  routing_policy?: string;
 }
 
 export interface DNSRecordUpdate {
