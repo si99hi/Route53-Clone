@@ -11,6 +11,7 @@ import { useToast } from '../../../hooks/useToast';
 import ZoneSearchBar from '../../../components/hosted-zones/ZoneSearchBar';
 import ZoneTable, { SortField, SortOrder } from '../../../components/hosted-zones/ZoneTable';
 import Modal from '../../../components/ui/Modal';
+import DeleteZoneModal from '../../../components/hosted-zones/DeleteZoneModal';
 import { RotateCw } from 'lucide-react';
 
 export default function HostedZonesPage() {
@@ -32,6 +33,7 @@ export default function HostedZonesPage() {
 
   // Delete modal state
   const [zoneToDelete, setZoneToDelete] = useState<HostedZone | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   // Debounce search string
   const debouncedSearch = useDebounce(search, 300);
@@ -71,18 +73,63 @@ export default function HostedZonesPage() {
     return data.items.filter((zone) => {
       const activeTerms = [...filterTags];
       if (debouncedSearch.trim()) {
-        activeTerms.push(debouncedSearch.trim().toLowerCase());
+        activeTerms.push(debouncedSearch.trim());
       }
 
       if (activeTerms.length === 0) return true;
 
       const matchesTerm = (term: string) => {
-        const t = term.toLowerCase();
+        const normalized = term.trim();
+        // Check for key:value or key=value patterns
+        const match = normalized.match(/^([^:=]+)[:=]\s*(.+)$/i);
+
+        if (match) {
+          const key = match[1].trim().toLowerCase();
+          const val = match[2].trim().toLowerCase();
+
+          if (key === 'type' || key === 'hosted zone type') {
+            const zoneType = zone.type.toLowerCase();
+            if (val === 'public') return zoneType === 'public';
+            if (val === 'private') return zoneType === 'private';
+            return zoneType.includes(val);
+          }
+
+          if (key === 'hosted zone name' || key === 'domain name' || key === 'name') {
+            return zone.domain_name.toLowerCase().includes(val);
+          }
+
+          if (key === 'description') {
+            return zone.description && zone.description.toLowerCase().includes(val);
+          }
+
+          if (key === 'hosted zone id' || key === 'id') {
+            return zone.id.toLowerCase().includes(val);
+          }
+
+          if (key === 'record count') {
+            const recordCount = String(zone.record_count);
+            return recordCount === val || recordCount.includes(val);
+          }
+
+          if (key === 'accelerated recovery') {
+            // This is a placeholder for future functionality
+            return true;
+          }
+
+          if (key === 'created by') {
+            // Always Route 53 for now
+            return val.includes('route 53') || val.includes('route53');
+          }
+        }
+
+        // Generic fallback search across name, type, description, id
+        const t = normalized.toLowerCase();
         return (
           zone.domain_name.toLowerCase().includes(t) ||
           zone.type.toLowerCase().includes(t) ||
           (zone.description && zone.description.toLowerCase().includes(t)) ||
-          zone.id.toLowerCase().includes(t)
+          zone.id.toLowerCase().includes(t) ||
+          String(zone.record_count).includes(t)
         );
       };
 
@@ -146,12 +193,14 @@ export default function HostedZonesPage() {
     onSuccess: () => {
       toast.success(`Successfully deleted hosted zone: ${zoneToDelete?.domain_name}`);
       setZoneToDelete(null);
+      setDeleteConfirmText('');
       setSelectedZoneId(null);
       queryClient.invalidateQueries({ queryKey: ['hosted-zones'] });
     },
     onError: (err: any) => {
       toast.error(err.detail || 'Failed to delete hosted zone.');
       setZoneToDelete(null);
+      setDeleteConfirmText('');
     },
   });
 
@@ -165,9 +214,14 @@ export default function HostedZonesPage() {
   };
 
   const handleConfirmDelete = () => {
-    if (zoneToDelete) {
+    if (zoneToDelete && deleteConfirmText === 'delete') {
       deleteMutation.mutate(zoneToDelete.id);
     }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setZoneToDelete(null);
+    setDeleteConfirmText('');
   };
 
   const handleToggleSelectAll = () => {
@@ -260,6 +314,7 @@ export default function HostedZonesPage() {
         page={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}
+        matchCount={totalCount}
       />
 
       {/* Flat AWS-style Table */}
@@ -279,23 +334,15 @@ export default function HostedZonesPage() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteZoneModal
         isOpen={zoneToDelete !== null}
-        onClose={() => setZoneToDelete(null)}
-        title="Delete hosted zone"
+        onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
-        confirmText="Delete"
-        confirmVariant="danger"
-        isConfirmLoading={deleteMutation.isPending}
-      >
-        <p className="mb-2 text-base text-[#16191F]">
-          Are you sure you want to delete the hosted zone{' '}
-          <span className="font-semibold text-slate-900">{zoneToDelete?.domain_name}</span>?
-        </p>
-        <p className="text-sm text-red-600 font-medium">
-          Warning: This action is permanent and will cascade delete all associated DNS records!
-        </p>
-      </Modal>
+        zoneName={zoneToDelete?.domain_name || ''}
+        isDeleting={deleteMutation.isPending}
+        confirmText={deleteConfirmText}
+        onConfirmTextChange={setDeleteConfirmText}
+      />
     </div>
   );
 }

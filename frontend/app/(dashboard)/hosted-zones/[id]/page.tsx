@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../../lib/api';
-import { DNSRecord, HostedZone } from '../../../../lib/types';
+import { DNSRecord, HostedZone, RecordType } from '../../../../lib/types';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { useToast } from '../../../../hooks/useToast';
 import RecordFormModal from '../../../../components/dns-records/RecordFormModal';
 import ZoneSearchBar from '../../../../components/hosted-zones/ZoneSearchBar';
 import Modal from '../../../../components/ui/Modal';
+import DeleteZoneModal from '../../../../components/hosted-zones/DeleteZoneModal';
 import { RotateCw, X, CheckCircle2, ChevronRight, ChevronDown, Search, ChevronLeft, Trash2, Settings, Copy } from 'lucide-react';
 
 interface TagItem {
@@ -25,14 +26,17 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
   const toast = useToast();
 
   const isNewlyCreated = searchParams.get('created') === 'true';
+  const isEdited = searchParams.get('edited') === 'true';
   const createdDomain = searchParams.get('domain') || '';
+  const editedDomain = searchParams.get('domain') || '';
 
-  const [showBanner, setShowBanner] = useState(isNewlyCreated);
+  const [showBanner, setShowBanner] = useState(isNewlyCreated || isEdited);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState<'records' | 'recovery' | 'dnssec' | 'tags'>('records');
 
   // Hosted Zone Delete Modal State
   const [isDeleteZoneModalOpen, setIsDeleteZoneModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   // Filter States
   const [search, setSearch] = useState('');
@@ -59,6 +63,21 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
   const [recordToEdit, setRecordToEdit] = useState<DNSRecord | null>(null);
   const [recordToDelete, setRecordToDelete] = useState<DNSRecord | null>(null);
   const [formErrorMsg, setFormErrorMsg] = useState<string | null>(null);
+
+  // Inline Edit State
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [editVersion, setEditVersion] = useState(0);
+  const [localRecords, setLocalRecords] = useState<DNSRecord[]>([]);
+  const [inlineEditForm, setInlineEditForm] = useState({
+    name: '',
+    type: 'A' as RecordType,
+    value: '',
+    ttl: 300,
+    alias: false,
+    routing_policy: 'Simple routing',
+    region: '',
+    failure_type: 'Primary',
+  });
   
   // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -76,7 +95,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     queryFn: () => api.getHostedZone(zoneId),
   });
 
-  const domainDisplayName = zone?.domain_name || createdDomain || 'Hosted zone';
+  const domainDisplayName = zone?.domain_name || createdDomain || editedDomain || 'Hosted zone';
 
   // Sync tags from backend zone data
   useEffect(() => {
@@ -93,6 +112,9 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
         page: 1,
         page_size: 100,
       }),
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnMount: 'always',
   });
 
   const rawRecords = recordsData?.items || [];
@@ -279,12 +301,35 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     mutationFn: ({ id, payload }: { id: string; payload: any }) =>
       api.updateRecord(zoneId, id, payload),
     onSuccess: (updatedRec) => {
+      console.log('=== BACKEND RESPONSE ===');
+      console.log('Updated record from backend:', updatedRec);
+      console.log('=======================');
+      
       toast.success(`Record for ${updatedRec.name} updated successfully.`);
       setIsRecordModalOpen(false);
       setRecordToEdit(null);
+      setIsInlineEditing(false);
+      
+      // Manually update cache with server response
+      queryClient.setQueryData(['records', zoneId], (oldData: any) => {
+        if (!oldData?.items) return oldData;
+        console.log('Cache before:', oldData.items.find((r: DNSRecord) => r.id === updatedRec.id));
+        const newData = {
+          ...oldData,
+          items: oldData.items.map((rec: DNSRecord) =>
+            rec.id === updatedRec.id ? updatedRec : rec
+          ),
+        };
+        console.log('Cache after:', newData.items.find((r: DNSRecord) => r.id === updatedRec.id));
+        return newData;
+      });
+      
       queryClient.invalidateQueries({ queryKey: ['records', zoneId] });
     },
     onError: (err: any) => {
+      console.error('=== BACKEND ERROR ===');
+      console.error('Error details:', err);
+      console.error('===================');
       setFormErrorMsg(err.detail || 'Failed to update DNS record.');
     },
   });
@@ -344,10 +389,42 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
     }
   };
 
+  const handleStartInlineEdit = () => {
+    if (selectedRecord) {
+      setInlineEditForm({
+        name: selectedRecord.name,
+        type: selectedRecord.type,
+        value: selectedRecord.value,
+        ttl: selectedRecord.ttl,
+        alias: selectedRecord.alias,
+        routing_policy: selectedRecord.routing_policy || 'Simple routing',
+        region: '',
+        failure_type: 'Primary',
+      });
+      setIsInlineEditing(true);
+    }
+  };
+
+  const handleInlineSave = () => {
+    if (selectedRecord) {
+      updateRecordMutation.mutate({
+        id: selectedRecord.id,
+        payload: {
+          value: inlineEditForm.value,
+          ttl: inlineEditForm.ttl,
+        },
+      });
+    }
+  };
+
+  const handleInlineCancel = () => {
+    setIsInlineEditing(false);
+  };
+
   const zoneTypeLabel = zone?.type ? zone.type.toLowerCase() : 'public';
 
   return (
-    <div className="flex flex-col space-y-6 font-sans max-w-[1650px] w-full text-[#16191F] pb-8">
+    <div className="flex flex-col space-y-6 font-sans max-w-[1650px] w-full text-[#16191F] dark:text-white pb-8">
       {/* 1. Full-width Green Success Banner */}
       {showBanner && (
         <div className="bg-[#037f0c] text-white p-4 rounded-xl flex items-start justify-between shadow-2xs transition-all animate-fadeIn w-full">
@@ -357,10 +434,10 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             </div>
             <div>
               <h2 className="font-bold text-sm leading-snug">
-                {domainDisplayName} was successfully created.
+                {isEdited ? `${domainDisplayName} was successfully updated.` : `${domainDisplayName} was successfully created.`}
               </h2>
               <p className="text-xs text-white/90 mt-0.5">
-                Now you can create records in the hosted zone to specify how you want Route 53 to route traffic for your domain.
+                {isEdited ? 'Hosted zone details were successfully updated.' : 'Now you can create records in the hosted zone to specify how you want Route 53 to route traffic for your domain.'}
               </p>
             </div>
           </div>
@@ -381,7 +458,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           <span className="bg-[#0972D3] text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
             {zoneTypeLabel === 'public' ? 'Public' : 'Private'}
           </span>
-          <h1 className="text-lg sm:text-xl font-bold text-[#16191F] tracking-tight">
+          <h1 className="text-lg sm:text-xl font-bold text-[#16191F] dark:text-white tracking-tight">
             {domainDisplayName}
           </h1>
           <button className="text-[#0972D3] hover:underline text-[11px] font-medium ml-0.5">
@@ -398,7 +475,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             Delete zone
           </button>
           <button
-            onClick={() => router.push(`/hosted-zones/${zoneId}/test-record`)}
+            onClick={() => toast.info('Test record feature coming soon!')}
             className="px-3 py-1 rounded-full border-2 border-[#0972D3] text-[#0972D3] hover:bg-blue-50/60 text-[11px] font-semibold transition-colors shadow-2xs"
           >
             Test record
@@ -419,10 +496,10 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
         >
           <div className="flex items-center space-x-2">
-            <span className="text-[11px] text-[#16191F] font-bold">
+            <span className="text-[11px] text-[#16191F] dark:text-white font-bold">
               {isDetailsExpanded ? '▼' : '►'}
             </span>
-            <h2 className="text-sm font-bold text-[#16191F]">Hosted zone details</h2>
+            <h2 className="text-sm font-bold text-[#16191F] dark:text-white">Hosted zone details</h2>
           </div>
 
           <button
@@ -442,46 +519,46 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             {/* Column 1: Zone Name, ID, Description */}
             <div className="space-y-2.5">
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Hosted zone name</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5">{domainDisplayName}</div>
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Hosted zone name</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5">{domainDisplayName}</div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Hosted zone ID</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5">{zone?.id || zoneId}</div>
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Hosted zone ID</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5">{zone?.id || zoneId}</div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Description</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5">{zone?.description || '-'}</div>
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Description</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5">{zone?.description || '-'}</div>
               </div>
             </div>
 
             {/* Column 2: Query Log, Type, Record Count */}
             <div className="space-y-2.5 md:border-l md:border-slate-200 md:pl-5">
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Query log</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5">-</div>
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Query log</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5">-</div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Type</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5">
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Type</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5">
                   {zoneTypeLabel === 'public' ? 'Public hosted zone' : 'Private hosted zone'}
                 </div>
               </div>
 
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Record count</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5">{rawRecords.length}</div>
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Record count</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5">{rawRecords.length}</div>
               </div>
             </div>
 
             {/* Column 3: Name Servers */}
             <div className="space-y-2.5 md:border-l md:border-slate-200 md:pl-5">
               <div>
-                <div className="font-bold text-[#16191F] text-[11px]">Name servers</div>
-                <div className="text-[#16191F] text-[11px] mt-0.5 space-y-0.5">
+                <div className="font-bold text-[#16191F] dark:text-white text-[11px]">Name servers</div>
+                <div className="text-[#16191F] dark:text-white text-[11px] mt-0.5 space-y-0.5">
                   {nameServersToDisplay.map((ns, i) => (
                     <div key={i}>{ns}</div>
                   ))}
@@ -507,7 +584,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'records'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
-              : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
+              : 'border-transparent text-[#16191F] dark:text-white hover:text-[#0972D3]'
           }`}
         >
           Records ({rawRecords.length})
@@ -518,7 +595,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'recovery'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
-              : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
+              : 'border-transparent text-[#16191F] dark:text-white hover:text-[#0972D3]'
           }`}
         >
           Accelerated recovery
@@ -529,7 +606,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'dnssec'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
-              : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
+              : 'border-transparent text-[#16191F] dark:text-white hover:text-[#0972D3]'
           }`}
         >
           DNSSEC signing
@@ -540,7 +617,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
           className={`pb-2 border-b-2 transition-colors ${
             activeTab === 'tags'
               ? 'border-[#0972D3] text-[#0972D3] font-bold'
-              : 'border-transparent text-[#16191F] hover:text-[#0972D3]'
+              : 'border-transparent text-[#16191F] dark:text-white hover:text-[#0972D3]'
           }`}
         >
           Hosted zone tags ({userTags.length})
@@ -567,7 +644,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             {/* Header Row: Section Title & Action Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-200 pb-3">
               <div className="flex items-center space-x-2">
-                <h2 className="text-base font-bold text-[#16191F] tracking-tight">
+                <h2 className="text-base font-bold text-[#16191F] dark:text-white tracking-tight">
                   Records{' '}
                   {selectedRecordIds.length > 0
                     ? `(${selectedRecordIds.length}/${totalRecords})`
@@ -647,7 +724,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             </div>
 
             {/* Subtitle / Helper notice */}
-            <p className="text-[11px] text-[#16191F] font-normal leading-relaxed">
+            <p className="text-[11px] text-[#16191F] dark:text-white font-normal leading-relaxed">
               Automatic mode is the current search behavior optimized for best filter results.{' '}
               <button
                 type="button"
@@ -700,7 +777,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
 
             {/* Records Table */}
             <div className="border border-slate-300 dark:border-[#384252] rounded-xl overflow-x-auto bg-white dark:bg-[#16191F] shadow-2xs">
-              <table className="w-full text-xs text-left text-slate-800 dark:text-slate-200 font-sans">
+              <table className="w-full text-xs text-left text-slate-800 dark:text-slate-300 font-sans">
                 <thead className="bg-slate-50/90 dark:bg-[#16191F] border-b border-slate-300 dark:border-[#384252] text-[11px] font-normal select-none text-slate-700 dark:text-slate-300">
                   <tr>
                     <th className="w-10 px-3 py-1.5 text-center border-r border-slate-300 dark:border-[#384252]">
@@ -822,29 +899,29 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
                               className="rounded border-slate-400 text-[#0972D3] focus:ring-[#0972D3] mt-0.5"
                             />
                           </td>
-                          <td className="px-4 py-2 font-normal text-slate-900 align-top leading-snug border-r border-slate-200">
+                          <td className="px-4 py-2 font-normal text-slate-900 dark:text-slate-300 align-top leading-snug border-r border-slate-200 dark:border-[#384252]">
                             {rec.name}
                           </td>
-                          <td className="px-3 py-2 font-semibold text-slate-800 align-top leading-snug border-r border-slate-200">
+                          <td className="px-3 py-2 font-semibold text-slate-800 dark:text-slate-300 align-top leading-snug border-r border-slate-200 dark:border-[#384252]">
                             {rec.type}
                           </td>
-                          <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug border-r border-slate-200">
+                          <td className="px-3 py-2 font-normal text-slate-700 dark:text-slate-300 align-top leading-snug border-r border-slate-200 dark:border-[#384252]">
                             {rec.routing_policy || 'Simple routing'}
                           </td>
                           <td className="px-3 py-2 font-normal text-slate-500 align-top leading-snug border-r border-slate-200">
                             -
                           </td>
-                          <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug border-r border-slate-200">
+                          <td className="px-3 py-2 font-normal text-slate-700 dark:text-slate-300 align-top leading-snug border-r border-slate-200 dark:border-[#384252]">
                             {rec.alias ? 'Yes' : 'No'}
                           </td>
-                          <td className="px-4 py-2 font-normal text-slate-800 align-top leading-snug whitespace-pre-wrap break-words border-r border-slate-200">
+                          <td className="px-4 py-2 font-normal text-slate-800 dark:text-slate-300 align-top leading-snug whitespace-pre-wrap break-words border-r border-slate-200 dark:border-[#384252]">
                             {valueLines.map((line, lIdx) => (
                               <div key={lIdx} className="leading-snug py-0.2">
                                 {line}
                               </div>
                             ))}
                           </td>
-                          <td className="px-3 py-2 font-normal text-slate-700 align-top leading-snug">
+                          <td className="px-3 py-2 font-normal text-slate-700 dark:text-slate-300 align-top leading-snug">
                             {formattedTtl}
                           </td>
                         </tr>
@@ -862,7 +939,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
               {/* Header matching user screenshots: "Record details" vs "2 records selected" vs "0 records selected" */}
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 <div className="flex items-center space-x-2">
-                  <h3 className="text-base font-bold text-[#16191F]">
+                  <h3 className="text-base font-bold text-[#16191F] dark:text-white">
                     {selectedRecordIds.length === 0
                       ? '0 records selected'
                       : selectedRecordIds.length === 1
@@ -904,82 +981,295 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
               {selectedRecordIds.length === 1 && selectedRecord && (
                 <div className="space-y-5 text-xs font-sans">
                   <div>
-                    <button
-                      onClick={() => {
-                        setRecordToEdit(selectedRecord);
-                        setFormErrorMsg(null);
-                        setIsRecordModalOpen(true);
-                      }}
-                      className="px-5 py-1.5 rounded-full border border-[#0972D3] hover:bg-blue-50/50 text-[#0972D3] text-xs font-semibold transition-colors shadow-2xs"
-                    >
-                      Edit record
-                    </button>
+                    {!isInlineEditing ? (
+                      <button
+                        onClick={handleStartInlineEdit}
+                        className="px-5 py-1.5 rounded-full border border-[#0972D3] hover:bg-blue-50/50 text-[#0972D3] text-xs font-semibold transition-colors shadow-2xs"
+                      >
+                        Edit record
+                      </button>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={handleInlineSave}
+                          disabled={updateRecordMutation.isPending}
+                          className="px-4 py-1.5 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-slate-950 font-bold text-xs transition-colors shadow-2xs disabled:opacity-50"
+                        >
+                          {updateRecordMutation.isPending ? 'Saving...' : 'Save changes'}
+                        </button>
+                        <button
+                          onClick={handleInlineCancel}
+                          disabled={updateRecordMutation.isPending}
+                          className="px-4 py-1.5 rounded-full border border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold text-xs transition-colors shadow-2xs disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">
-                    <div>
-                      <div className="text-slate-600 font-medium text-xs mb-1">Record name</div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(selectedRecord.name);
-                            toast.success('Copied to clipboard');
-                          }}
-                          className="p-1 text-[#0972D3] hover:bg-blue-50 rounded"
-                          title="Copy record name"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </button>
-                        <span className="font-normal text-slate-900 text-xs">{selectedRecord.name}</span>
-                      </div>
-                    </div>
+                    {isInlineEditing ? (
+                      // Edit Mode
+                      <>
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <label className="text-slate-600 font-medium text-xs">Record name</label>
+                            <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              type="text"
+                              value={inlineEditForm.name}
+                              onChange={(e) => setInlineEditForm({ ...inlineEditForm, name: e.target.value })}
+                              className="flex-1 px-2 py-1.5 border border-slate-300 rounded-l text-xs text-[#16191F] dark:text-white focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                            />
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-r border border-l-0 border-slate-300 bg-slate-50 text-xs text-slate-500">
+                              .{domainDisplayName}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Keep blank to create a record for the root domain.
+                          </p>
+                        </div>
 
-                    <div>
-                      <div className="text-slate-600 font-medium text-xs mb-0.5">Record type</div>
-                      <div className="font-normal text-slate-900 text-xs">{selectedRecord.type}</div>
-                    </div>
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <label className="text-slate-600 font-medium text-xs">Record type</label>
+                            <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                          </div>
+                          <select
+                            value={inlineEditForm.type}
+                            onChange={(e) => setInlineEditForm({ ...inlineEditForm, type: e.target.value as RecordType })}
+                            className="w-full px-2 py-1.5 border border-slate-300 rounded text-xs text-[#16191F] dark:text-white bg-white focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                          >
+                            <option value="A">A – Routes traffic to an IPv4 address and some AWS resources</option>
+                            <option value="AAAA">AAAA – Routes traffic to an IPv6 address</option>
+                            <option value="CNAME">CNAME – Routes traffic to another domain name</option>
+                            <option value="MX">MX – Specifies mail servers</option>
+                            <option value="NS">NS – Specifies name servers for a zone</option>
+                            <option value="PTR">PTR – Maps IP address to domain name</option>
+                            <option value="SOA">SOA – Start of authority record</option>
+                            <option value="SRV">SRV – Specifies services and ports</option>
+                            <option value="TXT">TXT – Arbitrary text record</option>
+                            <option value="CAA">CAA – Specifies authorized CAs</option>
+                          </select>
+                        </div>
 
-                    <div>
-                      <div className="text-slate-600 font-medium text-xs mb-1">Value</div>
-                      <div className="space-y-1">
-                        {selectedRecord.value.split('\n').map((valLine, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <label className="text-slate-600 font-medium text-xs">Alias</label>
+                            <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => setInlineEditForm({ ...inlineEditForm, alias: !inlineEditForm.alias })}
+                              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                                inlineEditForm.alias ? 'bg-[#0972D3]' : 'bg-slate-300'
+                              }`}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  inlineEditForm.alias ? 'translate-x-5' : 'translate-x-0.5'
+                                }`}
+                              />
+                            </button>
+                            <span className="text-xs text-slate-700">{inlineEditForm.alias ? 'Yes' : 'No'}</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <label className="text-slate-600 font-medium text-xs">Value</label>
+                            <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                          </div>
+                          <textarea
+                            value={inlineEditForm.value}
+                            onChange={(e) => setInlineEditForm({ ...inlineEditForm, value: e.target.value })}
+                            rows={4}
+                            className="w-full px-2 py-1.5 border border-slate-300 rounded text-xs text-[#16191F] dark:text-white focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                          />
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Enter multiple values on separate lines.
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <label className="text-slate-600 font-medium text-xs">TTL (seconds)</label>
+                            <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="number"
+                              value={inlineEditForm.ttl}
+                              onChange={(e) => setInlineEditForm({ ...inlineEditForm, ttl: parseInt(e.target.value) || 300 })}
+                              className="w-24 px-2 py-1.5 border border-slate-300 rounded text-xs text-[#16191F] focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                            />
+                            <button
+                              onClick={() => setInlineEditForm({ ...inlineEditForm, ttl: 60 })}
+                              className={`px-2 py-1 border rounded text-xs ${
+                                inlineEditForm.ttl === 60
+                                  ? 'border-[#0972D3] bg-blue-50 text-[#0972D3]'
+                                  : 'border-slate-300 hover:bg-slate-50'
+                              }`}
+                            >
+                              1m
+                            </button>
+                            <button
+                              onClick={() => setInlineEditForm({ ...inlineEditForm, ttl: 3600 })}
+                              className={`px-2 py-1 border rounded text-xs ${
+                                inlineEditForm.ttl === 3600
+                                  ? 'border-[#0972D3] bg-blue-50 text-[#0972D3]'
+                                  : 'border-slate-300 hover:bg-slate-50'
+                              }`}
+                            >
+                              1h
+                            </button>
+                            <button
+                              onClick={() => setInlineEditForm({ ...inlineEditForm, ttl: 86400 })}
+                              className={`px-2 py-1 border rounded text-xs ${
+                                inlineEditForm.ttl === 86400
+                                  ? 'border-[#0972D3] bg-blue-50 text-[#0972D3]'
+                                  : 'border-slate-300 hover:bg-slate-50'
+                              }`}
+                            >
+                              1d
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Recommended values: 60 to 172800 (two days)
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <label className="text-slate-600 font-medium text-xs">Routing policy</label>
+                            <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                          </div>
+                          <select
+                            value={inlineEditForm.routing_policy}
+                            onChange={(e) => setInlineEditForm({ ...inlineEditForm, routing_policy: e.target.value })}
+                            className="w-full px-2 py-1.5 border border-slate-300 rounded text-xs text-[#16191F] dark:text-white bg-white focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                          >
+                            <option value="Simple routing">Simple routing</option>
+                            <option value="Weighted routing">Weighted routing</option>
+                            <option value="Latency routing">Latency routing</option>
+                            <option value="Failover routing">Failover routing</option>
+                          </select>
+                        </div>
+
+                        {/* Conditional field for Latency routing - Region */}
+                        {inlineEditForm.routing_policy === 'Latency routing' && (
+                          <div>
+                            <div className="flex items-center space-x-2 mb-1">
+                              <label className="text-slate-600 font-medium text-xs">Location</label>
+                              <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                            </div>
+                            <select
+                              value={inlineEditForm.region}
+                              onChange={(e) => setInlineEditForm({ ...inlineEditForm, region: e.target.value })}
+                              className="w-full px-2 py-1.5 border border-slate-300 rounded text-xs text-[#16191F] dark:text-white bg-white focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                            >
+                              <option value="">Select a region</option>
+                              <option value="us-east-1">us-east-1 (N. Virginia)</option>
+                              <option value="us-west-1">us-west-1 (N. California)</option>
+                              <option value="us-west-2">us-west-2 (Oregon)</option>
+                              <option value="eu-west-1">eu-west-1 (Ireland)</option>
+                              <option value="eu-central-1">eu-central-1 (Frankfurt)</option>
+                              <option value="ap-southeast-1">ap-southeast-1 (Singapore)</option>
+                              <option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Conditional field for Failover routing - Failure type */}
+                        {inlineEditForm.routing_policy === 'Failover routing' && (
+                          <div>
+                            <div className="flex items-center space-x-2 mb-1">
+                              <label className="text-slate-600 font-medium text-xs">Failure type</label>
+                              <span className="text-[#0972D3] text-xs font-medium cursor-pointer hover:underline">Info</span>
+                            </div>
+                            <select
+                              value={inlineEditForm.failure_type}
+                              onChange={(e) => setInlineEditForm({ ...inlineEditForm, failure_type: e.target.value })}
+                              className="w-full px-2 py-1.5 border border-slate-300 rounded text-xs text-[#16191F] dark:text-white bg-white focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+                            >
+                              <option value="Primary">Primary</option>
+                              <option value="Secondary">Secondary</option>
+                            </select>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      // View Mode
+                      <>
+                        <div>
+                          <div className="text-slate-600 font-medium text-xs mb-1">Record name</div>
+                          <div className="flex items-center space-x-2">
                             <button
                               onClick={() => {
-                                navigator.clipboard.writeText(valLine);
+                                navigator.clipboard.writeText(selectedRecord.name);
                                 toast.success('Copied to clipboard');
                               }}
-                              className="p-1 text-[#0972D3] hover:bg-blue-50 rounded shrink-0"
-                              title="Copy value line"
+                              className="p-1 text-[#0972D3] hover:bg-blue-50 rounded"
+                              title="Copy record name"
                             >
                               <Copy className="h-3.5 w-3.5" />
                             </button>
-                            <span className="font-normal text-slate-900 text-xs break-all">{valLine}</span>
+                            <span className="font-normal text-slate-900 text-xs">{selectedRecord.name}</span>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        </div>
 
-                    <div>
-                      <div className="text-slate-600 font-medium text-xs mb-0.5">Alias</div>
-                      <div className="font-normal text-slate-900 text-xs">
-                        {selectedRecord.alias ? 'Yes' : 'No'}
-                      </div>
-                    </div>
+                        <div>
+                          <div className="text-slate-600 font-medium text-xs mb-0.5">Record type</div>
+                          <div className="font-normal text-slate-900 text-xs">{selectedRecord.type}</div>
+                        </div>
 
-                    <div>
-                      <div className="text-slate-600 font-medium text-xs mb-0.5">TTL (seconds)</div>
-                      <div className="font-normal text-slate-900 text-xs">
-                        {selectedRecord.ttl ? selectedRecord.ttl.toLocaleString('en-US') : '300'}
-                      </div>
-                    </div>
+                        <div>
+                          <div className="text-slate-600 font-medium text-xs mb-1">Value</div>
+                          <div className="space-y-1">
+                            {selectedRecord.value.split('\n').map((valLine, idx) => (
+                              <div key={idx} className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(valLine);
+                                    toast.success('Copied to clipboard');
+                                  }}
+                                  className="p-1 text-[#0972D3] hover:bg-blue-50 rounded shrink-0"
+                                  title="Copy value line"
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </button>
+                                <span className="font-normal text-slate-900 text-xs break-all">{valLine}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
 
-                    <div>
-                      <div className="text-slate-600 font-medium text-xs mb-0.5">Routing policy</div>
-                      <div className="font-normal text-slate-900 text-xs">
-                        {selectedRecord.routing_policy || 'Simple routing'}
-                      </div>
-                    </div>
+                        <div>
+                          <div className="text-slate-600 font-medium text-xs mb-0.5">Alias</div>
+                          <div className="font-normal text-slate-900 text-xs">
+                            {selectedRecord.alias ? 'Yes' : 'No'}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-slate-600 font-medium text-xs mb-0.5">TTL (seconds)</div>
+                          <div className="font-normal text-slate-900 text-xs">
+                            {selectedRecord.ttl ? selectedRecord.ttl.toLocaleString('en-US') : '300'}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-slate-600 font-medium text-xs mb-0.5">Routing policy</div>
+                          <div className="font-normal text-slate-900 text-xs">
+                            {selectedRecord.routing_policy || 'Simple routing'}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -1256,22 +1546,18 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
       </Modal>
 
       {/* Modal: Delete Zone Confirmation */}
-      <Modal
+      <DeleteZoneModal
         isOpen={isDeleteZoneModalOpen}
-        onClose={() => setIsDeleteZoneModalOpen(false)}
-        title="Delete hosted zone"
+        onClose={() => {
+          setIsDeleteZoneModalOpen(false);
+          setDeleteConfirmText('');
+        }}
         onConfirm={() => deleteZoneMutation.mutate()}
-        confirmText="Delete"
-        confirmVariant="danger"
-        isConfirmLoading={deleteZoneMutation.isPending}
-      >
-        <p className="text-xs text-slate-700">
-          Are you sure you want to delete the hosted zone <strong className="text-slate-900">{domainDisplayName}</strong>?
-        </p>
-        <p className="text-xs text-red-600 font-medium mt-2">
-          Warning: This action is permanent and will delete all associated DNS records.
-        </p>
-      </Modal>
+        zoneName={domainDisplayName}
+        isDeleting={deleteZoneMutation.isPending}
+        confirmText={deleteConfirmText}
+        onConfirmTextChange={setDeleteConfirmText}
+      />
 
       {/* Record Create / Edit Form Modal */}
       <RecordFormModal
@@ -1295,7 +1581,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
         showConfirmButton={false}
       >
         <div className="space-y-3 font-sans">
-          <p className="text-sm text-black leading-relaxed">
+          <p className="text-sm text-[#16191F] dark:text-white leading-relaxed">
             Delete the record permanently? This action cannot be undone. Your domain might become unavailable on the internet.
           </p>
 
@@ -1578,7 +1864,7 @@ export default function HostedZoneDetailPage({ params }: { params: { id: string 
             <button
               onClick={() => deleteMultipleRecordsMutation.mutate(selectedDeleteRecordIds)}
               disabled={selectedDeleteRecordIds.length === 0 || deleteMultipleRecordsMutation.isPending}
-              className="px-3 py-1.5 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-black font-semibold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-full bg-[#ec7211] hover:bg-[#d65f00] text-[#16191F] dark:text-white font-semibold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {deleteMultipleRecordsMutation.isPending ? 'Deleting...' : 'Delete'}
             </button>

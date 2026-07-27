@@ -26,6 +26,8 @@ interface ZoneSearchBarProps {
   onRoutingPolicyChange?: (policy: string) => void;
   selectedAlias?: string;
   onAliasChange?: (alias: string) => void;
+  // Ref for focusing the search input
+  searchRef?: React.RefObject<HTMLInputElement>;
 }
 
 const RECORD_PROPERTIES = [
@@ -51,27 +53,27 @@ const HOSTED_ZONE_PROPERTIES = [
 ];
 
 const RECORD_PROPERTY_VALUE_OPTIONS: Record<string, string[]> = {
-  Alias: ['Alias = Yes', 'Alias = No'],
+  Alias: ['Alias : Yes', 'Alias : No'],
   Type: [
-    'Type = A',
-    'Type = AAAA',
-    'Type = CNAME',
-    'Type = MX',
-    'Type = NS',
-    'Type = SOA',
-    'Type = TXT',
+    'Type : A',
+    'Type : AAAA',
+    'Type : CNAME',
+    'Type : MX',
+    'Type : NS',
+    'Type : SOA',
+    'Type : TXT',
   ],
   'Routing policy': [
-    'Routing policy = Simple',
-    'Routing policy = Weighted',
-    'Routing policy = Latency',
-    'Routing policy = Failover',
+    'Routing policy : Simple',
+    'Routing policy : Weighted',
+    'Routing policy : Latency',
+    'Routing policy : Failover',
   ],
 };
 
 const HOSTED_ZONE_PROPERTY_VALUE_OPTIONS: Record<string, string[]> = {
-  Type: ['Type = Public', 'Type = Private'],
-  'Accelerated recovery': ['Accelerated recovery = Enabled', 'Accelerated recovery = Disabled'],
+  Type: ['Type : Public', 'Type : Private'],
+  'Accelerated recovery': ['Accelerated recovery : Enabled', 'Accelerated recovery : Disabled'],
 };
 
 export default function ZoneSearchBar({
@@ -88,6 +90,7 @@ export default function ZoneSearchBar({
   page = 1,
   totalPages = 1,
   onPageChange,
+  matchCount,
   showPropertyDropdowns,
   selectedType = 'all',
   onTypeChange,
@@ -95,6 +98,7 @@ export default function ZoneSearchBar({
   onRoutingPolicyChange,
   selectedAlias = 'all',
   onAliasChange,
+  searchRef,
 }: ZoneSearchBarProps) {
   const isHostedZones = mode === 'hosted-zones';
   const shouldShowDropdowns = showPropertyDropdowns !== undefined ? showPropertyDropdowns : !isHostedZones;
@@ -107,6 +111,8 @@ export default function ZoneSearchBar({
   const [openFilterMenu, setOpenFilterMenu] = useState<'type' | 'routing' | 'alias' | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const internalSearchRef = useRef<HTMLInputElement>(null);
+  const inputRef = searchRef || internalSearchRef;
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -159,7 +165,7 @@ export default function ZoneSearchBar({
 
   const handlePropertySelect = (propName: string) => {
     setSelectedPropertyKey(propName);
-    onChange(`${propName} = `);
+    onChange(`${propName} : `);
     setIsPropertyDropdownOpen(true);
   };
 
@@ -168,15 +174,15 @@ export default function ZoneSearchBar({
       onAddTag(valOption);
     }
     // Update active filters if applicable
-    if (valOption.startsWith('Alias = Yes')) {
+    if (valOption.startsWith('Alias : Yes')) {
       if (onAliasChange) onAliasChange('Yes');
-    } else if (valOption.startsWith('Alias = No')) {
+    } else if (valOption.startsWith('Alias : No')) {
       if (onAliasChange) onAliasChange('No');
-    } else if (valOption.startsWith('Type = ')) {
-      const typeVal = valOption.replace('Type = ', '').trim();
+    } else if (valOption.startsWith('Type : ')) {
+      const typeVal = valOption.replace('Type : ', '').trim();
       if (onTypeChange) onTypeChange(typeVal);
-    } else if (valOption.startsWith('Routing policy = ')) {
-      const routeVal = valOption.replace('Routing policy = ', '').trim();
+    } else if (valOption.startsWith('Routing policy : ')) {
+      const routeVal = valOption.replace('Routing policy : ', '').trim();
       if (onRoutingPolicyChange) onRoutingPolicyChange(routeVal);
     }
     onChange('');
@@ -199,7 +205,7 @@ export default function ZoneSearchBar({
     setSelectedPropertyKey(null);
   };
 
-  const hasFilters = tags.length > 0 || value.trim().length > 0;
+  const hasFilters = tags.length > 0 || value.trim().length > 0 || selectedType !== 'all' || selectedRoutingPolicy !== 'all' || selectedAlias !== 'all';
 
   const toggleOperator = () => {
     if (onOperatorChange) {
@@ -208,18 +214,19 @@ export default function ZoneSearchBar({
   };
 
   return (
-    <div className="space-y-4 my-4 font-sans select-none" ref={containerRef}>
+    <div className="space-y-3 my-3 font-sans select-none" ref={containerRef}>
       {/* Search Input, Quick Property Filters & Far-Right Pagination Row */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-2">
         {/* Search Input + Property Pills */}
         <div className="flex flex-wrap items-center gap-2 flex-1 w-full">
           {/* Main Search Bar with Focus Popover */}
           <div className="relative flex-1 min-w-[280px]">
             <div className="relative flex items-center">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <Search className="h-4.5 w-4.5 text-slate-500" strokeWidth={1.5} />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-3.5 w-3.5 text-slate-500" strokeWidth={1.5} />
               </div>
               <input
+                ref={inputRef}
                 type="text"
                 value={value}
                 onFocus={() => setIsPropertyDropdownOpen(true)}
@@ -228,7 +235,7 @@ export default function ZoneSearchBar({
                   if (!isPropertyDropdownOpen) setIsPropertyDropdownOpen(true);
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-10 pr-9 py-2 border border-slate-300 rounded text-xs text-[#16191F] bg-white placeholder-slate-500 placeholder:italic font-normal focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-colors"
+                className="w-full pl-9 pr-8 py-1.5 border border-slate-300 rounded text-[11px] text-[#16191F] bg-white placeholder-slate-500 placeholder:italic font-normal focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3] transition-colors"
                 placeholder={defaultPlaceholder}
               />
               {value.length > 0 && (
@@ -242,6 +249,13 @@ export default function ZoneSearchBar({
                 </button>
               )}
             </div>
+
+            {/* Match count display next to search bar */}
+            {matchCount !== undefined && hasFilters && (
+              <span className="ml-2 text-[11px] text-slate-600 font-medium">
+                {matchCount} match{matchCount !== 1 ? 'es' : ''}
+              </span>
+            )}
 
             {/* AWS Property Suggestions & Values Dropdown Popover (Matches AWS Console Exact UI) */}
             {isPropertyDropdownOpen && (
@@ -313,14 +327,14 @@ export default function ZoneSearchBar({
                   onClick={() =>
                     setOpenFilterMenu(openFilterMenu === 'type' ? null : 'type')
                   }
-                  className="px-2.5 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 text-xs font-normal text-[#16191F] flex items-center space-x-1 transition-colors shadow-2xs"
+                  className="px-2 py-0.5 border border-slate-300 rounded bg-white hover:bg-slate-50 text-[11px] font-normal text-[#16191F] flex items-center space-x-0.5 transition-colors shadow-2xs"
                 >
                   <span>
                     {selectedType === 'all'
                       ? 'Type'
                       : `Type: ${selectedType}`}
                   </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
+                  <ChevronDown className="h-3 w-3 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 {openFilterMenu === 'type' && (
@@ -353,14 +367,14 @@ export default function ZoneSearchBar({
                   onClick={() =>
                     setOpenFilterMenu(openFilterMenu === 'routing' ? null : 'routing')
                   }
-                  className="px-2.5 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 text-xs font-normal text-[#16191F] flex items-center space-x-1 transition-colors shadow-2xs"
+                  className="px-2 py-0.5 border border-slate-300 rounded bg-white hover:bg-slate-50 text-[11px] font-normal text-[#16191F] flex items-center space-x-0.5 transition-colors shadow-2xs"
                 >
                   <span>
                     {selectedRoutingPolicy === 'all'
                       ? 'Routing p...'
                       : `Routing: ${selectedRoutingPolicy}`}
                   </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
+                  <ChevronDown className="h-3 w-3 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 {openFilterMenu === 'routing' && (
@@ -393,14 +407,14 @@ export default function ZoneSearchBar({
                   onClick={() =>
                     setOpenFilterMenu(openFilterMenu === 'alias' ? null : 'alias')
                   }
-                  className="px-2.5 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50 text-xs font-normal text-[#16191F] flex items-center space-x-1 transition-colors shadow-2xs"
+                  className="px-2 py-0.5 border border-slate-300 rounded bg-white hover:bg-slate-50 text-[11px] font-normal text-[#16191F] flex items-center space-x-0.5 transition-colors shadow-2xs"
                 >
                   <span>
                     {selectedAlias === 'all'
                       ? 'Alias'
                       : `Alias = ${selectedAlias}`}
                   </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-[#0972D3]" strokeWidth={2} />
+                  <ChevronDown className="h-3 w-3 text-[#0972D3]" strokeWidth={2} />
                 </button>
 
                 {openFilterMenu === 'alias' && (
@@ -465,17 +479,17 @@ export default function ZoneSearchBar({
         <div className="flex flex-wrap items-center gap-2 pt-1">
           {tags.map((tag, idx) => (
             <React.Fragment key={`${tag}-${idx}`}>
-              <div className="inline-flex items-center rounded border-2 border-[#0972D3] bg-white overflow-hidden text-xs text-[#0972D3] font-semibold">
-                <span className="px-2.5 py-1 border-r border-[#0972D3] underline decoration-dotted underline-offset-2">
+              <div className="inline-flex items-center rounded border-2 border-[#0972D3] bg-[#E3F2FD] overflow-hidden text-[11px] text-[#16191F]">
+                <span className="px-2 py-0.5 border-r-2 border-[#0972D3]">
                   {tag}
                 </span>
                 <button
                   type="button"
                   onClick={() => onRemoveTag && onRemoveTag(tag)}
-                  className="px-2 py-1 hover:bg-blue-50 text-[#0972D3] transition-colors"
+                  className="px-1.5 py-0.5 hover:bg-[#A7D8FF] text-[#0972D3] transition-colors"
                   title="Remove filter tag"
                 >
-                  <X className="h-3.5 w-3.5" strokeWidth={2} />
+                  <X className="h-3 w-3" strokeWidth={2} />
                 </button>
               </div>
 
@@ -483,11 +497,11 @@ export default function ZoneSearchBar({
                 <button
                   type="button"
                   onClick={toggleOperator}
-                  className="inline-flex items-center space-x-1 rounded border-2 border-[#0972D3] bg-white px-2 py-1 text-xs text-[#0972D3] font-semibold hover:bg-blue-50 transition-colors"
+                  className="inline-flex items-center space-x-0.5 rounded border-2 border-[#0972D3] bg-[#E3F2FD] px-1.5 py-0.5 text-[11px] text-[#16191F] hover:bg-[#A7D8FF] transition-colors"
                   title="Toggle filter condition (AND / OR)"
                 >
                   <span>{operator}</span>
-                  <ChevronDown className="h-3 w-3" strokeWidth={2} />
+                  <ChevronDown className="h-2.5 w-2.5" strokeWidth={2} />
                 </button>
               )}
             </React.Fragment>
@@ -499,7 +513,7 @@ export default function ZoneSearchBar({
             <button
               type="button"
               onClick={onClearFilters}
-              className="px-4 py-1 rounded-full border-2 border-[#0972D3] hover:bg-blue-50 text-[#0972D3] font-bold text-xs transition-colors"
+              className="px-3 py-0.5 rounded-full border-2 border-[#0972D3] hover:bg-blue-50 text-[#0972D3] font-semibold text-[11px] transition-colors"
             >
               Clear filters
             </button>

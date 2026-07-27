@@ -14,6 +14,7 @@ interface ModalProps {
   confirmVariant?: 'primary' | 'secondary' | 'danger';
   isConfirmLoading?: boolean;
   showConfirmButton?: boolean;
+  isConfirmDisabled?: boolean;
 }
 
 export default function Modal({
@@ -26,6 +27,7 @@ export default function Modal({
   confirmVariant = 'primary',
   isConfirmLoading = false,
   showConfirmButton = true,
+  isConfirmDisabled = false,
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -63,6 +65,7 @@ export default function Modal({
               variant={confirmVariant}
               onClick={onConfirm}
               isLoading={isConfirmLoading}
+              disabled={isConfirmDisabled || isConfirmLoading}
             >
               {confirmText}
             </Button>

@@ -82,7 +82,13 @@ export interface DNSRecordCreate {
 }
 
 export interface DNSRecordUpdate {
+  name?: string;
+  type?: RecordType;
   value?: string;
   ttl?: number;
   priority?: number | null;
+  alias?: boolean;
+  routing_policy?: string;
+  region?: string;
+  failure_type?: string;
 }

@@ -41,6 +41,20 @@ export default function Topbar({ isSidebarOpen = true, onToggleSidebar }: { isSi
   const settingsRef = useRef<HTMLDivElement>(null);
   const helpRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Alt+S keyboard shortcut to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.key === 's') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const triggerComingSoon = (featureName: string) => {
     setComingSoonToast(featureName);
@@ -117,7 +131,7 @@ export default function Topbar({ isSidebarOpen = true, onToggleSidebar }: { isSi
   const accountId = '1034-1531-9055';
 
   return (
-    <header className="h-10 bg-[#16191F] text-white flex items-center justify-between px-3 fixed top-0 left-0 right-0 z-50 select-none text-xs font-sans border-b border-slate-800">
+    <header className="h-14 bg-[#16191F] text-white flex items-center justify-between px-3 fixed top-0 left-0 right-0 z-50 select-none text-xs font-sans border-b border-slate-800">
       {/* Toast Notification for Coming Soon features */}
       {comingSoonToast && (
         <div className="fixed top-12 right-4 z-50 bg-[#16191F] border border-[#0972D3] text-white px-4 py-2.5 rounded-md shadow-2xl flex items-center space-x-3 text-xs animate-in fade-in slide-in-from-top-2">
@@ -181,18 +195,19 @@ export default function Topbar({ isSidebarOpen = true, onToggleSidebar }: { isSi
         {/* Global Search Bar */}
         <div className="relative flex-1 max-w-2xl mx-1">
           <div className="relative flex items-center">
-            <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" strokeWidth={1.5} />
+            <Search className="absolute left-3 h-4 w-4 text-slate-400 pointer-events-none" strokeWidth={1.5} />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search"
-              className="w-full bg-[#0b0e14] border border-slate-700/80 rounded-md py-1 pl-8 pr-20 text-xs text-white placeholder-slate-400 font-normal italic focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
+              className="w-full bg-[#0b0e14] border border-slate-700/80 rounded-md py-2 pl-10 pr-24 text-sm text-white placeholder-slate-400 font-normal italic focus:outline-none focus:border-[#0972D3] focus:ring-1 focus:ring-[#0972D3]"
             />
-            <div className="absolute right-2 flex items-center space-x-1.5 text-[10px] text-slate-400 pointer-events-none">
-              <span className="text-[10px] text-slate-400 font-sans">
+            <div className="absolute right-2 flex items-center space-x-1.5 text-sm text-slate-400 pointer-events-none">
+              <span className="text-sm text-[#0972D3] font-bold font-sans">
                 [Alt+S]
               </span>
-              <div className="h-3.5 w-3.5 rounded flex items-center justify-center text-slate-400 border border-slate-700 bg-slate-800/80">
-                <Hexagon className="h-2.5 w-2.5 text-slate-300" strokeWidth={2} />
+              <div className="h-4 w-4 rounded flex items-center justify-center text-slate-400 border border-slate-700 bg-slate-800/80">
+                <Hexagon className="h-3 w-3 text-slate-300" strokeWidth={2} />
               </div>
             </div>
           </div>

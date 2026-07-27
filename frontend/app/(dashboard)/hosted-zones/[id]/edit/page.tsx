@@ -37,10 +37,9 @@ export default function EditHostedZonePage({ params }: { params: { id: string } 
     mutationFn: (payload: { description?: string; tags?: TagItem[] }) =>
       api.updateHostedZone(zoneId, payload),
     onSuccess: (updatedZone) => {
-      toast.success(`Successfully updated hosted zone ${updatedZone.domain_name}`);
       queryClient.invalidateQueries({ queryKey: ['hosted-zone', zoneId] });
       queryClient.invalidateQueries({ queryKey: ['hosted-zones'] });
-      router.push(`/hosted-zones/${zoneId}`);
+      router.push(`/hosted-zones/${zoneId}?edited=true&domain=${updatedZone.domain_name}`);
     },
     onError: (err: any) => {
       toast.error(err.detail || 'Failed to update hosted zone');
