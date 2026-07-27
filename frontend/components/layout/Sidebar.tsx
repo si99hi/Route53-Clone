@@ -61,8 +61,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
               'flex items-center h-[32px] transition-colors text-xs',
               isCollapsed ? 'justify-center px-2' : '',
               isLinkActive('/dashboard')
-                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
-                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-4'
+                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
+                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-4'
             )}
           >
             {!isCollapsed && 'Dashboard'}
@@ -74,8 +74,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
               'flex items-center h-[32px] transition-colors text-xs',
               isCollapsed ? 'justify-center px-2' : '',
               isLinkActive('/hosted-zones')
-                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
-                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-4'
+                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
+                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-4'
             )}
           >
             {!isCollapsed && 'Hosted zones'}
@@ -87,8 +87,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
               'flex items-center h-[32px] transition-colors text-xs',
               isCollapsed ? 'justify-center px-2' : '',
               isLinkActive('/health-checks')
-                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
-                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-4'
+                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
+                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-4'
             )}
           >
             {!isCollapsed && 'Health checks'}
@@ -100,8 +100,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
               'flex items-center h-[32px] transition-colors text-xs',
               isCollapsed ? 'justify-center px-2' : '',
               isLinkActive('/profiles')
-                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
-                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-4'
+                ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[13px]'
+                : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-4'
             )}
           >
             {!isCollapsed && 'Profiles'}
@@ -129,8 +129,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center justify-between h-[32px] transition-colors text-xs pr-4',
                   isLinkActive('/global-resolvers')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 <span>Global resolvers</span>
@@ -144,8 +144,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center justify-between h-[32px] transition-colors text-xs pr-4',
                   isLinkActive('/shared-dns-views')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 <span>Shared DNS views</span>
@@ -178,8 +178,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/vpcs')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 VPCs
@@ -190,8 +190,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/inbound-endpoints')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 Inbound endpoints
@@ -202,8 +202,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/outbound-endpoints')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 Outbound endpoints
@@ -214,8 +214,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/rules')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 Rules
@@ -226,8 +226,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/query-logging')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 Query logging
@@ -238,8 +238,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/outposts')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 Outposts
@@ -269,8 +269,8 @@ export default function Sidebar({ isCollapsed = false }: { isCollapsed?: boolean
                 className={clsx(
                   'flex items-center h-[32px] transition-colors text-xs',
                   isLinkActive('/registered-domains')
-                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-[#EBF3FE] dark:bg-[#1c2738] border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
-                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#16191F] dark:hover:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] pl-[24px]'
+                    ? 'text-[#0972D3] dark:text-[#539fe5] font-semibold bg-transparent dark:bg-transparent border-l-[3px] border-[#0972D3] dark:border-[#539fe5] pl-[21px]'
+                    : 'text-[#414D5C] dark:text-slate-300 font-normal hover:text-[#0972D3] dark:hover:text-[#539fe5] hover:border-b hover:border-dotted hover:border-[#0972D3] dark:hover:border-[#539fe5] pl-[24px]'
                 )}
               >
                 Registered domains
