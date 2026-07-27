@@ -7,6 +7,9 @@ import time
 import urllib.request
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
+
+import resend
 from app.core.config import settings
 
 # In-memory OTP storage: { email: { "code": str, "expires_at": float } }
@@ -14,33 +17,27 @@ _otp_store: dict[str, dict] = {}
 
 
 def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: str) -> bool:
-    """Send email using Resend REST API (HTTPS port 443, never blocked by cloud hosts)."""
+    """Send email using Resend SDK (HTTPS port 443, never blocked by cloud hosts)."""
     try:
-        url = "https://api.resend.com/emails"
-        headers = {
-            "Authorization": f"Bearer {api_key.strip()}",
-            "Content-Type": "application/json",
-            "User-Agent": "Route53-Clone/1.0",
-        }
-        payload = {
+        resend.api_key = api_key.strip()
+        # Use Resend's default verified domain for testing
+        # For production, verify your own domain at resend.com/domains
+        params = {
             "from": "AWS Verification <onboarding@resend.dev>",
             "to": [to_email],
             "subject": subject,
             "html": html_body,
         }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers=headers,
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            if resp.status in (200, 201):
-                print(f"[Email Service] Successfully sent OTP email to {to_email} via Resend HTTPS API!")
-                return True
+        result = resend.Emails.send(params)
+        if result and result.get("id"):
+            print(f"[Email Service] Successfully sent OTP email to {to_email} via Resend API! Email ID: {result.get('id')}")
+            return True
+        else:
+            print(f"[Email Service] Resend API returned unexpected result: {result}")
+            return False
     except Exception as err:
-        print(f"[Email Service] Resend HTTPS API attempt failed: {err}")
-    return False
+        print(f"[Email Service] Resend API attempt failed: {err}")
+        return False
 
 
 def _send_via_brevo_api(to_email: str, subject: str, html_body: str, api_key: str) -> bool:
@@ -77,15 +74,22 @@ class IPv4SMTP(smtplib.SMTP):
     """SMTP client that forces IPv4 socket connection (AF_INET) to prevent IPv6 unreachable errors on Linux containers."""
 
     def _get_socket(self, host, port, timeout):
-        return socket.create_connection((host, port), timeout, family=socket.AF_INET)
+        # Create socket with AF_INET family to force IPv4
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        sock.connect((host, port))
+        return sock
 
 
 class IPv4SMTP_SSL(smtplib.SMTP_SSL):
     """SMTP_SSL client that forces IPv4 socket connection (AF_INET)."""
 
     def _get_socket(self, host, port, timeout):
-        new_socket = socket.create_connection((host, port), timeout, family=socket.AF_INET)
-        return self.context.wrap_socket(new_socket, server_hostname=self._host)
+        # Create socket with AF_INET family to force IPv4
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        sock.connect((host, port))
+        return self.context.wrap_socket(sock, server_hostname=self._host)
 
 
 def generate_otp() -> str:
@@ -106,11 +110,6 @@ def verify_otp_code(email: str, code: str) -> bool:
     email_key = email.lower().strip()
     clean_code = code.strip()
 
-    # Allow demo / fallback codes (including 00000, 000000, 123456) so sign-up never fails in test environments
-    if clean_code in ["123456", "000000", "00000", "0000", "1234", "12345"] or (clean_code.isdigit() and len(clean_code) >= 4):
-        _otp_store.pop(email_key, None)
-        return True
-
     record = _otp_store.get(email_key)
     if not record:
         return False
@@ -124,7 +123,7 @@ def verify_otp_code(email: str, code: str) -> bool:
 
 
 def send_otp_email(to_email: str, code: str) -> None:
-    """Send OTP email via Resend/Brevo HTTPS REST API (Port 443) or fallback to SMTP."""
+    """Send OTP email via Resend API (preferred), Brevo API, or fallback to SMTP."""
     subject = f"{code} is your AWS verification code"
 
     html_body = f"""
@@ -158,16 +157,23 @@ def send_otp_email(to_email: str, code: str) -> None:
     </html>
     """
 
+    # Try Resend API first (recommended)
     resend_key = settings.resend_api_key or os.getenv("RESEND_API_KEY")
     if resend_key:
+        print(f"[Email Service] Attempting to send via Resend API to {to_email}...")
         if _send_via_resend_api(to_email, subject, html_body, resend_key):
             return
+        print(f"[Email Service] Resend API failed, trying next method...")
 
+    # Try Brevo API as fallback
     brevo_key = settings.brevo_api_key or os.getenv("BREVO_API_KEY")
     if brevo_key:
+        print(f"[Email Service] Attempting to send via Brevo API to {to_email}...")
         if _send_via_brevo_api(to_email, subject, html_body, brevo_key):
             return
+        print(f"[Email Service] Brevo API failed, trying SMTP fallback...")
 
+    # Fallback to SMTP
     user = settings.smtp_user or "siddhib011@gmail.com"
     password = (settings.smtp_password or "mvvvvumcqluprsvv").replace(" ", "")
     from_email = settings.smtp_from_email or user
@@ -204,5 +210,4 @@ def send_otp_email(to_email: str, code: str) -> None:
         return
     except Exception as ssl_err:
         print(f"[Email Error] Failed to send OTP via IPv4 SMTP to {to_email}: {ssl_err}")
-        print(f"[DEV FALLBACK CODE] Verification code for {to_email} is: {code}")
 

@@ -25,7 +25,6 @@ export default function LoginPage() {
 
   // Forgot password OTP fields
   const [otpCode, setOtpCode] = useState('');
-  const [demoOtpCode, setDemoOtpCode] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -70,11 +69,8 @@ export default function LoginPage() {
     setStep('forgot');
     setIsSendingOtp(true);
     try {
-      const res = await api.sendOTP({ email });
+      await api.sendOTP({ email });
       setIsSendingOtp(false);
-      if (res.code) {
-        setDemoOtpCode(res.code);
-      }
     } catch (err: any) {
       setIsSendingOtp(false);
       setFormError(err.detail || 'Failed to send verification code. Please try again.');
@@ -394,19 +390,6 @@ export default function LoginPage() {
                     />
                   </div>
 
-                  {/* OTP Code Badge Notice */}
-                  <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-[11px] text-blue-900 space-y-1">
-                    <div className="font-semibold flex items-center justify-between">
-                      <span>💡 OTP Code: <strong className="font-mono bg-blue-100 px-1 py-0.5 rounded font-bold text-blue-950">{demoOtpCode || '123456'}</strong></span>
-                      <button
-                        type="button"
-                        onClick={() => setOtpCode(demoOtpCode || '123456')}
-                        className="text-[10.5px] text-[#0972D3] font-bold underline hover:text-[#065399]"
-                      >
-                        Auto-fill code
-                      </button>
-                    </div>
-                  </div>
 
                   {/* Submit Button */}
                   <button

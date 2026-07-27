@@ -29,7 +29,7 @@ def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks, db: Ses
     store_otp(payload.email, code)
     # Trigger non-blocking background task to send email via SMTP
     background_tasks.add_task(send_otp_email, payload.email, code)
-    return {"message": "Verification code sent to email", "email": payload.email, "code": code}
+    return {"message": "Verification code sent to email", "email": payload.email}
 
 
 @router.post("/verify-otp", response_model=AuthResponse)
