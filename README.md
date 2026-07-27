@@ -1,5 +1,14 @@
 # Route53 Clone
 
+![](frontend/public/images/Screenshot%202026-07-27%20124507.png)
+
+![](frontend/public/images/Screenshot%202026-07-27%20124223.png)
+
+![](frontend/public/images/Screenshot%202026-07-27%20124318.png)
+
+![](frontend/public/images/Screenshot%202026-07-27%20124343.png)
+
+
 A full-stack clone of the AWS Route53 management console with user authentication, hosted zone management, and DNS record operations. Built with Next.js, FastAPI, and SQLite for demo purposes.
 
 ## What It Does
@@ -107,6 +116,7 @@ npm run dev
 - **users**: `id`, `email`, `password_hash`, `account_name`, `full_name`, `phone_number`, `country`, `address`, `billing_plan`, `created_at`
 - **hosted_zones**: `id`, `domain_name`, `description`, `type`, `record_count`, `owner_id`, `created_at`, `updated_at`
 - **dns_records**: `id`, `hosted_zone_id`, `name`, `type`, `value`, `ttl`, `priority`, `created_at`, `updated_at`
+
 
 ## Notes
 
