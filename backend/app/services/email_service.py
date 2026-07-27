@@ -21,6 +21,7 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
     start_time = time.time()
     try:
         resend.api_key = api_key.strip()
+        print(f"[Email Service] Resend API key set (length: {len(api_key.strip())})")
         # Use Resend's default verified domain for testing
         # For production, verify your own domain at resend.com/domains
         params = {
@@ -29,8 +30,10 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
             "subject": subject,
             "html": html_body,
         }
+        print(f"[Email Service] Sending email via Resend to {to_email}...")
         result = resend.Emails.send(params)
         elapsed = time.time() - start_time
+        print(f"[Email Service] Resend API response: {result}")
         if result and result.get("id"):
             print(f"[Email Service] Successfully sent OTP email to {to_email} via Resend API! Email ID: {result.get('id')} (took {elapsed:.2f}s)")
             return True
@@ -40,6 +43,8 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
     except Exception as err:
         elapsed = time.time() - start_time
         print(f"[Email Service] Resend API attempt failed after {elapsed:.2f}s: {err}")
+        import traceback
+        print(f"[Email Service] Traceback: {traceback.format_exc()}")
         return False
 
 
@@ -162,11 +167,16 @@ def send_otp_email(to_email: str, code: str) -> None:
 
     # Try Resend API first (recommended)
     resend_key = settings.resend_api_key or os.getenv("RESEND_API_KEY")
+    print(f"[Email Service] Checking Resend API key from settings: {settings.resend_api_key}")
+    print(f"[Email Service] Checking Resend API key from env: {os.getenv('RESEND_API_KEY')}")
+    print(f"[Email Service] Final resend_key: {resend_key[:10] if resend_key else 'None'}...")
     if resend_key:
         print(f"[Email Service] Attempting to send via Resend API to {to_email}...")
         if _send_via_resend_api(to_email, subject, html_body, resend_key):
             return
         print(f"[Email Service] Resend API failed, trying next method...")
+    else:
+        print(f"[Email Service] No Resend API key found in settings or environment variables")
 
     # Try Brevo API as fallback
     brevo_key = settings.brevo_api_key or os.getenv("BREVO_API_KEY")
@@ -177,9 +187,14 @@ def send_otp_email(to_email: str, code: str) -> None:
         print(f"[Email Service] Brevo API failed, trying SMTP fallback...")
 
     # Fallback to SMTP
-    user = settings.smtp_user or "siddhib011@gmail.com"
-    password = (settings.smtp_password or "mvvvvumcqluprsvv").replace(" ", "")
+    user = settings.smtp_user
+    password = settings.smtp_password
     from_email = settings.smtp_from_email or user
+
+    if not user or not password:
+        print(f"[Email Service] No email service configured. OTP code for {to_email}: {code}")
+        print(f"[Email Service] Please set RESEND_API_KEY or BREVO_API_KEY environment variable for production.")
+        return
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
@@ -213,4 +228,5 @@ def send_otp_email(to_email: str, code: str) -> None:
         return
     except Exception as ssl_err:
         print(f"[Email Error] Failed to send OTP via IPv4 SMTP to {to_email}: {ssl_err}")
+        print(f"[Email Service] OTP code for {to_email}: {code}")
 
