@@ -29,8 +29,7 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
             "subject": subject,
             "html": html_body,
         }
-        # Set timeout for Resend API call (5 seconds)
-        result = resend.Emails.send(params, timeout=5)
+        result = resend.Emails.send(params)
         elapsed = time.time() - start_time
         if result and result.get("id"):
             print(f"[Email Service] Successfully sent OTP email to {to_email} via Resend API! Email ID: {result.get('id')} (took {elapsed:.2f}s)")
