@@ -25,7 +25,7 @@ import {
 import AwsLogo from './AwsLogo';
 import FeedbackModal from '../ui/FeedbackModal';
 
-export default function Topbar({ isSidebarOpen = true, onToggleSidebar }: { isSidebarOpen?: boolean; onToggleSidebar?: () => void }) {
+export default function Topbar() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -149,15 +149,6 @@ export default function Topbar({ isSidebarOpen = true, onToggleSidebar }: { isSi
       )}
       {/* LEFT SECTION */}
       <div className="flex items-center space-x-1 sm:space-x-1.5 flex-1 min-w-0">
-        {/* Hamburger Menu Button */}
-        <button
-          onClick={onToggleSidebar}
-          className="p-1 rounded hover:bg-slate-700 transition-colors flex items-center justify-center text-white"
-          title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-        >
-          <Menu className="h-4 w-4" strokeWidth={2.5} />
-        </button>
-
         {/* AWS White Logo */}
         <div
           className="flex items-center cursor-pointer hover:opacity-90 transition-opacity px-1"

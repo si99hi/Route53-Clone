@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { ChevronRight, PanelLeft, Info, Menu } from 'lucide-react';
 
-export default function Breadcrumbs() {
+export default function Breadcrumbs({ isSidebarCollapsed = false, onToggleSidebar }: { isSidebarCollapsed?: boolean; onToggleSidebar?: () => void }) {
   const pathname = usePathname();
 
   // Parse pathname to generate breadcrumb links
@@ -60,6 +60,7 @@ export default function Breadcrumbs() {
       <div className="flex items-center space-x-3">
         {/* Blue Circle Hamburger Icon */}
         <button
+          onClick={onToggleSidebar}
           className="h-7 w-7 rounded-full bg-[#0972D3] hover:bg-[#005293] text-white flex items-center justify-center transition-colors shadow-2xs"
           title="Toggle Navigation Sidebar"
         >

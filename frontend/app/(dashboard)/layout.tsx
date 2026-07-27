@@ -13,7 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const hideSidebar =
     pathname.endsWith('/edit') ||
@@ -21,27 +21,24 @@ export default function DashboardLayout({
     pathname.endsWith('/new') ||
     pathname.endsWith('/create');
 
-  const sidebarWidth = isSidebarOpen ? 240 : 0;
-  const mainPadding = hideSidebar ? 0 : sidebarWidth;
+  const sidebarWidth = hideSidebar ? 0 : (isSidebarCollapsed ? 56 : 240);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-[#0f1419] text-[#16191f] dark:text-[#eaedd5] font-sans antialiased">
       {/* Top Navbar */}
-      <Topbar isSidebarOpen={isSidebarOpen} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <Topbar />
 
       {/* Subheader / Breadcrumb row */}
-      <Breadcrumbs />
+      <Breadcrumbs isSidebarCollapsed={isSidebarCollapsed} onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
 
       <div className="flex flex-1">
         {/* Left Sidebar */}
-        {!hideSidebar && <Sidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />}
+        {!hideSidebar && <Sidebar isCollapsed={isSidebarCollapsed} />}
 
         {/* Scrollable Main Console Canvas */}
         <main
-          className={`flex-1 pt-28 pb-10 min-w-0 bg-white dark:bg-[#0f1419] transition-all duration-200 ${
-            mainPadding > 0 ? `pl-[${mainPadding}px]` : 'pl-0'
-          }`}
-          style={{ paddingLeft: mainPadding }}
+          className="flex-1 pt-28 pb-10 min-w-0 bg-white dark:bg-[#0f1419] transition-all duration-300"
+          style={{ paddingLeft: sidebarWidth }}
         >
           <div className="p-6 max-w-[1600px] mx-auto">{children}</div>
         </main>
