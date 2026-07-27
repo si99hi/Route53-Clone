@@ -122,7 +122,11 @@ export default function Sidebar({ isOpen = true, onToggle }: { isOpen?: boolean;
         <div className="mt-3.5">
           <button
             onClick={() => toggleSection('globalResolver')}
-            className="w-full flex items-center h-[32px] px-4 text-xs font-bold text-[#16191F] dark:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] transition-colors text-left"
+            className={`w-full flex items-center h-[32px] px-4 text-xs font-bold transition-colors text-left ${
+              openSections.globalResolver 
+                ? 'text-[#0972D3] dark:text-[#0972D3]' 
+                : 'text-[#16191F] dark:text-white hover:text-[#539fe5] dark:hover:text-[#539fe5]'
+            }`}
           >
             <TriangleDisclosure isOpen={openSections.globalResolver} />
             <span>Global Resolver</span>
@@ -167,7 +171,11 @@ export default function Sidebar({ isOpen = true, onToggle }: { isOpen?: boolean;
         <div className="mt-3.5">
           <button
             onClick={() => toggleSection('vpcResolver')}
-            className="w-full flex items-center h-[32px] px-4 text-xs font-bold text-[#16191F] dark:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] transition-colors text-left"
+            className={`w-full flex items-center h-[32px] px-4 text-xs font-bold transition-colors text-left ${
+              openSections.vpcResolver 
+                ? 'text-[#0972D3] dark:text-[#0972D3]' 
+                : 'text-[#16191F] dark:text-white hover:text-[#539fe5] dark:hover:text-[#539fe5]'
+            }`}
           >
             <TriangleDisclosure isOpen={openSections.vpcResolver} />
             <span>VPC Resolver</span>
@@ -254,7 +262,11 @@ export default function Sidebar({ isOpen = true, onToggle }: { isOpen?: boolean;
         <div className="mt-3.5">
           <button
             onClick={() => toggleSection('domains')}
-            className="w-full flex items-center h-[32px] px-4 text-xs font-bold text-[#16191F] dark:text-white hover:bg-[#F7F8FA] dark:hover:bg-[#252c37] transition-colors text-left"
+            className={`w-full flex items-center h-[32px] px-4 text-xs font-bold transition-colors text-left ${
+              openSections.domains 
+                ? 'text-[#0972D3] dark:text-[#0972D3]' 
+                : 'text-[#16191F] dark:text-white hover:text-[#539fe5] dark:hover:text-[#539fe5]'
+            }`}
           >
             <TriangleDisclosure isOpen={openSections.domains} />
             <span>Domains</span>

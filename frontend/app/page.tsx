@@ -31,7 +31,7 @@ export default function LandingPage() {
       {/* ------------------------------------------------------------- */}
       {/* 1. TOP NAV BAR (DARK)                                        */}
       {/* ------------------------------------------------------------- */}
-      <header className="bg-[#19222d] text-slate-200 text-xs py-2 px-4 border-b border-slate-700">
+      <header className="bg-[#19222d] text-slate-200 text-xs py-2 px-4 border-b border-slate-700 sticky top-0 z-[40]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <span className="text-slate-400 font-normal cursor-not-allowed select-none">AWS Documentation & Marketing</span>
@@ -71,7 +71,7 @@ export default function LandingPage() {
       {/* ------------------------------------------------------------- */}
       {/* 2. MAIN HEADER BAR                                           */}
       {/* ------------------------------------------------------------- */}
-      <nav className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-50 shadow-sm">
+      <nav className="bg-white border-b border-slate-200 px-4 py-5 sticky top-8 z-[50] shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-6">
             {/* AWS Logo */}

@@ -55,7 +55,7 @@ export default function Breadcrumbs() {
   };
 
   return (
-    <div className="h-10 bg-white dark:bg-[#0f1419] border-b border-[#D5DBDB] dark:border-slate-800 px-4 flex items-center justify-between fixed top-10 left-0 right-0 z-40 select-none text-sm font-sans">
+    <div className="h-12 bg-white dark:bg-[#0f1419] border-b border-[#D5DBDB] dark:border-slate-800 px-4 flex items-center justify-between fixed top-16 left-0 right-0 z-40 select-none text-sm font-sans">
       {/* Left side: Blue menu icon & Breadcrumbs */}
       <div className="flex items-center space-x-3">
         {/* Blue Circle Hamburger Icon */}
@@ -81,7 +81,7 @@ export default function Breadcrumbs() {
               <React.Fragment key={url}>
                 <ChevronRight className="h-4 w-4 text-[#687078] dark:text-slate-400" strokeWidth={1.5} />
                 {isLast ? (
-                  <span className="text-[#16191F] dark:text-slate-200 font-semibold truncate max-w-[280px]">
+                  <span className="text-[#16191F] dark:text-slate-200 font-semibold truncate max-w-[400px]">
                     {name}
                   </span>
                 ) : (

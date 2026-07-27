@@ -38,7 +38,7 @@ export default function DashboardLayout({
 
         {/* Scrollable Main Console Canvas */}
         <main
-          className={`flex-1 pt-20 pb-10 min-w-0 bg-white dark:bg-[#0f1419] transition-all duration-200 ${
+          className={`flex-1 pt-28 pb-10 min-w-0 bg-white dark:bg-[#0f1419] transition-all duration-200 ${
             mainPadding > 0 ? `pl-[${mainPadding}px]` : 'pl-0'
           }`}
           style={{ paddingLeft: mainPadding }}

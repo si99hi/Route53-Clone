@@ -131,7 +131,7 @@ export default function Topbar({ isSidebarOpen = true, onToggleSidebar }: { isSi
   const accountId = '1034-1531-9055';
 
   return (
-    <header className="h-14 bg-[#16191F] text-white flex items-center justify-between px-3 fixed top-0 left-0 right-0 z-50 select-none text-xs font-sans border-b border-slate-800">
+    <header className="h-16 bg-[#16191F] text-white flex items-center justify-between px-3 fixed top-0 left-0 right-0 z-50 select-none text-xs font-sans border-b border-slate-800">
       {/* Toast Notification for Coming Soon features */}
       {comingSoonToast && (
         <div className="fixed top-12 right-4 z-50 bg-[#16191F] border border-[#0972D3] text-white px-4 py-2.5 rounded-md shadow-2xl flex items-center space-x-3 text-xs animate-in fade-in slide-in-from-top-2">
