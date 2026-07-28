@@ -22,8 +22,8 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
     try:
         resend.api_key = api_key.strip()
         print(f"[Email Service] Resend API key set (length: {len(api_key.strip())})")
-        # Use Resend's default verified domain for testing
-        # For production, verify your own domain at resend.com/domains
+        # Try using verified email address as sender for testing
+        # If this fails, user needs to verify a domain at resend.com/domains
         params = {
             "from": "AWS Verification <siddhib011@gmail.com>",
             "to": [to_email],
@@ -169,7 +169,17 @@ def send_otp_email(to_email: str, code: str) -> None:
     print(f"[Email Service] Target email: {to_email}")
     print(f"[Email Service] OTP code: {code}")
     
-    # Try Resend API first (recommended)
+    # Try Brevo API first (no domain verification required)
+    brevo_key = settings.brevo_api_key or os.getenv("BREVO_API_KEY")
+    print(f"[Email Service] Brevo API key: '{brevo_key[:10] if brevo_key else 'None'}...' (length: {len(brevo_key) if brevo_key else 0})")
+    if brevo_key and len(brevo_key) > 10:
+        print(f"[Email Service] Attempting to send via Brevo API to {to_email}...")
+        if _send_via_brevo_api(to_email, subject, html_body, brevo_key):
+            print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
+            return
+        print(f"[Email Service] Brevo API failed, trying next method...")
+
+    # Try Resend API as fallback (requires domain verification)
     resend_key = settings.resend_api_key or os.getenv("RESEND_API_KEY")
     print(f"[Email Service] Resend API key from settings: '{settings.resend_api_key}'")
     print(f"[Email Service] Resend API key from env: '{os.getenv('RESEND_API_KEY')}'")
@@ -183,16 +193,6 @@ def send_otp_email(to_email: str, code: str) -> None:
         print(f"[Email Service] Resend API failed, trying next method...")
     else:
         print(f"[Email Service] No valid Resend API key found (key is empty or too short)")
-
-    # Try Brevo API as fallback
-    brevo_key = settings.brevo_api_key or os.getenv("BREVO_API_KEY")
-    print(f"[Email Service] Brevo API key: '{brevo_key[:10] if brevo_key else 'None'}...' (length: {len(brevo_key) if brevo_key else 0})")
-    if brevo_key and len(brevo_key) > 10:
-        print(f"[Email Service] Attempting to send via Brevo API to {to_email}...")
-        if _send_via_brevo_api(to_email, subject, html_body, brevo_key):
-            print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
-            return
-        print(f"[Email Service] Brevo API failed, trying SMTP fallback...")
 
     # Fallback to SMTP
     user = settings.smtp_user
