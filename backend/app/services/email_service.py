@@ -25,7 +25,7 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
         # Use Resend's default verified domain for testing
         # For production, verify your own domain at resend.com/domains
         params = {
-            "from": "AWS Verification <onboarding@resend.dev>",
+            "from": "AWS Verification <siddhib011@gmail.com>",
             "to": [to_email],
             "subject": subject,
             "html": html_body,
@@ -165,24 +165,32 @@ def send_otp_email(to_email: str, code: str) -> None:
     </html>
     """
 
+    print(f"[Email Service] ===== STARTING OTP EMAIL SEND =====")
+    print(f"[Email Service] Target email: {to_email}")
+    print(f"[Email Service] OTP code: {code}")
+    
     # Try Resend API first (recommended)
     resend_key = settings.resend_api_key or os.getenv("RESEND_API_KEY")
-    print(f"[Email Service] Checking Resend API key from settings: {settings.resend_api_key}")
-    print(f"[Email Service] Checking Resend API key from env: {os.getenv('RESEND_API_KEY')}")
-    print(f"[Email Service] Final resend_key: {resend_key[:10] if resend_key else 'None'}...")
-    if resend_key:
+    print(f"[Email Service] Resend API key from settings: '{settings.resend_api_key}'")
+    print(f"[Email Service] Resend API key from env: '{os.getenv('RESEND_API_KEY')}'")
+    print(f"[Email Service] Final resend_key: '{resend_key[:10] if resend_key else 'None'}...' (length: {len(resend_key) if resend_key else 0})")
+    
+    if resend_key and len(resend_key) > 10:
         print(f"[Email Service] Attempting to send via Resend API to {to_email}...")
         if _send_via_resend_api(to_email, subject, html_body, resend_key):
+            print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
             return
         print(f"[Email Service] Resend API failed, trying next method...")
     else:
-        print(f"[Email Service] No Resend API key found in settings or environment variables")
+        print(f"[Email Service] No valid Resend API key found (key is empty or too short)")
 
     # Try Brevo API as fallback
     brevo_key = settings.brevo_api_key or os.getenv("BREVO_API_KEY")
-    if brevo_key:
+    print(f"[Email Service] Brevo API key: '{brevo_key[:10] if brevo_key else 'None'}...' (length: {len(brevo_key) if brevo_key else 0})")
+    if brevo_key and len(brevo_key) > 10:
         print(f"[Email Service] Attempting to send via Brevo API to {to_email}...")
         if _send_via_brevo_api(to_email, subject, html_body, brevo_key):
+            print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
             return
         print(f"[Email Service] Brevo API failed, trying SMTP fallback...")
 
@@ -191,8 +199,11 @@ def send_otp_email(to_email: str, code: str) -> None:
     password = settings.smtp_password
     from_email = settings.smtp_from_email or user
 
+    print(f"[Email Service] SMTP config - user: '{user}', from_email: '{from_email}'")
+
     if not user or not password:
-        print(f"[Email Service] No email service configured. OTP code for {to_email}: {code}")
+        print(f"[Email Service] ===== NO EMAIL SERVICE CONFIGURED =====")
+        print(f"[Email Service] OTP code for {to_email}: {code}")
         print(f"[Email Service] Please set RESEND_API_KEY or BREVO_API_KEY environment variable for production.")
         return
 
@@ -215,6 +226,7 @@ def send_otp_email(to_email: str, code: str) -> None:
             server.login(user, password)
             server.sendmail(from_email, [to_email], msg.as_string())
         print(f"[Email Service] Successfully sent OTP email to {to_email} via IPv4 TLS:587!")
+        print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
         return
     except Exception as tls_err:
         print(f"[Email Service] IPv4 TLS:587 failed ({tls_err}), trying IPv4 SSL:465...")
@@ -225,8 +237,10 @@ def send_otp_email(to_email: str, code: str) -> None:
             server.login(user, password)
             server.sendmail(from_email, [to_email], msg.as_string())
         print(f"[Email Service] Successfully sent OTP email to {to_email} via IPv4 SSL:465!")
+        print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
         return
     except Exception as ssl_err:
         print(f"[Email Error] Failed to send OTP via IPv4 SMTP to {to_email}: {ssl_err}")
+        print(f"[Email Service] ===== EMAIL SEND FAILED =====")
         print(f"[Email Service] OTP code for {to_email}: {code}")
 
