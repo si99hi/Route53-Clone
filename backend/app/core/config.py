@@ -7,7 +7,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        env_ignore_empty=True,
         extra="ignore",
         case_sensitive=False
     )
@@ -36,8 +35,8 @@ class Settings(BaseSettings):
     smtp_from_email: str = ""
 
     # HTTPS Email APIs (bypasses outbound SMTP port block on cloud hosts like Render)
-    resend_api_key: str | None = None
-    brevo_api_key: str | None = None
+    resend_api_key: str = ""
+    brevo_api_key: str = ""
 
 
 settings = Settings()
