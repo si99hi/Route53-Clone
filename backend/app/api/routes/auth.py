@@ -29,7 +29,14 @@ def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks, db: Ses
     store_otp(payload.email, code)
     # Trigger non-blocking background task to send email via SMTP
     background_tasks.add_task(send_otp_email, payload.email, code)
-    return {"message": "Verification code sent to email", "email": payload.email}
+    
+    # Return OTP in response for fallback if email fails (development/testing)
+    # In production, this should be removed or secured
+    return {
+        "message": "Verification code sent to email",
+        "email": payload.email,
+        "otp_code": code  # Fallback: include OTP in response for testing
+    }
 
 
 @router.post("/verify-otp", response_model=AuthResponse)

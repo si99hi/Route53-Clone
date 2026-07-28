@@ -18,6 +18,7 @@ export default function RegisterPage() {
 
   // Step 2 fields
   const [code, setCode] = useState('');
+  const [fallbackOTP, setFallbackOTP] = useState<string | null>(null);
 
   // Step 3 fields
   const [password, setPassword] = useState('');
@@ -125,10 +126,14 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await api.sendOTP({ email, account_name: accountName, is_signup: true });
+      const response = await api.sendOTP({ email, account_name: accountName, is_signup: true });
       setIsSubmitting(false);
       setStep(2);
       setResendTimer(300); // Reset to 5:00
+      // Store fallback OTP if provided in response
+      if (response.otp_code) {
+        setFallbackOTP(response.otp_code);
+      }
     } catch (err: any) {
       setIsSubmitting(false);
       setErrorMsg(err.detail || 'Failed to send verification email. Please check your credentials.');
@@ -141,9 +146,13 @@ export default function RegisterPage() {
     setErrorMsg(null);
     setIsSubmitting(true);
     try {
-      await api.sendOTP({ email, account_name: accountName, is_signup: true });
+      const response = await api.sendOTP({ email, account_name: accountName, is_signup: true });
       setIsSubmitting(false);
       setResendTimer(300);
+      // Update fallback OTP if provided
+      if (response.otp_code) {
+        setFallbackOTP(response.otp_code);
+      }
     } catch (err: any) {
       setIsSubmitting(false);
       setErrorMsg(err.detail || 'Failed to resend verification email.');
@@ -537,6 +546,22 @@ export default function RegisterPage() {
                 <p className="font-bold text-slate-800 mb-1">Didn't get the code?</p>
                 <p>• Check your spam/junk folder.</p>
                 <p>• Make sure you entered the correct email address.</p>
+                {fallbackOTP && (
+                  <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <p className="font-semibold text-slate-800 mb-1">Development fallback:</p>
+                    <p className="text-slate-600 mb-2">If email delivery is not working, use this code:</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCode(fallbackOTP);
+                        setFallbackOTP(null);
+                      }}
+                      className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold py-1 px-3 rounded text-sm"
+                    >
+                      Use code: {fallbackOTP}
+                    </button>
+                  </div>
+                )}
               </div>
             </form>
           )}

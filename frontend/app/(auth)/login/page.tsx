@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [newPassword, setNewPassword] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [fallbackOTP, setFallbackOTP] = useState<string | null>(null);
 
   const loginMutation = useMutation({
     mutationFn: api.login,
@@ -69,8 +70,12 @@ export default function LoginPage() {
     setStep('forgot');
     setIsSendingOtp(true);
     try {
-      await api.sendOTP({ email });
+      const response = await api.sendOTP({ email });
       setIsSendingOtp(false);
+      // Store fallback OTP if provided
+      if (response.otp_code) {
+        setFallbackOTP(response.otp_code);
+      }
     } catch (err: any) {
       setIsSendingOtp(false);
       setFormError(err.detail || 'Failed to send verification code. Please try again.');
@@ -428,6 +433,23 @@ export default function LoginPage() {
                       ← Back to password
                     </button>
                   </div>
+
+                  {fallbackOTP && (
+                    <div className="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded">
+                      <p className="text-[10px] font-semibold text-slate-800 mb-1">Development fallback:</p>
+                      <p className="text-[10px] text-slate-600 mb-1">If email delivery is not working, use this code:</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtpCode(fallbackOTP);
+                          setFallbackOTP(null);
+                        }}
+                        className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold py-1 px-2 rounded text-[10px]"
+                      >
+                        Use code: {fallbackOTP}
+                      </button>
+                    </div>
+                  )}
                 </form>
               )}
             </div>
