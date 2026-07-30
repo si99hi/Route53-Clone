@@ -31,7 +31,6 @@ def send_otp(payload: SendOTPRequest, background_tasks: BackgroundTasks, db: Ses
     background_tasks.add_task(send_otp_email, payload.email, code)
     
     # Return OTP in response for fallback if email fails (development/testing)
-    # In production, this should be removed or secured
     return {
         "message": "Verification code sent to email",
         "email": payload.email,

@@ -127,7 +127,7 @@ export default function Topbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const accountName = user?.email ? user.email.split('@')[0] : 'wevilo';
+  const accountName = user?.email ? user.email.split('@')[0] : '';
   const accountId = '1034-1531-9055';
 
   return (

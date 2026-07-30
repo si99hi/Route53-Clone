@@ -1,12 +1,6 @@
-import json
 import os
 import random
-import smtplib
-import socket
 import time
-import urllib.request
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from typing import Optional
 
 import resend
@@ -17,7 +11,6 @@ _otp_store: dict[str, dict] = {}
 
 
 def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: str) -> bool:
-    """Send email using Resend SDK (HTTPS port 443, never blocked by cloud hosts)."""
     start_time = time.time()
     try:
         resend.api_key = api_key.strip()
@@ -46,58 +39,6 @@ def _send_via_resend_api(to_email: str, subject: str, html_body: str, api_key: s
         import traceback
         print(f"[Email Service] Traceback: {traceback.format_exc()}")
         return False
-
-
-def _send_via_brevo_api(to_email: str, subject: str, html_body: str, api_key: str) -> bool:
-    """Send email using Brevo (Sendinblue) REST API (HTTPS port 443)."""
-    try:
-        url = "https://api.brevo.com/v3/smtp/email"
-        headers = {
-            "api-key": api_key.strip(),
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-        payload = {
-            "sender": {"name": "Amazon Web Services", "email": settings.smtp_from_email or "no-reply@route53clone.dev"},
-            "to": [{"email": to_email}],
-            "subject": subject,
-            "htmlContent": html_body,
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers=headers,
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            if resp.status in (200, 201):
-                print(f"[Email Service] Successfully sent OTP email to {to_email} via Brevo HTTPS API!")
-                return True
-    except Exception as err:
-        print(f"[Email Service] Brevo HTTPS API attempt failed: {err}")
-    return False
-
-
-class IPv4SMTP(smtplib.SMTP):
-    """SMTP client that forces IPv4 socket connection (AF_INET) to prevent IPv6 unreachable errors on Linux containers."""
-
-    def _get_socket(self, host, port, timeout):
-        # Create socket with AF_INET family to force IPv4
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(timeout)
-        sock.connect((host, port))
-        return sock
-
-
-class IPv4SMTP_SSL(smtplib.SMTP_SSL):
-    """SMTP_SSL client that forces IPv4 socket connection (AF_INET)."""
-
-    def _get_socket(self, host, port, timeout):
-        # Create socket with AF_INET family to force IPv4
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(timeout)
-        sock.connect((host, port))
-        return self.context.wrap_socket(sock, server_hostname=self._host)
 
 
 def generate_otp() -> str:
@@ -131,7 +72,7 @@ def verify_otp_code(email: str, code: str) -> bool:
 
 
 def send_otp_email(to_email: str, code: str) -> None:
-    """Send OTP email via Resend API (preferred), Brevo API, or fallback to SMTP."""
+    """Send OTP email via Resend API."""
     subject = f"{code} is your AWS verification code"
 
     html_body = f"""
@@ -168,79 +109,20 @@ def send_otp_email(to_email: str, code: str) -> None:
     print(f"[Email Service] ===== STARTING OTP EMAIL SEND =====")
     print(f"[Email Service] Target email: {to_email}")
     print(f"[Email Service] OTP code: {code}")
-    
-    # Try Brevo API first (no domain verification required)
-    brevo_key = settings.brevo_api_key or os.getenv("BREVO_API_KEY")
-    print(f"[Email Service] Brevo API key: '{brevo_key[:10] if brevo_key else 'None'}...' (length: {len(brevo_key) if brevo_key else 0})")
-    if brevo_key and len(brevo_key) > 10:
-        print(f"[Email Service] Attempting to send via Brevo API to {to_email}...")
-        if _send_via_brevo_api(to_email, subject, html_body, brevo_key):
-            print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
-            return
-        print(f"[Email Service] Brevo API failed, trying next method...")
 
-    # Try Resend API as fallback (requires domain verification)
+    # Try Resend API
     resend_key = settings.resend_api_key or os.getenv("RESEND_API_KEY")
     print(f"[Email Service] Resend API key from settings: '{settings.resend_api_key}'")
     print(f"[Email Service] Resend API key from env: '{os.getenv('RESEND_API_KEY')}'")
     print(f"[Email Service] Final resend_key: '{resend_key[:10] if resend_key else 'None'}...' (length: {len(resend_key) if resend_key else 0})")
-    
+
     if resend_key and len(resend_key) > 10:
         print(f"[Email Service] Attempting to send via Resend API to {to_email}...")
         if _send_via_resend_api(to_email, subject, html_body, resend_key):
             print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
             return
-        print(f"[Email Service] Resend API failed, trying next method...")
+        print(f"[Email Service] Resend API failed.")
     else:
         print(f"[Email Service] No valid Resend API key found (key is empty or too short)")
-
-    # Fallback to SMTP
-    user = settings.smtp_user
-    password = settings.smtp_password
-    from_email = settings.smtp_from_email or user
-
-    print(f"[Email Service] SMTP config - user: '{user}', from_email: '{from_email}'")
-
-    if not user or not password:
-        print(f"[Email Service] ===== NO EMAIL SERVICE CONFIGURED =====")
-        print(f"[Email Service] OTP code for {to_email}: {code}")
-        print(f"[Email Service] Please set RESEND_API_KEY or BREVO_API_KEY environment variable for production.")
-        return
-
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = from_email
-    msg["To"] = to_email
-    msg.attach(MIMEText(html_body, "html"))
-
-    smtp_host = settings.smtp_host or "smtp.gmail.com"
-
-    print(f"[Email Service] Attempting IPv4 SMTP connection to {smtp_host} for {to_email}...")
-
-    # Method 1: Try IPv4 TLS on Port 587
-    try:
-        with IPv4SMTP(smtp_host, 587, timeout=10) as server:
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(user, password)
-            server.sendmail(from_email, [to_email], msg.as_string())
-        print(f"[Email Service] Successfully sent OTP email to {to_email} via IPv4 TLS:587!")
-        print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
-        return
-    except Exception as tls_err:
-        print(f"[Email Service] IPv4 TLS:587 failed ({tls_err}), trying IPv4 SSL:465...")
-
-    # Method 2: Try IPv4 SSL on Port 465
-    try:
-        with IPv4SMTP_SSL(smtp_host, 465, timeout=10) as server:
-            server.login(user, password)
-            server.sendmail(from_email, [to_email], msg.as_string())
-        print(f"[Email Service] Successfully sent OTP email to {to_email} via IPv4 SSL:465!")
-        print(f"[Email Service] ===== OTP EMAIL SENT SUCCESSFULLY =====")
-        return
-    except Exception as ssl_err:
-        print(f"[Email Error] Failed to send OTP via IPv4 SMTP to {to_email}: {ssl_err}")
-        print(f"[Email Service] ===== EMAIL SEND FAILED =====")
         print(f"[Email Service] OTP code for {to_email}: {code}")
 
