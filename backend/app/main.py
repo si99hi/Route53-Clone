@@ -8,32 +8,7 @@ from app.core.database import Base, engine
 # Ensures models are registered on Base.metadata before create_all
 import app.models  # noqa: F401
 
-from sqlalchemy import text
-
 Base.metadata.create_all(bind=engine)
-
-# Auto-migrate SQLite schema for tags column if missing
-with engine.connect() as conn:
-    try:
-        conn.execute(text("ALTER TABLE hosted_zones ADD COLUMN tags VARCHAR(2000) DEFAULT '[]'"))
-        conn.commit()
-    except Exception:
-        pass
-    try:
-        conn.execute(text("ALTER TABLE dns_records ADD COLUMN alias BOOLEAN DEFAULT 0 NOT NULL"))
-        conn.commit()
-    except Exception:
-        pass
-    try:
-        conn.execute(
-            text(
-                "ALTER TABLE dns_records ADD COLUMN routing_policy VARCHAR(64) "
-                "DEFAULT 'Simple routing' NOT NULL"
-            )
-        )
-        conn.commit()
-    except Exception:
-        pass
 
 app = FastAPI(title=settings.app_name)
 

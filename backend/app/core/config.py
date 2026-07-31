@@ -27,16 +27,8 @@ class Settings(BaseSettings):
     # CORS
     frontend_origin: str = "http://localhost:3000"
 
-    # SMTP / Email for OTP
-    smtp_host: str = ""
-    smtp_port: int = 587
-    smtp_user: str = ""
-    smtp_password: str = ""
-    smtp_from_email: str = ""
-
     # HTTPS Email APIs (bypasses outbound SMTP port block on cloud hosts like Render)
     resend_api_key: str = ""
-    brevo_api_key: str = ""
 
 
 settings = Settings()
